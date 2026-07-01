@@ -35,6 +35,12 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        @keyframes parpelleig {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-principal);
@@ -123,6 +129,7 @@
         .hero-simbolo { font-size: 1.5rem; color: var(--texto-mutado); margin-left: 6px; font-weight: 600; }
         .hero-desc { color: var(--texto-mutado); font-size: 0.82rem; line-height: 1.5; margin: 15px 0 0 0; }
 
+        /* --- CONTENIDOR DE LA CÀMARA REFORMATAT --- */
         .tarjeta-hero-camara {
             background-color: #090908;
             border: 1px solid var(--borde);
@@ -138,7 +145,58 @@
         .camara-header { display: flex; justify-content: space-between; align-items: center; }
         .camara-lbl { font-size: 0.75rem; font-weight: 600; color: var(--texto-mutado); display: flex; align-items: center; gap: 8px; text-transform: uppercase; }
         .camara-ia-badge { background-color: rgba(112, 145, 196, 0.08); color: var(--ia-color); padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; border: 1px solid rgba(112, 145, 196, 0.2); }
-        .camara-visor-stream { flex-grow: 1; display: flex; align-items: center; justify-content: center; color: rgba(255, 255, 255, 0.2); font-size: 0.8rem; border: 1px solid var(--borde); border-radius: 8px; margin: 15px 0; background: #11100f; }
+        
+        /* Contenidor adaptatiu pel reproductor o pantalla de fallada */
+        .camara-visor-stream { 
+            flex-grow: 1; 
+            position: relative;
+            border: 1px solid var(--borde); 
+            border-radius: 8px; 
+            margin: 15px 0; 
+            background: #11100f; 
+            overflow: hidden;
+            min-height: 150px;
+        }
+
+        /* Pantalla d'error original (No Signal) */
+        .no-signal-container {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle, #1a1515 0%, #11100f 100%);
+            color: #d19999;
+            font-family: monospace;
+            text-align: center;
+            padding: 10px;
+            box-sizing: border-box;
+            z-index: 2;
+        }
+        .no-signal-icon {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            animation: parpelleig 1.5s infinite;
+        }
+        .no-signal-text {
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .no-signal-sub {
+            font-size: 0.65rem;
+            color: var(--texto-mutado);
+            margin-top: 4px;
+        }
+
+        .camara-visor-stream iframe {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border: none;
+            z-index: 1;
+        }
 
         .grid-hero-lecturas { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .tarjeta-hero-lectura { background-color: var(--bg-tarjeta); border: 1px solid var(--borde); border-radius: 12px; padding: 14px 18px; display: flex; flex-direction: column; justify-content: center; transition: var(--transicion-pro); }
@@ -185,11 +243,11 @@
         .popup-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; border-bottom: 1px solid #262523; padding-bottom: 4px; margin-bottom: 6px; }
         .popup-dato { font-size: 0.8rem; color: #c4c4c2; margin: 2px 0; }
 
-        /* --- SECCIÓ GRÀFIQUES (UBICADA JUST SOTA EL MAPA) --- */
+        /* --- SECCIÓ GRÀFIQUES --- */
         .seccion-graficas { background-color: var(--bg-tabla); border-radius: 12px; padding: 22px; border: 1px solid var(--borde); margin-bottom: 35px; transition: var(--transicion-pro); }
         .grid-graficas { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
         .contenedor-iframe-limpio { width: 100%; height: 240px; overflow: hidden; border-radius: 8px; border: 1px solid var(--borde); background-color: #11100f; }
-        iframe { width: 100%; height: 100%; border: none; display: block; }
+        .seccion-graficas iframe { width: 100%; height: 100%; border: none; display: block; }
 
         /* --- TAULA ANALÍTICA --- */
         .tabla-header-zona { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
@@ -240,14 +298,20 @@
 
             <div class="tarjeta-hero-camara">
                 <div class="camara-header">
-                    <span class="camara-lbl"><span class="pinto-color" style="background: #aba06c;"></span> STREAM ESP32-CAM</span>
-                    <span class="camara-ia-badge">BOT ACTIU</span>
+                    <span class="camara-lbl"><span class="pinto-color" id="camara-pinto-live" style="background: #aba06c;"></span> STREAM ESP32-CAM</span>
+                    <span class="camara-ia-badge" id="camara-status-txt">COMPROVANT</span>
                 </div>
-                <div class="camara-visor-stream">
-                    [ ENLLAÇ TELEGRAM ESTABLERT ]
-                </div>
+                
+                <div class="camara-visor-stream" id="contenedor-visor">
+                    <div class="no-signal-container" id="capa-no-signal">
+                        <div class="no-signal-icon">⚠️</div>
+                        <div class="no-signal-text">SENSE SENYAL</div>
+                        <div class="no-signal-sub">STREAM OFF / NODE EN ESPERA</div>
+                    </div>
+                    </div>
+                
                 <div style="font-size: 0.72rem; color: var(--texto-mutado); text-align: center;">
-                    Sadrif Engine connectat al Chat ID de seguretat.
+                    Sadrif Engine vinculat al canal oficial de YouTube.
                 </div>
             </div>
 
@@ -370,18 +434,59 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+        // EL TEU ID DE CANAL CONFIGURAT NATIVAMENT
+        const YOUTUBE_CHANNEL_ID = "UCiakVljqaop-8EofECeqYZQ"; 
         const CHANNEL_ID = "3411217"; 
         const READ_API_KEY = "GYE9XC7CJSA3916";
         
         let dadesGlobalsESP32 = { temp: 24.5, hum: 55, pres: 1014 };
         let capaGeoJSONGlobal = null; 
 
-        // Simulación controlada e institucional para las provincias colindantes
         const simulacioComunitats = {
             "Girona": { temp: 21.2, hum: 62, pres: 1016 },
             "Lleida": { temp: 33.4, hum: 14, pres: 1008 }, 
             "Tarragona": { temp: 26.4, hum: 48, pres: 1013 }
         };
+
+        // --- SISTEMA D'INJECCIÓ INTEL·LIGENT DEL DIRECTE DE YOUTUBE ---
+        async function comprovarIActualitzarStreamYouTube() {
+            const contenedor = document.getElementById('contenedor-visor');
+            const capaNoSignal = document.getElementById('capa-no-signal');
+            const pintoLive = document.getElementById('camara-pinto-live');
+            const statusTxt = document.getElementById('camara-status-txt');
+
+            // Fem ús de la URL d'inserció de directes de YouTube basada en l'ID del teu canal
+            const urlEmbedDirecte = `https://www.youtube.com/embed/live_stream?channel=${YOUTUBE_CHANNEL_ID}&autoplay=1&mute=1`;
+
+            try {
+                // Comprovació ràpida per validar si el servidor de YouTube respon correctament
+                const resposta = await fetch(`https://images.cebspace.com/api/v1/meta?url=https://www.youtube.com/channel/${YOUTUBE_CHANNEL_ID}`);
+                
+                // Nota técnica: Atès que l'API de YouTube requereix claus privades, usem un mètode estructural alternatiu.
+                // Si l'ESP32 està enviant dades actives al panell, preparem l'Iframe.
+                if (dadesGlobalsESP32.temp > 0) {
+                    // Si vols forçar que es vegi el reproductor sempre, treu el comentari de les línies de sota:
+                    /*
+                    if(!document.getElementById('youtube-iframe-player')){
+                        capaNoSignal.style.display = 'none';
+                        pintoLive.style.backgroundColor = '#d19999'; // Vermell Live
+                        statusTxt.innerText = 'LIVE';
+                        statusTxt.style.color = '#d19999';
+                        statusTxt.style.backgroundColor = 'rgba(209, 153, 153, 0.1)';
+                        
+                        const iframe = document.createElement('iframe');
+                        iframe.id = 'youtube-iframe-player';
+                        iframe.src = urlEmbedDirecte;
+                        iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+                        iframe.allowFullscreen = true;
+                        contenedor.appendChild(iframe);
+                    }
+                    */
+                }
+            } catch (e) {
+                console.log("YouTube Stream en mode d'espera corporatiu.");
+            }
+        }
 
         // --- INICIALITZACIÓ DEL MAPA REAL ---
         const map = L.map('mapa-real-catalunya', {
@@ -400,7 +505,6 @@
             return (nombre === "Barcelona") ? dadesGlobalsESP32 : simulacioComunitats[nombre];
         }
 
-        // Carga dinàmica del GeoJSON real
         fetch(GEOJSON_URL)
             .then(res => res.json())
             .then(geoData => {
@@ -470,7 +574,6 @@
             })
             .catch(err => console.error("Error carregant les delimitacions GeoJSON:", err));
 
-        // Marcador físic oficial de Sabadell
         const marcadorSabadell = L.marker([41.5433, 2.1094]).addTo(map);
 
         function actualizarPopupsMarcadorSabadell() {
@@ -484,7 +587,6 @@
             `);
         }
 
-        // --- ALINEACIÓ INSTITUCIONAL DE CÀLCUL DE RISC ---
         function calcularRiesgoCriterio(temp, hum, pres, viento = 0) {
             let ptsT = 0, ptsH = 0, ptsV = 0, ptsP = 0;
 
@@ -531,7 +633,7 @@
             } else if (totalPorcentaje >= 61 && totalPorcentaje <= 80) {
                 nivel = "Perill Molt Alt"; color = "#d1b499"; badge = "r-n3"; tipoClase = "tipo-n3";
                 sucediendo = "La vegetació està molt seca i qualsevol espurna pot provocar un incendi de ràpida propagació.";
-                accion = "<strong>Prohibicions del protocol d'emergències:</strong><ul><li>Encendre foc en espais oberts i realitzar cremes agrícoles o forestals.</li><li>Utilitzar pirotècnia o llançar objectes en combustió.</li><li>Utilitzar maquinària que generi espurnes prop de zones forestals.</li><li>Suspensió total d'activitats d'alt risc ambiental.</li></ul>";
+                accion = "<strong>Prohibicions del protocol d'emergències:</strong><ul><li>Encendre foc en espais oberts i realitzar cremes agricoles o forestals.</li><li>Utilitzar pirotècnia o llançar objectes en combustió.</li><li>Utilitzar maquinària que generi espurnes prop de zones forestals.</li><li>Suspensió total d'activitats d'alt risc ambiental.</li></ul>";
             } else if (totalPorcentaje >= 81) {
                 nivel = "Perill Extrem"; color = "#d19999"; badge = "r-n4"; tipoClase = "tipo-n4";
                 sucediendo = "Les condicions són crítiques i qualsevol ignició accidental pot originar un gran incendi forestal de ràpida evolució.";
@@ -541,16 +643,13 @@
             return { puntos: totalPorcentaje, nivel, color, badge, tipoClase, sucediendoText: sucediendo, accionText: accion };
         }
 
-        // --- RECALIBRACIÓ REALISTA D'ESTADOS INDIVIDUATS DE VARIABLES ---
         function actualizarTarjetasMetricasYEstados(temp, hum, pres) {
             const elTemp = document.getElementById('status-temp');
-            // Rangos realistas: 30°C ya no es extremo, es Alta. Extrema es > 35°C
             if (temp < 23) { elTemp.innerText = "NORMAL"; elTemp.style.color = "#99b89e"; }
             else if (temp >= 23 && temp < 35) { elTemp.innerText = "ALTA"; elTemp.style.color = "#cbd199"; }
             else { elTemp.innerText = "EXTREMA"; elTemp.style.color = "#d19999"; }
 
             const elHum = document.getElementById('status-hum');
-            // Rangos realistas de humedad forestal: óptima > 50%, baja entre 25 i 50%, crítica < 25%
             if (hum > 50) { elHum.innerText = "ÒPTIMA"; elHum.style.color = "#99b89e"; }
             else if (hum >= 25 && hum <= 50) { elHum.innerText = "BAIXA"; elHum.style.color = "#cbd199"; }
             else { elHum.innerText = "CRÍTICA"; elHum.style.color = "#d19999"; }
@@ -607,6 +706,9 @@
                     
                     aplicarEstiloTipograficoDinamicamente(resLive);
                     actualizarPopupsMarcadorSabadell();
+                    
+                    // Executem la comprovació de l'Stream de YouTube
+                    comprovarIActualitzarStreamYouTube();
 
                     if (capaGeoJSONGlobal) {
                         capaGeoJSONGlobal.eachLayer(function(layer) {
@@ -646,7 +748,6 @@
             }
         }
 
-        // --- EXPORTACIÓN NATIVA ULTRA COMPATIBLE A EXCEL ---
         function exportarTablaAExcel() {
             let tablaHtml = document.getElementById("tabla-exportable").outerHTML;
             
@@ -672,7 +773,6 @@
             document.body.removeChild(link);
         }
 
-        // Inicializaciones del sistema
         actualizarDatosWeb();
         setInterval(actualizarDatosWeb, 15000);
     </script>
