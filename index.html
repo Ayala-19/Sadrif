@@ -82,11 +82,12 @@
             transition: var(--transicion-pro);
         }
 
-        .panel-superior {
+        /* NOU LAYOUT SUPERIOR EN PARAL·LEL (2 Columnes) */
+        .panel-superior-datos {
             display: grid;
-            grid-template-columns: 1.1fr 1.3fr 1fr;
+            grid-template-columns: 1fr 1.1fr;
             gap: 20px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .tarjeta-hero-riesgo {
@@ -129,33 +130,37 @@
         .hero-simbolo { font-size: 1.5rem; color: var(--texto-mutado); margin-left: 6px; font-weight: 600; }
         .hero-desc { color: var(--texto-mutado); font-size: 0.82rem; line-height: 1.5; margin: 15px 0 0 0; }
 
-        /* --- CONTENIDOR DE LA CÀMARA REFORMATAT --- */
+        /* NOVA SECCIÓ PEL STREAM DE TWITCH COMPLETA A BAIX */
+        .seccion-stream-grande {
+            margin-bottom: 25px;
+        }
+
         .tarjeta-hero-camara {
             background-color: #090908;
             border: 1px solid var(--borde);
             border-radius: 12px;
-            padding: 20px;
+            padding: 24px;
             display: flex;
             flex-direction: column;
             position: relative;
-            min-height: 220px;
-            justify-content: space-between;
             transition: var(--transicion-pro);
         }
         .camara-header { display: flex; justify-content: space-between; align-items: center; }
-        .camara-lbl { font-size: 0.75rem; font-weight: 600; color: var(--texto-mutado); display: flex; align-items: center; gap: 8px; text-transform: uppercase; }
-        .camara-ia-badge { background-color: rgba(145, 70, 255, 0.08); color: #9146FF; padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; border: 1px solid rgba(145, 70, 255, 0.2); }
+        .camara-lbl { font-size: 0.78rem; font-weight: 600; color: var(--texto-mutado); display: flex; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .camara-ia-badge { background-color: rgba(145, 70, 255, 0.08); color: #9146FF; padding: 4px 12px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; border: 1px solid rgba(145, 70, 255, 0.2); }
         
-        /* Contenidor adaptatiu pel reproductor o pantalla de fallada */
+        /* Visor de stream cinematogràfic full-width */
         .camara-visor-stream { 
-            flex-grow: 1; 
             position: relative;
             border: 1px solid var(--borde); 
-            border-radius: 8px; 
-            margin: 15px 0; 
+            border-radius: 10px; 
+            margin: 18px 0; 
             background: #11100f; 
             overflow: hidden;
-            min-height: 150px;
+            width: 100%;
+            aspect-ratio: 16 / 9; /* Proporció nativa de vídeo perfecta */
+            max-height: 560px; /* Evita que creixi excessivament en monitors gegants */
+            min-height: 320px; /* Alçada mínima excel·lent per a pantalles petites */
         }
 
         /* Pantalla d'error original (No Signal) */
@@ -274,7 +279,10 @@
         .pinto-color { width: 6px; height: 6px; border-radius: 50%; margin-right: 10px; }
         .txt-mutado { color: var(--texto-mutado); margin-left: auto; }
 
-        @media (max-width: 950px) { .panel-superior, .seccion-mapa { grid-template-columns: 1fr; } }
+        @media (max-width: 950px) { 
+            .panel-superior-datos { grid-template-columns: 1fr; } 
+            .seccion-mapa { grid-template-columns: 1fr; } 
+        }
     </style>
 </head>
 <body>
@@ -286,7 +294,7 @@
             <h2 id="sadrif-subtitulo">Sistema de Monitorització d'Entorns Forestals</h2>
         </header>
         
-        <section class="panel-superior">
+        <section class="panel-superior-datos">
             <div class="tarjeta-hero-riesgo" id="tarjeta-riesgo-contenedor">
                 <span class="hero-lbl" id="hero-riesgo-lbl">ESTAT GLOBAL DEL RISC</span>
                 <div class="hero-porcentaje-box">
@@ -294,25 +302,6 @@
                     <div class="hero-simbolo">%</div>
                 </div>
                 <p class="hero-desc" id="hero-riesgo-txt">Processant mètriques ambientals automatitzades des del node central...</p>
-            </div>
-
-            <div class="tarjeta-hero-camara">
-                <div class="camara-header">
-                    <span class="camara-lbl"><span class="pinto-color" id="camara-pinto-live" style="background: #aba06c;"></span> STREAM ESP32-CAM</span>
-                    <span class="camara-ia-badge" id="camara-status-txt">COMPROVANT</span>
-                </div>
-                
-                <div class="camara-visor-stream" id="contenedor-visor">
-                    <div class="no-signal-container" id="capa-no-signal">
-                        <div class="no-signal-icon">⚠️</div>
-                        <div class="no-signal-text">SENSE SENYAL</div>
-                        <div class="no-signal-sub">STREAM OFF / NODE EN ESPERA</div>
-                    </div>
-                </div>
-                
-                <div style="font-size: 0.72rem; color: var(--texto-mutado); text-align: center;">
-                    Sadrif Engine vinculat al canal oficial de Twitch.
-                </div>
             </div>
 
             <div class="grid-hero-lecturas">
@@ -335,6 +324,30 @@
                     <div class="label">Pressió</div>
                     <div class="valor" id="hero-presion">--</div>
                     <div class="estado-variable" id="status-presion">--</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="seccion-stream-grande">
+            <div class="tarjeta-hero-camara">
+                <div class="camara-header">
+                    <span class="camara-lbl">
+                        <span class="pinto-color" id="camara-pinto-live" style="background: #aba06c;"></span> 
+                        STREAM EN DIRECTE ESP32-CAM (SABADELL)
+                    </span>
+                    <span class="camara-ia-badge" id="camara-status-txt">COMPROVANT</span>
+                </div>
+                
+                <div class="camara-visor-stream" id="contenedor-visor">
+                    <div class="no-signal-container" id="capa-no-signal">
+                        <div class="no-signal-icon">⚠️</div>
+                        <div class="no-signal-text">SENSE SENYAL</div>
+                        <div class="no-signal-sub">STREAM OFF / NODE EN ESPERA</div>
+                    </div>
+                </div>
+                
+                <div style="font-size: 0.78rem; color: var(--texto-mutado); text-align: center;">
+                    Sadrif Engine vinculat al canal oficial de Twitch: <a href="https://twitch.tv/pla_drif" target="_blank" style="color: #9146FF; text-decoration: none; font-weight: 600;">twitch.tv/pla_drif</a>
                 </div>
             </div>
         </section>
@@ -455,8 +468,7 @@
             const pintoLive = document.getElementById('camara-pinto-live');
             const statusTxt = document.getElementById('camara-status-txt');
 
-            // Detectamos el dominio. Si está vacío (porque se abrió con doble clic en local), 
-            // le ponemos 'localhost' por defecto para mitigar bloqueos en pruebas sencillas.
+            // Detectamos el dominio. Si está vacío, le ponemos 'localhost' por defecto.
             let parentDomain = window.location.hostname;
             if (!parentDomain || parentDomain === "") {
                 parentDomain = "localhost"; 
@@ -653,7 +665,7 @@
 
             const elPres = document.getElementById('status-presion');
             if (pres >= 1013) { elPres.innerText = "ESTABLE"; elPres.style.color = "#99b89e"; }
-            else { elPres.innerText = "DEPRESSIÓ"; elPres.style.color = "#d1b499"; }
+            else { elPres.innerText = "DEPRESSIÓ"; elPres.style.color = "#d19999"; }
         }
 
         function aplicarEstiloTipograficoDinamicamente(analisis) {
