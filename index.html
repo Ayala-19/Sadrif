@@ -144,7 +144,7 @@
         }
         .camara-header { display: flex; justify-content: space-between; align-items: center; }
         .camara-lbl { font-size: 0.75rem; font-weight: 600; color: var(--texto-mutado); display: flex; align-items: center; gap: 8px; text-transform: uppercase; }
-        .camara-ia-badge { background-color: rgba(112, 145, 196, 0.08); color: var(--ia-color); padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; border: 1px solid rgba(112, 145, 196, 0.2); }
+        .camara-ia-badge { background-color: rgba(145, 70, 255, 0.08); color: #9146FF; padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; border: 1px solid rgba(145, 70, 255, 0.2); }
         
         /* Contenidor adaptatiu pel reproductor o pantalla de fallada */
         .camara-visor-stream { 
@@ -308,10 +308,10 @@
                         <div class="no-signal-text">SENSE SENYAL</div>
                         <div class="no-signal-sub">STREAM OFF / NODE EN ESPERA</div>
                     </div>
-                    </div>
+                </div>
                 
                 <div style="font-size: 0.72rem; color: var(--texto-mutado); text-align: center;">
-                    Sadrif Engine vinculat al canal oficial de YouTube.
+                    Sadrif Engine vinculat al canal oficial de Twitch.
                 </div>
             </div>
 
@@ -434,8 +434,8 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // EL TEU ID DE CANAL CONFIGURAT NATIVAMENT
-        const YOUTUBE_CHANNEL_ID = "UCiakVljqaop-8EofECeqYZQ"; 
+        // CONFIGURACIÓ DE LES APIS I STREAMS
+        const TWITCH_CHANNEL = "pla_drif"; 
         const CHANNEL_ID = "3411217"; 
         const READ_API_KEY = "GYE9XC7CJSA3916";
         
@@ -448,43 +448,40 @@
             "Tarragona": { temp: 26.4, hum: 48, pres: 1013 }
         };
 
-        // --- SISTEMA D'INJECCIÓ INTEL·LIGENT DEL DIRECTE DE YOUTUBE ---
-        async function comprovarIActualitzarStreamYouTube() {
+        // --- SISTEMA D'INJECCIÓ INTEL·LIGENT DEL DIRECTE DE TWITCH ---
+        function actualitzarStreamTwitch() {
             const contenedor = document.getElementById('contenedor-visor');
             const capaNoSignal = document.getElementById('capa-no-signal');
             const pintoLive = document.getElementById('camara-pinto-live');
             const statusTxt = document.getElementById('camara-status-txt');
 
-            // Fem ús de la URL d'inserció de directes de YouTube basada en l'ID del teu canal
-            const urlEmbedDirecte = `https://www.youtube.com/embed/live_stream?channel=${YOUTUBE_CHANNEL_ID}&autoplay=1&mute=1`;
+            // Detectamos el dominio. Si está vacío (porque se abrió con doble clic en local), 
+            // le ponemos 'localhost' por defecto para mitigar bloqueos en pruebas sencillas.
+            let parentDomain = window.location.hostname;
+            if (!parentDomain || parentDomain === "") {
+                parentDomain = "localhost"; 
+            }
 
-            try {
-                // Comprovació ràpida per validar si el servidor de YouTube respon correctament
-                const resposta = await fetch(`https://images.cebspace.com/api/v1/meta?url=https://www.youtube.com/channel/${YOUTUBE_CHANNEL_ID}`);
-                
-                // Nota técnica: Atès que l'API de YouTube requereix claus privades, usem un mètode estructural alternatiu.
-                // Si l'ESP32 està enviant dades actives al panell, preparem l'Iframe.
-                if (dadesGlobalsESP32.temp > 0) {
-                    // Si vols forçar que es vegi el reproductor sempre, treu el comentari de les línies de sota:
-                    /*
-                    if(!document.getElementById('youtube-iframe-player')){
-                        capaNoSignal.style.display = 'none';
-                        pintoLive.style.backgroundColor = '#d19999'; // Vermell Live
-                        statusTxt.innerText = 'LIVE';
-                        statusTxt.style.color = '#d19999';
-                        statusTxt.style.backgroundColor = 'rgba(209, 153, 153, 0.1)';
-                        
-                        const iframe = document.createElement('iframe');
-                        iframe.id = 'youtube-iframe-player';
-                        iframe.src = urlEmbedDirecte;
-                        iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-                        iframe.allowFullscreen = true;
-                        contenedor.appendChild(iframe);
-                    }
-                    */
+            // URL oficial de reproducción integrada de Twitch
+            const urlEmbedTwitch = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${parentDomain}&autoplay=true&muted=true`;
+
+            // Si rebem dades correctes del node, forcem la renderització del reproductor
+            if (dadesGlobalsESP32.temp > 0) {
+                if (!document.getElementById('twitch-iframe-player')) {
+                    capaNoSignal.style.display = 'none';
+                    pintoLive.style.backgroundColor = '#9146FF'; // Color morat corporatiu de Twitch
+                    statusTxt.innerText = 'ONLINE';
+                    statusTxt.style.color = '#9146FF';
+                    statusTxt.style.backgroundColor = 'rgba(145, 70, 255, 0.1)';
+                    
+                    const iframe = document.createElement('iframe');
+                    iframe.id = 'twitch-iframe-player';
+                    iframe.src = urlEmbedTwitch;
+                    iframe.allowFullscreen = true;
+                    iframe.scrolling = "no";
+                    iframe.allow = "autoplay; fullscreen";
+                    contenedor.appendChild(iframe);
                 }
-            } catch (e) {
-                console.log("YouTube Stream en mode d'espera corporatiu.");
             }
         }
 
@@ -707,8 +704,8 @@
                     aplicarEstiloTipograficoDinamicamente(resLive);
                     actualizarPopupsMarcadorSabadell();
                     
-                    // Executem la comprovació de l'Stream de YouTube
-                    comprovarIActualitzarStreamYouTube();
+                    // Executem la injecció del nou direct de Twitch
+                    actualitzarStreamTwitch();
 
                     if (capaGeoJSONGlobal) {
                         capaGeoJSONGlobal.eachLayer(function(layer) {
