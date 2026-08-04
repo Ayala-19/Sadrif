@@ -5,21 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SADRIF IoT - Sistema Autònom de Detecció</title>
     
-    <!-- Favicon & Social Preview -->
-    <link rel="icon" type="image/png" href="favicon.png">
-    <meta property="og:image" content="og-preview.jpg">
+    <!-- Favicon & Social Preview (emparejados con tus archivos) -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta property="og:image" content="og-preview.svg">
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root {
-            /* Paleta Dark Premium Institucional */
             --bg-principal: #232323;
             --bg-tarjeta: #2a2a2a;
             --texto-claro: #f5f5f7;
             --texto-mutado: #a1a1a6;
             --borde: #3a3a3a;
 
-            /* Colores Meteorológicos Profesionales */
             --color-n0: #2ecc71;
             --color-n1: #f1c40f;
             --color-n2: #e67e22;
@@ -128,11 +126,14 @@
         .bloque-consejo h3 { font-size: 1.1rem; margin-top: 0; color: var(--riesgo-color-dinamico); }
         .bloque-consejo div { color: var(--texto-mutado); font-size: 0.95rem; line-height: 1.5; }
 
-        /* --- CÁMARA --- */
+        /* --- CÁMARA & FOTO CAJA --- */
         .header-sadrif-seccion { border-bottom: 1px solid var(--borde); padding-bottom: 15px; margin-bottom: 20px; }
         .header-sadrif-seccion h2 { margin: 0; font-size: 1.5rem; }
+        
         .tarjeta-camara { background-color: var(--bg-tarjeta); border: 1px solid var(--borde); border-radius: 12px; padding: 20px; margin-bottom: 40px; }
-        .camara-header { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.85rem; font-weight: bold; text-transform: uppercase; }
+        .camara-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 0.85rem; font-weight: bold; text-transform: uppercase; }
+        .camara-header-info { display: flex; align-items: center; gap: 10px; }
+        .camara-header-info img { height: 28px; width: auto; }
         .camara-visor { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 8px; overflow: hidden; }
 
         /* --- INFO DRIF + YOUTUBE --- */
@@ -154,12 +155,11 @@
         th { padding: 12px; font-size: 0.75rem; text-transform: uppercase; color: var(--texto-mutado); border-bottom: 1px solid var(--borde); }
         td { padding: 12px; font-size: 0.9rem; border-bottom: 1px solid var(--borde); }
 
-        /* --- FOOTER (REDES Y LOGOS CLAROS) --- */
+        /* --- FOOTER (REDES Y LOGOS) --- */
         .footer-social { display: flex; justify-content: center; gap: 24px; padding: 30px 0; border-bottom: 1px solid var(--borde); }
         .footer-social a img { width: 32px; height: 32px; filter: opacity(0.8); transition: filter 0.3s; }
         .footer-social a img:hover { filter: opacity(1); }
         
-        /* Contenedor claro para logos PNG con fondo blanco / letras oscuras */
         .footer-logos-contenedor { 
             background-color: #ffffff; 
             border-radius: 12px; 
@@ -250,7 +250,10 @@
         
         <div class="tarjeta-camara">
             <div class="camara-header">
-                <span>🔴 ESTACIÓ LIVE DE SABADELL</span>
+                <div class="camara-header-info">
+                    <img src="foto-caja-sadrif.png" alt="Sensor SADRIF">
+                    <span>🔴 ESTACIÓ LIVE DE SABADELL</span>
+                </div>
                 <span style="color:#a970ff;">Càmera LIVE</span>
             </div>
             <div class="camara-visor" id="contenedor-visor"></div>
@@ -291,14 +294,14 @@
             </table>
         </div>
 
-        <!-- FOOTER: REDES SVG -->
+        <!-- FOOTER: REDES SOCIALES -->
         <div class="footer-social">
             <a href="https://youtube.com" target="_blank"><img src="icon-youtube.svg" alt="YouTube"></a>
-            <a href="https://instagram.com" target="_blank"><img src="icon-instagram.svg" alt="Instagram"></a>
+            <a href="https://instagram.com" target="_blank"><img src="icon-instagram.png" alt="Instagram"></a>
             <a href="https://twitch.tv/pla_drif" target="_blank"><img src="icon-twitch.svg" alt="Twitch"></a>
         </div>
         
-        <!-- FOOTER: LOGOS EN CONTENEDOR BLANCO -->
+        <!-- FOOTER: LOGOS INSTITUCIONALES -->
         <div class="footer-logos-contenedor">
             <img src="logo-sabadell.png" alt="Ajuntament de Sabadell">
             <img src="logo-generalitat.png" alt="Generalitat de Catalunya">
