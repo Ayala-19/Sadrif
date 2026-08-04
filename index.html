@@ -3,12 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SADRIF IoT - Sistema Autònom de Detecció</title>
+    <title>Pla DRIF - Monitoratge de Risc d'Incendis Forestals</title>
     
-    <!-- Favicon & Social Preview -->
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <meta property="og:image" content="og-preview.svg">
-
     <!-- Tipografía Profesional + Leaflet CSS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,25 +13,27 @@
 
     <style>
         :root {
-            /* Paleta Modo Claro Institucional Premium */
-            --bg-principal: #f8fafc;
-            --bg-tarjeta: rgba(255, 255, 255, 0.85);
+            /* Paleta Modo Claro Liquid Glass */
+            --bg-principal: #f1f5f9;
+            --glass-bg: rgba(255, 255, 255, 0.72);
+            --glass-border: rgba(255, 255, 255, 0.8);
+            --glass-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.07), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+            
             --texto-principal: #0f172a;
             --texto-mutado: #64748b;
             --borde-claro: rgba(226, 232, 240, 0.8);
-            --sombra-glass: 0 20px 30px -10px rgba(15, 23, 42, 0.05), 0 10px 15px -5px rgba(15, 23, 42, 0.03);
 
             /* Niveles de Riesgo */
             --color-n0: #10b981;
-            --color-n0-bg: linear-gradient(135deg, #ecfdf5 0%, #ffffff 100%);
+            --color-n0-bg: linear-gradient(135deg, rgba(236, 253, 245, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%);
             --color-n1: #f59e0b;
-            --color-n1-bg: linear-gradient(135deg, #fef3c7 0%, #ffffff 100%);
+            --color-n1-bg: linear-gradient(135deg, rgba(254, 243, 199, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%);
             --color-n2: #f97316;
-            --color-n2-bg: linear-gradient(135deg, #ffedd5 0%, #fff7ed 100%);
+            --color-n2-bg: linear-gradient(135deg, rgba(255, 237, 213, 0.9) 0%, rgba(255, 247, 237, 0.8) 100%);
             --color-n3: #ef4444;
-            --color-n3-bg: linear-gradient(135deg, #fee2e2 0%, #fff1f1 100%);
+            --color-n3-bg: linear-gradient(135deg, rgba(254, 226, 226, 0.9) 0%, rgba(255, 241, 241, 0.8) 100%);
             --color-n4: #8b5cf6;
-            --color-n4-bg: linear-gradient(135deg, #f3e8ff 0%, #fee2e2 100%);
+            --color-n4-bg: linear-gradient(135deg, rgba(243, 232, 255, 0.9) 0%, rgba(254, 226, 226, 0.8) 100%);
 
             --riesgo-color-dinamico: var(--color-n2);
             --riesgo-bg-dinamico: var(--color-n2-bg);
@@ -47,6 +45,8 @@
         body {
             font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--bg-principal);
+            background-image: radial-gradient(at 0% 0%, rgba(249, 115, 22, 0.05) 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.05) 0px, transparent 50%);
             color: var(--texto-principal);
             margin: 0;
             padding: 0;
@@ -55,34 +55,35 @@
             overflow-x: hidden;
         }
 
-        /* --- KEYFRAMES DE ANIMACIÓN --- */
+        /* --- ANIMACIONES --- */
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes pulseSoft {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.03); }
+        @keyframes pulseGlow {
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(249, 115, 22, 0.3)); }
+            50% { filter: drop-shadow(0 0 20px rgba(249, 115, 22, 0.6)); }
         }
 
         .animated-element {
             animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        /* --- NAVBAR GLASSMORPHISM --- */
+        /* --- NAVBAR LIQUID GLASS --- */
         .navbar-top {
             position: sticky;
             top: 0;
             z-index: 1000;
-            background: rgba(255, 255, 255, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--borde-claro);
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid var(--glass-border);
             padding: 14px 32px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
             transition: var(--transicion);
         }
 
@@ -91,9 +92,10 @@
             align-items: center;
             gap: 12px;
             font-weight: 800;
-            font-size: 1.3rem;
+            font-size: 1.35rem;
             color: var(--texto-principal);
             text-decoration: none;
+            letter-spacing: -0.02em;
         }
 
         .navbar-brand img { height: 38px; width: auto; transition: var(--transicion); }
@@ -101,22 +103,22 @@
 
         .navbar-right-controls { display: flex; align-items: center; gap: 16px; }
 
-        /* Badge Glass dinámico de Scroll */
+        /* Badge Glass Floating */
         .sticky-risk-badge {
             display: flex;
             align-items: center;
             gap: 10px;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--borde-claro);
-            padding: 6px 16px;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            padding: 8px 18px;
             border-radius: 99px;
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             opacity: 0;
             transform: translateY(-15px) scale(0.95);
             transition: var(--transicion);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: var(--glass-shadow);
         }
 
         .sticky-risk-badge.visible { opacity: 1; transform: translateY(0) scale(1); }
@@ -129,19 +131,22 @@
             box-shadow: 0 0 10px var(--riesgo-color-dinamico);
         }
 
+        /* Botón Liquid Glass Menu */
         .btn-hamburger {
             background: rgba(255, 255, 255, 0.8);
-            border: 1px solid var(--borde-claro);
-            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
             padding: 10px 12px;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             gap: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
             transition: var(--transicion);
         }
 
-        .btn-hamburger:hover { background-color: #ffffff; transform: scale(1.05); }
+        .btn-hamburger:hover { background: #ffffff; transform: scale(1.05); }
 
         .btn-hamburger span {
             display: block;
@@ -149,18 +154,18 @@
             height: 2px;
             background-color: var(--texto-principal);
             border-radius: 2px;
-            transition: var(--transicion);
         }
 
-        /* Drawer Lateral */
+        /* Drawer Lateral Glass */
         .nav-drawer {
             position: fixed;
             top: 0;
             right: -340px;
             width: 320px;
             height: 100vh;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             box-shadow: -15px 0 35px rgba(0,0,0,0.08);
             z-index: 2000;
             padding: 35px 28px;
@@ -168,6 +173,7 @@
             display: flex;
             flex-direction: column;
             gap: 25px;
+            border-left: 1px solid var(--glass-border);
         }
 
         .nav-drawer.open { right: 0; }
@@ -180,8 +186,8 @@
         .drawer-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(15, 23, 42, 0.25);
-            backdrop-filter: blur(4px);
+            background: rgba(15, 23, 42, 0.2);
+            backdrop-filter: blur(6px);
             z-index: 1500;
             opacity: 0;
             pointer-events: none;
@@ -190,7 +196,7 @@
 
         .drawer-overlay.active { opacity: 1; pointer-events: auto; }
 
-        /* Banner Alerta */
+        /* Banner Alerta Extrema */
         .banner-alerta-extrema {
             display: none;
             background: linear-gradient(90deg, #ef4444 0%, #8b5cf6 100%);
@@ -209,109 +215,171 @@
             padding: 35px 24px;
         }
 
-        /* --- HERO SECCIÓN: CURVA SUAVE EN MAPA Y DESPLAZAMIENTO DEL PORCENTAJE --- */
+        /* --- HERO SECCIÓN: CURVA CIRCULAR PERFECTA + TERMÓMETRO DE RISC --- */
         .hero-compact {
             background: var(--riesgo-bg-dinamico);
-            border: 1px solid var(--borde-claro);
-            border-radius: 24px;
-            box-shadow: var(--sombra-glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 28px;
+            box-shadow: var(--glass-shadow);
             overflow: hidden;
             display: grid;
-            grid-template-columns: 1.1fr 1fr;
-            min-height: 310px;
+            grid-template-columns: 1.25fr 1fr;
+            min-height: 350px;
             margin-bottom: 28px;
             position: relative;
             transition: var(--transicion);
         }
 
         .hero-left-content {
-            padding: 36px 44px;
+            padding: 38px 44px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             z-index: 10;
         }
 
-        .hero-title-group { margin-bottom: 20px; }
-        .hero-title-group h1 { font-size: 2rem; font-weight: 800; margin: 0; color: var(--texto-principal); letter-spacing: -0.02em; }
-        .hero-title-group p { margin: 6px 0 0 0; font-size: 0.9rem; color: var(--texto-mutado); font-weight: 500; }
+        .hero-header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(8px);
+            padding: 6px 14px;
+            border-radius: 99px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--texto-mutado);
+            width: fit-content;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
 
-        /* Porcentaje desplazado y centrado hacia el centro del hero */
+        .hero-title-sub {
+            font-size: 0.92rem;
+            color: var(--texto-mutado);
+            font-weight: 600;
+            margin-top: 6px;
+        }
+
+        /* Bloque central de Porcentaje */
         .hero-percentage-display { 
             display: flex; 
             align-items: baseline; 
-            gap: 6px; 
-            margin-left: 15%; /* Desplazamiento sugerido */
-            margin-top: 5px;
+            gap: 8px; 
+            margin-left: auto;
+            margin-right: auto;
+            padding: 10px 0;
         }
 
         .hero-num-pct { 
-            font-size: 6.2rem; 
+            font-size: 6.5rem; 
             font-weight: 800; 
-            line-height: 0.9; 
+            line-height: 0.85; 
             color: var(--riesgo-color-dinamico); 
             transition: var(--transicion);
-            animation: pulseSoft 4s infinite ease-in-out;
+            letter-spacing: -0.04em;
         }
 
-        .hero-sim-pct { font-size: 2.5rem; font-weight: 700; color: var(--texto-mutado); }
+        .hero-sim-pct { font-size: 2.8rem; font-weight: 800; color: var(--texto-mutado); }
+        
         .hero-status-lbl { 
-            font-size: 0.9rem; 
+            font-size: 1.1rem; 
             font-weight: 800; 
             text-transform: uppercase; 
-            letter-spacing: 0.1em; 
+            letter-spacing: 0.08em; 
             color: var(--riesgo-color-dinamico); 
-            margin-top: 10px;
-            margin-left: 15%;
+            text-align: center;
+            margin-bottom: 8px;
         }
 
-        /* Contenedor del Mapa con Unión Curva Suave */
+        /* TERMÓMETRO / BARRA DE RIESGO DEDICADA */
+        .termometro-container {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            padding: 14px 18px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .termometro-track {
+            height: 14px;
+            width: 100%;
+            background: #e2e8f0;
+            border-radius: 99px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .termometro-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #10b981 0%, #f59e0b 40%, #f97316 70%, #ef4444 100%);
+            border-radius: 99px;
+            transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .termometro-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: var(--texto-mutado);
+            margin-top: 6px;
+            text-transform: uppercase;
+        }
+
+        /* MAPA CON MÁSCARA CIRCULAR ARQUEADA */
         .hero-map-wrapper {
             position: relative;
             height: 100%;
-            min-height: 310px;
-            /* Recorte curvo fluido hacia la izquierda sin corte abrupto */
-            clip-path: ellipse(120% 100% at 100% 50%);
-            -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.4) 15%, rgba(0,0,0,1) 40%);
-            mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.4) 15%, rgba(0,0,0,1) 40%);
+            min-height: 350px;
+            /* Recorte circular arqueado fluido */
+            clip-path: ellipse(115% 100% at 100% 50%);
+            -webkit-mask-image: radial-gradient(circle at 100% 50%, black 50%, transparent 95%);
+            mask-image: radial-gradient(circle at 100% 50%, black 50%, transparent 95%);
         }
 
         #mapa-real-catalunya { width: 100%; height: 100%; background: transparent; }
 
-        /* --- TARJETAS GLASSMORPHISM DE LECTURA --- */
+        /* --- TARJETAS LIQUID GLASS --- */
         .premium-data-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 32px; }
         
         .tarjeta-hero-lectura {
-            background: var(--bg-tarjeta);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--borde-claro);
-            border-radius: 18px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
             padding: 22px;
-            box-shadow: var(--sombra-glass);
+            box-shadow: var(--glass-shadow);
             text-align: center;
             transition: var(--transicion);
         }
 
         .tarjeta-hero-lectura:hover { 
             transform: translateY(-5px) scale(1.02); 
-            box-shadow: 0 15px 30px rgba(0,0,0,0.07);
-            border-color: rgba(203, 213, 225, 0.9);
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 20px 30px rgba(0,0,0,0.06);
         }
 
-        .tarjeta-hero-lectura .label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--texto-mutado); letter-spacing: 0.06em; margin-bottom: 8px; }
+        .tarjeta-hero-lectura .label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--texto-mutado); letter-spacing: 0.06em; margin-bottom: 8px; }
         .tarjeta-hero-lectura .valor { font-size: 1.85rem; font-weight: 800; color: var(--texto-principal); }
 
-        /* --- CONSEJOS Y RESTRICCIONES --- */
+        /* --- CONSEJOS --- */
         .grid-consejos { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-bottom: 40px; }
         
         .bloque-consejo {
-            background: var(--bg-tarjeta);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--borde-claro);
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
             border-left: 6px solid var(--riesgo-color-dinamico);
-            border-radius: 18px;
+            border-radius: 20px;
             padding: 26px;
-            box-shadow: var(--sombra-glass);
+            box-shadow: var(--glass-shadow);
             transition: var(--transicion);
         }
 
@@ -319,58 +387,56 @@
         .bloque-consejo h3 { font-size: 1.1rem; font-weight: 800; margin-top: 0; margin-bottom: 12px; color: var(--texto-principal); }
         .bloque-consejo div { color: var(--texto-mutado); font-size: 0.95rem; line-height: 1.6; }
 
-        /* --- CÁMARA & SECCIONES --- */
+        /* --- CÁMARA LIVE --- */
         .header-sadrif-seccion { border-bottom: 2px solid var(--borde-claro); padding-bottom: 12px; margin-bottom: 24px; }
         .header-sadrif-seccion h2 { margin: 0; font-size: 1.5rem; font-weight: 800; letter-spacing: -0.01em; }
         
         .tarjeta-camara { 
-            background: var(--bg-tarjeta); 
-            backdrop-filter: blur(12px); 
-            border: 1px solid var(--borde-claro); 
-            border-radius: 20px; 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(16px); 
+            border: 1px solid var(--glass-border); 
+            border-radius: 22px; 
             padding: 24px; 
-            box-shadow: var(--sombra-glass); 
+            box-shadow: var(--glass-shadow); 
             margin-bottom: 44px; 
-            transition: var(--transicion);
         }
 
         .camara-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; font-size: 0.85rem; font-weight: 700; }
         .camara-header-info { display: flex; align-items: center; gap: 14px; }
-        .camara-header-info img { height: 36px; width: auto; border-radius: 6px; }
-        .camara-visor { width: 100%; aspect-ratio: 16/9; background: #0f172a; border-radius: 14px; overflow: hidden; }
+        .camara-header-info img { height: 36px; width: auto; border-radius: 8px; }
+        .camara-visor { width: 100%; aspect-ratio: 16/9; background: #0f172a; border-radius: 16px; overflow: hidden; }
 
-        /* --- PLA DRIF & VIDEO --- */
+        /* --- PLA DRIF INFO & VIDEO --- */
         .seccion-info-drif { margin-bottom: 44px; }
-        .seccion-info-drif h2 { font-size: 1.6rem; font-weight: 800; margin-bottom: 24px; }
         .grid-info-drif { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; }
-        .video-youtube-placeholder { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 18px; overflow: hidden; box-shadow: var(--sombra-glass); }
+        .video-youtube-placeholder { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 20px; overflow: hidden; box-shadow: var(--glass-shadow); }
         .texto-drif p { color: var(--texto-mutado); line-height: 1.7; margin-bottom: 16px; font-size: 0.98rem; }
 
-        /* --- GRÁFICAS SIN SCROLLBARS Y CON ANIMACIÓN --- */
+        /* --- GRÁFICAS --- */
         .grid-graficas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 44px; }
         .iframe-grafica-wrapper {
             width: 100%;
             height: 220px;
-            background: var(--bg-tarjeta);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--borde-claro);
-            border-radius: 16px;
-            box-shadow: var(--sombra-glass);
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            box-shadow: var(--glass-shadow);
             overflow: hidden;
             transition: var(--transicion);
         }
 
-        .iframe-grafica-wrapper:hover { transform: translateY(-4px); box-shadow: 0 15px 25px rgba(0,0,0,0.06); }
+        .iframe-grafica-wrapper:hover { transform: translateY(-4px); }
         .iframe-grafica-wrapper iframe { width: 100%; height: 100%; border: none; overflow: hidden; }
 
         /* --- TABLA TELEMETRÍA --- */
         .tabla-contenedor { 
-            background: var(--bg-tarjeta); 
-            backdrop-filter: blur(12px); 
-            border-radius: 20px; 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(16px); 
+            border-radius: 22px; 
             padding: 28px; 
-            border: 1px solid var(--borde-claro); 
-            box-shadow: var(--sombra-glass); 
+            border: 1px solid var(--glass-border); 
+            box-shadow: var(--glass-shadow); 
             margin-bottom: 50px; 
         }
 
@@ -378,74 +444,106 @@
         table { width: 100%; border-collapse: collapse; text-align: left; }
         th { padding: 14px 12px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--texto-mutado); border-bottom: 2px solid var(--borde-claro); }
         td { padding: 16px 12px; font-size: 0.92rem; border-bottom: 1px solid var(--borde-claro); font-weight: 600; }
-        tr:hover td { background-color: rgba(241, 245, 249, 0.5); }
 
-        /* --- FOOTER & LOGOS INSTITUCIONALES MÁS GRANDES --- */
-        .footer-social { display: flex; justify-content: center; gap: 28px; padding: 25px 0; border-top: 1px solid var(--borde-claro); }
-        .footer-social a img { width: 34px; height: 34px; transition: var(--transicion); }
-        .footer-social a img:hover { transform: translateY(-4px) scale(1.1); }
-
-        .footer-logos-contenedor { 
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); 
-            border: 1px solid var(--borde-claro);
-            border-radius: 20px; 
-            padding: 35px 40px; 
-            margin-top: 20px; 
-            display: flex; 
-            justify-content: space-around; 
-            align-items: center;
-            box-shadow: var(--sombra-glass);
+        /* --- TARJETAS DE REDES SOCIALES (RED ISEÑADAS Y OFICIALES) --- */
+        .redes-sociales-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 40px;
+            margin-bottom: 30px;
         }
 
-        /* Logos optimizados para ser notablemente más grandes */
-        .footer-logos-contenedor img { 
-            max-height: 95px; 
-            width: auto; 
-            object-fit: contain; 
-            filter: grayscale(10%) contrast(105%);
+        .card-social-link {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            padding: 18px 24px;
+            border-radius: 20px;
+            text-decoration: none;
+            color: var(--texto-principal);
+            font-weight: 700;
+            box-shadow: var(--glass-shadow);
             transition: var(--transicion);
         }
 
-        .footer-logos-contenedor img:hover { filter: grayscale(0%); transform: scale(1.04); }
+        .card-social-link:hover {
+            transform: translateY(-4px) scale(1.02);
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+        }
 
-        /* Texto Legal Pie de Página */
+        .card-social-link img { width: 32px; height: 32px; }
+
+        /* --- FOOTER: LOGOS INSTITUCIONALES MÁS GRANDES Y LIMPIOS --- */
+        .footer-logos-contenedor { 
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px; 
+            padding: 35px 50px; 
+            display: flex; 
+            justify-content: space-around; 
+            align-items: center;
+            box-shadow: var(--glass-shadow);
+        }
+
+        .footer-logos-contenedor img { 
+            max-height: 110px; 
+            width: auto; 
+            object-fit: contain; 
+            transition: var(--transicion);
+        }
+
+        .footer-logos-contenedor img:hover { transform: scale(1.05); }
+
         .footer-disclaimer {
             text-align: center;
-            font-size: 0.78rem;
+            font-size: 0.8rem;
             color: var(--texto-mutado);
             margin-top: 30px;
             margin-bottom: 20px;
-            line-height: 1.5;
+            line-height: 1.6;
             padding: 0 20px;
         }
 
+        /* --- RESPONSIVE OPTIMIZADO PARA MÓVIL Y TABLETS --- */
         @media (max-width: 900px) {
             .hero-compact { grid-template-columns: 1fr; }
-            .hero-percentage-display, .hero-status-lbl { margin-left: 0; }
-            .hero-map-wrapper { height: 260px; clip-path: none; -webkit-mask-image: none; mask-image: none; }
-            .premium-data-row, .grid-consejos, .grid-graficas, .grid-info-drif { grid-template-columns: 1fr; }
-            .footer-logos-contenedor { flex-direction: column; gap: 32px; }
-            .footer-logos-contenedor img { max-height: 75px; }
+            .hero-map-wrapper { 
+                height: 280px; 
+                clip-path: none; 
+                -webkit-mask-image: none; 
+                mask-image: none; 
+            }
+            .premium-data-row, .grid-consejos, .grid-graficas, .grid-info-drif, .redes-sociales-grid { 
+                grid-template-columns: 1fr; 
+            }
+            .hero-left-content { padding: 28px 22px; }
+            .hero-num-pct { font-size: 4.8rem; }
+            .footer-logos-contenedor { flex-direction: column; gap: 30px; padding: 30px 20px; }
+            .footer-logos-contenedor img { max-height: 85px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- NAVBAR GLASSMORPHISM -->
+    <!-- NAVBAR LIQUID GLASS -->
     <header class="navbar-top">
         <a href="#" class="navbar-brand">
-            <img src="logo-sadrif.svg" alt="SADRIF Logo">
-            <span>SADRIF</span>
+            <img src="logo-sadrif.svg" alt="Pla DRIF Logo">
+            <span>PLA DRIF</span>
         </a>
 
         <div class="navbar-right-controls">
-            <!-- Badge Dinámico con Glassmorphism -->
             <div id="sticky-risk-badge" class="sticky-risk-badge">
                 <span class="sticky-risk-dot"></span>
                 <span>Risc: <strong id="sticky-risk-val">--%</strong></span>
             </div>
 
-            <!-- Botón Hamburguesa -->
             <button class="btn-hamburger" id="btn-toggle-menu" aria-label="Obrir Menú">
                 <span></span>
                 <span></span>
@@ -458,15 +556,15 @@
     <div class="drawer-overlay" id="drawer-overlay"></div>
     <div class="nav-drawer" id="nav-drawer">
         <div class="drawer-header">
-            <span style="font-weight: 800; font-size: 1.15rem;">Menú SADRIF</span>
+            <span style="font-weight: 800; font-size: 1.15rem;">Navegació Pla DRIF</span>
             <button class="drawer-close" id="btn-close-drawer">&times;</button>
         </div>
         <ul class="drawer-menu">
             <li><a href="#">🏠 Inici</a></li>
-            <li><a href="https://youtube.com" target="_blank">📺 Canal de YouTube</a></li>
-            <li><a href="#">ℹ️ Més Informació</a></li>
-            <li><a href="#">📜 Protocols d'Emergència</a></li>
-            <li><a href="#">📞 Contacte Institucional</a></li>
+            <li><a href="https://www.youtube.com/@PlaDRIF_Oficial" target="_blank">📺 Canal de YouTube</a></li>
+            <li><a href="https://www.twitch.tv/pla_drif" target="_blank">🔴 Directe Twitch</a></li>
+            <li><a href="https://www.instagram.com/pladrif_cat?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank">📷 Instagram</a></li>
+            <li><a href="#">ℹ️ Sobre el Treball de Recerca</a></li>
         </ul>
     </div>
 
@@ -477,26 +575,42 @@
 
     <div class="contenedor-principal">
         
-        <!-- HERO COMPACTO CON MAPA Y CURVA FLUIDA -->
+        <!-- HERO COMPACTO: MONITORIZACIÓN + TERMÓMETRO + MAPA CURVO -->
         <div class="hero-compact animated-element" id="hero-card">
             <div class="hero-left-content">
-                <div class="hero-title-group">
-                    <h1>SADRIF IoT</h1>
-                    <p>Sistema Autònom de Detecció de Risc d'Incendis Forestals</p>
+                <div>
+                    <div class="hero-header-badge">📡 ESTACIÓ SENSOR SADRIF</div>
+                    <div class="hero-title-sub">Sistema Autònom de Detecció de Risc d'Incendis Forestals</div>
                 </div>
-                <div class="hero-percentage-display">
-                    <span class="hero-num-pct" id="hero-riesgo-pct">--</span>
-                    <span class="hero-sim-pct">%</span>
+
+                <div>
+                    <div class="hero-status-lbl" id="hero-riesgo-lbl">NIVELL DE RISC D'INCENDI</div>
+                    <div class="hero-percentage-display">
+                        <span class="hero-num-pct" id="hero-riesgo-pct">--</span>
+                        <span class="hero-sim-pct">%</span>
+                    </div>
                 </div>
-                <div class="hero-status-lbl" id="hero-riesgo-lbl">CÀLCUL DE RISC</div>
+
+                <!-- TERMÓMETRO / BARRA DE RIESGO DEDICADA -->
+                <div class="termometro-container">
+                    <div class="termometro-track">
+                        <div class="termometro-fill" id="hero-risk-fill"></div>
+                    </div>
+                    <div class="termometro-labels">
+                        <span>0% (Baix)</span>
+                        <span>50% (Alt)</span>
+                        <span>100% (Extrem)</span>
+                    </div>
+                </div>
             </div>
 
+            <!-- MAPA CON MÁSCARA CIRCULAR Y ENCUADRE A LA DERECHA -->
             <div class="hero-map-wrapper">
                 <div id="mapa-real-catalunya"></div>
             </div>
         </div>
 
-        <!-- TARJETAS DE LECTURA (GLASSMORPHISM) -->
+        <!-- TARJETAS DE METEOROLOGÍA -->
         <div class="premium-data-row animated-element" style="animation-delay: 0.1s;">
             <div class="tarjeta-hero-lectura">
                 <div class="label">Temperatura</div>
@@ -516,15 +630,15 @@
             </div>
         </div>
 
-        <!-- CONSEJOS Y ESTADO -->
+        <!-- CONSEJOS -->
         <div class="grid-consejos animated-element" style="animation-delay: 0.2s;">
             <div class="bloque-consejo">
                 <h3>🌱 Estat Actual de la Vegetació</h3>
-                <div id="txt-consejo-sucediendo">Calculant estat...</div>
+                <div id="txt-consejo-sucediendo">Calculant estat de la vegetació...</div>
             </div>
             <div class="bloque-consejo">
                 <h3>🛡️ Pla d'Acció i Restriccions</h3>
-                <div id="txt-consejo-accion">Calculant protocols...</div>
+                <div id="txt-consejo-accion">Calculant protocols d'actuació...</div>
             </div>
         </div>
 
@@ -537,23 +651,23 @@
             <div class="camara-header">
                 <div class="camara-header-info">
                     <img src="foto-caja-sadrif.png" alt="Sensor SADRIF">
-                    <span>ESTACIÓ LIVE DE SABADELL</span>
+                    <span>ESTACIÓ SENSOR SADRIF (SABADELL)</span>
                 </div>
                 <span style="color:#a970ff;">🔴 Directe Twitch</span>
             </div>
             <div class="camara-visor" id="contenedor-visor"></div>
         </div>
 
-        <!-- INFO PLA DRIF -->
+        <!-- QUÈ ÉS EL PLA DRIF -->
         <section class="seccion-info-drif animated-element" style="animation-delay: 0.4s;">
-            <h2>Què és el PLA DRIF?</h2>
+            <h2>Què és el Pla DRIF?</h2>
             <div class="grid-info-drif">
                 <div class="video-youtube-placeholder">
-                    <iframe width="100%" height="100%" src="https://www.youtube.com/embed/TU_ID_DE_VIDEO" title="YouTube video player" frameborder="0" allowfullscreen></iframe>
+                    <iframe width="100%" height="100%" src="https://www.youtube.com/embed/TU_ID_DE_VIDEO" title="Pla DRIF Video" frameborder="0" allowfullscreen></iframe>
                 </div>
                 <div class="texto-drif">
-                    <p><strong>El Pla DRIF (Detecció de Risc d'Incendis Forestals)</strong> és un pla d'acció i conscienciació desenvolupat a partir del projecte de Treball de Recerca <strong>SADRIF</strong>.</p>
-                    <p>El projecte <strong>SADRIF</strong> consisteix en el desenvolupament d'un sistema autònom alimentat amb energia solar, capaç de monitoritzar la temperatura, la humitat relativa, la pressió i la velocitat del vent.</p>
+                    <p><strong>El Pla DRIF (Detecció de Risc d'Incendis Forestals)</strong> és una iniciativa integral de prevenció i conscienciació desenvolupada en el marc d'un Treball de Recerca (TdR).</p>
+                    <p>El projecte utilitza el sensor iot <strong>SADRIF</strong>, un dispositiu autònom amb alimentació solar dissenyat per mesurar en temps real variables meteorològiques clau i determinar el risc d'incendi a la zona.</p>
                 </div>
             </div>
         </section>
@@ -566,10 +680,10 @@
             <div class="iframe-grafica-wrapper"><iframe src="https://thingspeak.com/channels/3411217/charts/3?bgcolor=%23ffffff&color=%2364748b&dynamic=true&results=12" scrolling="no"></iframe></div>
         </div>
 
-        <!-- TELEMETRÍA HISTÓRICA -->
+        <!-- TABLA TELEMETRÍA -->
         <div class="tabla-contenedor animated-element" style="animation-delay: 0.5s;">
             <div class="tabla-header">
-                <h3 style="margin:0; font-weight: 800;">Telemetria Històrica</h3>
+                <h3 style="margin:0; font-weight: 800;">Telemetria Històrica del Sensor SADRIF</h3>
                 <button onclick="exportarTablaAExcel()" style="background:#0f172a; color:#fff; border:none; padding:10px 18px; border-radius:10px; font-weight:700; cursor:pointer; transition:var(--transicion);">📥 Exportar Dades</button>
             </div>
             <table id="tabla-exportable">
@@ -578,23 +692,32 @@
             </table>
         </div>
 
-        <!-- FOOTER: REDES SOCIALES -->
-        <div class="footer-social">
-            <a href="https://youtube.com" target="_blank"><img src="icon-youtube.svg" alt="YouTube"></a>
-            <a href="https://instagram.com" target="_blank"><img src="icon-instagram.png" alt="Instagram"></a>
-            <a href="https://twitch.tv/pla_drif" target="_blank"><img src="icon-twitch.svg" alt="Twitch"></a>
+        <!-- REDES SOCIALES EN TARJETAS GLASS -->
+        <div class="redes-sociales-grid">
+            <a href="https://www.youtube.com/@PlaDRIF_Oficial" target="_blank" class="card-social-link">
+                <img src="icon-youtube.svg" alt="YouTube">
+                <span>Canal Oficial de YouTube</span>
+            </a>
+            <a href="https://www.twitch.tv/pla_drif" target="_blank" class="card-social-link">
+                <img src="icon-twitch.svg" alt="Twitch">
+                <span>Emissió en Directe a Twitch</span>
+            </a>
+            <a href="https://www.instagram.com/pladrif_cat?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" class="card-social-link">
+                <img src="icon-instagram.png" alt="Instagram">
+                <span>Sígue'ns a Instagram</span>
+            </a>
         </div>
         
-        <!-- FOOTER: LOGOS INSTITUCIONALES MÁS GRANDES -->
+        <!-- LOGOS INSTITUCIONALES DESTACADOS -->
         <div class="footer-logos-contenedor">
             <img src="logo-sabadell.png" alt="Ajuntament de Sabadell">
             <img src="logo-generalitat.png" alt="Generalitat de Catalunya">
         </div>
 
-        <!-- LEGAL DISCLAIMER -->
+        <!-- AVISO LEGAL FOOTER -->
         <div class="footer-disclaimer">
-            <p>© SADRIF Project. Tots els drets reservats.</p>
-            <p>Aquest lloc web forma part d'un projecte acadèmic de Treball de Recerca (TdR) de l'<strong>Institut Sabadell</strong>. No existeix cap coordinació, afiliació directa ni vinculació oficial amb l'Ajuntament de Sabadell ni amb la Generalitat de Catalunya.</p>
+            <p>© PLA DRIF Project. Tots els drets reservats.</p>
+            <p>Aquest lloc web forma part d'un projecte acadèmic de Treball de Recerca (TdR) de l'<strong>Institut Sabadell</strong>. El dispositiu de mesura s'anomena <strong>SADRIF</strong>. No existeix cap coordinació, afiliació directa ni vinculació oficial amb l'Ajuntament de Sabadell ni amb la Generalitat de Catalunya.</p>
         </div>
 
     </div>
@@ -615,7 +738,7 @@
             "Tarragona": { temp: 26.4, hum: 48, pres: 1013, viento: 22.4 }
         };
 
-        // LÓGICA DRAWER
+        // CONTROLES DE DRAWER LATERAL
         const btnMenu = document.getElementById('btn-toggle-menu');
         const btnClose = document.getElementById('btn-close-drawer');
         const drawer = document.getElementById('nav-drawer');
@@ -635,17 +758,17 @@
         btnClose.addEventListener('click', () => toggleDrawer(false));
         overlay.addEventListener('click', () => toggleDrawer(false));
 
-        // BADGE SCROLL DINÁMICO
+        // SCROLL BADGE VISIBILITY
         const stickyBadge = document.getElementById('sticky-risk-badge');
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 200) {
+            if (window.scrollY > 220) {
                 stickyBadge.classList.add('visible');
             } else {
                 stickyBadge.classList.remove('visible');
             }
         });
 
-        // TWITCH PLAYER
+        // TWITCH REPRODUCCIÓN
         function actualitzarStreamTwitch() {
             const contenedor = document.getElementById('contenedor-visor');
             let parentDomain = window.location.hostname || "localhost"; 
@@ -662,8 +785,8 @@
             }
         }
 
-        // MAPA CONFIGURACIÓN CON FOCO IZQUIERDA
-        const map = L.map('mapa-real-catalunya', { center: [41.75, 2.10], zoom: 7.4, zoomControl: false });
+        // MAPA CONFIGURADO ENFOCANDO CATALUÑA A LA DERECHA (Centro ajustado [41.6, 1.45])
+        const map = L.map('mapa-real-catalunya', { center: [41.6, 1.45], zoom: 7.6, zoomControl: false });
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { attribution: '' }).addTo(map);
 
         function obtenerDatosProvincia(nombre) { return (nombre === "Barcelona") ? dadesGlobalsESP32 : simulacioComunitats[nombre]; }
@@ -679,12 +802,12 @@
                     style: function(feature) {
                         let d = obtenerDatosProvincia(feature.properties.name);
                         let r = calcularRiesgoCriterio(d.temp, d.hum, d.pres, d.viento);
-                        return { fillColor: r.color, fillOpacity: 0.6, color: r.color, weight: 2 };
+                        return { fillColor: r.color, fillOpacity: 0.65, color: r.color, weight: 2 };
                     }
                 }).addTo(map);
             });
 
-        // CÁLCULO Y TEMAS DINÁMICOS
+        // CÁLCULO DE RIESGO
         function calcularRiesgoCriterio(temp, hum, pres, viento) {
             let ptsT = 0, ptsH = 0, ptsV = 0, ptsP = 0;
             if (temp >= 20 && temp <= 25) ptsT = 10; else if (temp > 25 && temp <= 30) ptsT = 20; else if (temp > 30 && temp <= 35) ptsT = 30; else if (temp > 35) ptsT = 40;
@@ -727,8 +850,9 @@
             document.documentElement.style.setProperty('--riesgo-color-dinamico', r.color);
             document.documentElement.style.setProperty('--riesgo-bg-dinamico', r.gradient);
 
-            document.getElementById('hero-riesgo-lbl').innerText = r.nivel;
+            document.getElementById('hero-riesgo-lbl').innerText = "RISC " + r.nivel;
             document.getElementById('hero-riesgo-pct').innerText = r.puntos;
+            document.getElementById('hero-risk-fill').style.width = r.puntos + "%";
             document.getElementById('sticky-risk-val').innerText = r.puntos + "%";
 
             document.getElementById('txt-consejo-sucediendo').innerHTML = r.sucediendoText;
@@ -778,12 +902,12 @@
                         tbody.innerHTML += `<tr><td>${hora}</td><td>${t.toFixed(1)}</td><td>${h.toFixed(0)}</td><td>${v.toFixed(1)}</td><td>${p.toFixed(0)}</td><td style="color:${r.color}; font-weight:bold;">${r.puntos}</td><td>${r.nivel}</td></tr>`;
                     });
                 }
-            } catch (err) { console.error("Error dades:", err); }
+            } catch (err) { console.error("Error al carregar dades:", err); }
         }
 
         function exportarTablaAExcel() {
             let blob = new Blob([document.getElementById("tabla-exportable").outerHTML], { type: "application/vnd.ms-excel" });
-            let link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "SADRIF_Dades.xls"; link.click();
+            let link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Pla_DRIF_Telemetria.xls"; link.click();
         }
 
         actualizarDatosWeb();
