@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pla DRIF - Monitoratge de Risc d'Incendis Forestals</title>
+    <title>Pla DRIF - Sistema de Monitoratge de Risc d'Incendis Forestals</title>
     
-    <!-- Tipografía Profesional + Leaflet CSS -->
+    <!-- Fuente Plus Jakarta Sans + Leaflet CSS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -13,30 +13,21 @@
 
     <style>
         :root {
-            /* Paleta Modo Claro Liquid Glass */
-            --bg-principal: #f1f5f9;
-            --glass-bg: rgba(255, 255, 255, 0.72);
-            --glass-border: rgba(255, 255, 255, 0.8);
-            --glass-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.07), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+            --bg-principal: #f8fafc;
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.85);
+            --glass-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.06), inset 0 1px 1px rgba(255, 255, 255, 0.9);
             
             --texto-principal: #0f172a;
             --texto-mutado: #64748b;
             --borde-claro: rgba(226, 232, 240, 0.8);
 
-            /* Niveles de Riesgo */
-            --color-n0: #10b981;
-            --color-n0-bg: linear-gradient(135deg, rgba(236, 253, 245, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%);
-            --color-n1: #f59e0b;
-            --color-n1-bg: linear-gradient(135deg, rgba(254, 243, 199, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%);
-            --color-n2: #f97316;
-            --color-n2-bg: linear-gradient(135deg, rgba(255, 237, 213, 0.9) 0%, rgba(255, 247, 237, 0.8) 100%);
-            --color-n3: #ef4444;
-            --color-n3-bg: linear-gradient(135deg, rgba(254, 226, 226, 0.9) 0%, rgba(255, 241, 241, 0.8) 100%);
-            --color-n4: #8b5cf6;
-            --color-n4-bg: linear-gradient(135deg, rgba(243, 232, 255, 0.9) 0%, rgba(254, 226, 226, 0.8) 100%);
+            /* Gama Naranja Distintiva */
+            --naranja-base: #f97316;
+            --naranja-bg: rgba(249, 115, 22, 0.07);
+            --naranja-borde: rgba(249, 115, 22, 0.3);
 
-            --riesgo-color-dinamico: var(--color-n2);
-            --riesgo-bg-dinamico: var(--color-n2-bg);
+            --riesgo-color-dinamico: #f97316;
             --transicion: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -45,8 +36,8 @@
         body {
             font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--bg-principal);
-            background-image: radial-gradient(at 0% 0%, rgba(249, 115, 22, 0.05) 0px, transparent 50%),
-                              radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.05) 0px, transparent 50%);
+            background-image: radial-gradient(at 0% 0%, rgba(249, 115, 22, 0.04) 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.04) 0px, transparent 50%);
             color: var(--texto-principal);
             margin: 0;
             padding: 0;
@@ -55,27 +46,23 @@
             overflow-x: hidden;
         }
 
-        /* --- ANIMACIONES --- */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
+        /* --- ANIMACIONES DE ENTRADA --- */
+        @keyframes pageEntrance {
+            from { opacity: 0; transform: translateY(24px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes pulseGlow {
-            0%, 100% { filter: drop-shadow(0 0 10px rgba(249, 115, 22, 0.3)); }
-            50% { filter: drop-shadow(0 0 20px rgba(249, 115, 22, 0.6)); }
-        }
-
         .animated-element {
-            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            animation: pageEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        /* --- NAVBAR LIQUID GLASS --- */
+        /* --- NAVBAR --- */
         .navbar-top {
             position: sticky;
             top: 0;
             z-index: 1000;
-            background: rgba(255, 255, 255, 0.65);
+            background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
             border-bottom: 1px solid var(--glass-border);
@@ -84,7 +71,6 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-            transition: var(--transicion);
         }
 
         .navbar-brand {
@@ -92,80 +78,68 @@
             align-items: center;
             gap: 12px;
             font-weight: 800;
-            font-size: 1.35rem;
+            font-size: 1.25rem;
             color: var(--texto-principal);
             text-decoration: none;
             letter-spacing: -0.02em;
         }
 
-        .navbar-brand img { height: 38px; width: auto; transition: var(--transicion); }
-        .navbar-brand:hover img { transform: rotate(-5deg) scale(1.05); }
-
+        .navbar-brand img { height: 36px; width: auto; }
         .navbar-right-controls { display: flex; align-items: center; gap: 16px; }
 
-        /* Badge Glass Floating */
         .sticky-risk-badge {
             display: flex;
             align-items: center;
             gap: 10px;
-            background: rgba(255, 255, 255, 0.75);
+            background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(12px);
             border: 1px solid var(--glass-border);
-            padding: 8px 18px;
+            padding: 7px 16px;
             border-radius: 99px;
             font-weight: 700;
-            font-size: 0.88rem;
+            font-size: 0.85rem;
             opacity: 0;
-            transform: translateY(-15px) scale(0.95);
+            transform: translateY(-10px);
             transition: var(--transicion);
             box-shadow: var(--glass-shadow);
         }
 
-        .sticky-risk-badge.visible { opacity: 1; transform: translateY(0) scale(1); }
+        .sticky-risk-badge.visible { opacity: 1; transform: translateY(0); }
 
         .sticky-risk-dot {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             background-color: var(--riesgo-color-dinamico);
-            box-shadow: 0 0 10px var(--riesgo-color-dinamico);
+            box-shadow: 0 0 8px var(--riesgo-color-dinamico);
         }
 
-        /* Botón Liquid Glass Menu */
         .btn-hamburger {
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border);
-            border-radius: 12px;
+            border-radius: 10px;
             padding: 10px 12px;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             gap: 4px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
             transition: var(--transicion);
         }
 
-        .btn-hamburger:hover { background: #ffffff; transform: scale(1.05); }
+        .btn-hamburger:hover { background: #ffffff; transform: scale(1.03); }
+        .btn-hamburger span { display: block; width: 20px; height: 2px; background-color: var(--texto-principal); border-radius: 2px; }
 
-        .btn-hamburger span {
-            display: block;
-            width: 22px;
-            height: 2px;
-            background-color: var(--texto-principal);
-            border-radius: 2px;
-        }
-
-        /* Drawer Lateral Glass */
+        /* DRAWER LATERAL */
         .nav-drawer {
             position: fixed;
             top: 0;
             right: -340px;
             width: 320px;
             height: 100vh;
-            background: rgba(255, 255, 255, 0.85);
+            background: rgba(255, 255, 255, 0.88);
             backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
             box-shadow: -15px 0 35px rgba(0,0,0,0.08);
             z-index: 2000;
             padding: 35px 28px;
@@ -178,16 +152,16 @@
 
         .nav-drawer.open { right: 0; }
         .drawer-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--borde-claro); padding-bottom: 15px; }
-        .drawer-close { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: var(--texto-mutado); }
+        .drawer-close { background: none; border: none; font-size: 1.6rem; cursor: pointer; color: var(--texto-mutado); }
         .drawer-menu { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 18px; }
-        .drawer-menu a { text-decoration: none; color: var(--texto-principal); font-weight: 700; font-size: 1.05rem; transition: var(--transicion); }
-        .drawer-menu a:hover { color: var(--riesgo-color-dinamico); transform: translateX(5px); display: inline-block; }
+        .drawer-menu a { text-decoration: none; color: var(--texto-principal); font-weight: 700; font-size: 1rem; transition: var(--transicion); }
+        .drawer-menu a:hover { color: var(--naranja-base); transform: translateX(4px); display: inline-block; }
 
         .drawer-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(15, 23, 42, 0.2);
-            backdrop-filter: blur(6px);
+            background: rgba(15, 23, 42, 0.15);
+            backdrop-filter: blur(4px);
             z-index: 1500;
             opacity: 0;
             pointer-events: none;
@@ -196,342 +170,300 @@
 
         .drawer-overlay.active { opacity: 1; pointer-events: auto; }
 
-        /* Banner Alerta Extrema */
+        /* BANNER ALERTA REGLA 30-30-30 */
         .banner-alerta-extrema {
             display: none;
-            background: linear-gradient(90deg, #ef4444 0%, #8b5cf6 100%);
+            background: linear-gradient(90deg, #ef4444 0%, #b91c1c 100%);
             color: #fff;
             text-align: center;
             padding: 10px 20px;
             font-weight: 800;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             letter-spacing: 0.05em;
             text-transform: uppercase;
         }
 
         .contenedor-principal {
-            max-width: 1240px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 35px 24px;
+            padding: 32px 24px;
         }
 
-        /* --- HERO SECCIÓN: CURVA CIRCULAR PERFECTA + TERMÓMETRO DE RISC --- */
+        /* --- HERO: MONITORIZACIÓN + BARRA MINIMALISTA + MAPA COMPACTO --- */
         .hero-compact {
-            background: var(--riesgo-bg-dinamico);
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(16px);
             border: 1px solid var(--glass-border);
-            border-radius: 28px;
+            border-radius: 24px;
             box-shadow: var(--glass-shadow);
             overflow: hidden;
             display: grid;
-            grid-template-columns: 1.25fr 1fr;
-            min-height: 350px;
-            margin-bottom: 28px;
+            grid-template-columns: 1.2fr 1fr;
+            min-height: 320px;
+            margin-bottom: 24px;
             position: relative;
-            transition: var(--transicion);
         }
 
         .hero-left-content {
-            padding: 38px 44px;
+            padding: 32px 36px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             z-index: 10;
         }
 
+        .hero-badge-location {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
         .hero-header-badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(8px);
-            padding: 6px 14px;
+            background: rgba(249, 115, 22, 0.1);
+            color: var(--naranja-base);
+            padding: 5px 12px;
             border-radius: 99px;
-            font-size: 0.78rem;
+            font-size: 0.75rem;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--texto-mutado);
+            letter-spacing: 0.06em;
             width: fit-content;
-            border: 1px solid rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(249, 115, 22, 0.2);
         }
 
-        .hero-title-sub {
-            font-size: 0.92rem;
+        .hero-sensor-location {
+            font-size: 0.85rem;
             color: var(--texto-mutado);
             font-weight: 600;
-            margin-top: 6px;
+            margin-top: 4px;
         }
 
-        /* Bloque central de Porcentaje */
+        /* BLOQUE CENTRAL DE PORCENTAJE (RULETA) */
         .hero-percentage-display { 
             display: flex; 
             align-items: baseline; 
-            gap: 8px; 
-            margin-left: auto;
-            margin-right: auto;
-            padding: 10px 0;
+            justify-content: flex-start;
+            gap: 6px; 
+            margin: 16px 0;
         }
 
         .hero-num-pct { 
-            font-size: 6.5rem; 
+            font-size: 5.5rem; 
             font-weight: 800; 
             line-height: 0.85; 
             color: var(--riesgo-color-dinamico); 
-            transition: var(--transicion);
             letter-spacing: -0.04em;
+            font-variant-numeric: tabular-nums;
         }
 
-        .hero-sim-pct { font-size: 2.8rem; font-weight: 800; color: var(--texto-mutado); }
-        
-        .hero-status-lbl { 
-            font-size: 1.1rem; 
-            font-weight: 800; 
-            text-transform: uppercase; 
-            letter-spacing: 0.08em; 
-            color: var(--riesgo-color-dinamico); 
-            text-align: center;
-            margin-bottom: 8px;
-        }
+        .hero-sim-pct { font-size: 2.4rem; font-weight: 800; color: var(--texto-mutado); }
 
-        /* TERMÓMETRO / BARRA DE RIESGO DEDICADA */
-        .termometro-container {
+        /* BARRA DE RIESGO HYPER-MINIMALISTA */
+        .termometro-minimal {
             width: 100%;
-            background: rgba(255, 255, 255, 0.65);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.9);
-            border-radius: 16px;
-            padding: 14px 18px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            margin-top: 10px;
         }
 
         .termometro-track {
-            height: 14px;
+            height: 10px;
             width: 100%;
-            background: #e2e8f0;
+            background: rgba(226, 232, 240, 0.8);
             border-radius: 99px;
             overflow: hidden;
             position: relative;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
         }
 
         .termometro-fill {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, #10b981 0%, #f59e0b 40%, #f97316 70%, #ef4444 100%);
+            background-color: var(--riesgo-color-dinamico);
             border-radius: 99px;
-            transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.6s ease;
         }
 
-        .termometro-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.72rem;
-            font-weight: 800;
-            color: var(--texto-mutado);
-            margin-top: 6px;
-            text-transform: uppercase;
-        }
-
-        /* MAPA CON MÁSCARA CIRCULAR ARQUEADA */
+        /* MAPA COMPACTO ENCUADRADO A LA DERECHA */
         .hero-map-wrapper {
             position: relative;
             height: 100%;
-            min-height: 350px;
-            /* Recorte circular arqueado fluido */
-            clip-path: ellipse(115% 100% at 100% 50%);
-            -webkit-mask-image: radial-gradient(circle at 100% 50%, black 50%, transparent 95%);
-            mask-image: radial-gradient(circle at 100% 50%, black 50%, transparent 95%);
+            min-height: 320px;
+            border-left: 1px solid var(--borde-claro);
         }
 
         #mapa-real-catalunya { width: 100%; height: 100%; background: transparent; }
 
-        /* --- TARJETAS LIQUID GLASS --- */
-        .premium-data-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 32px; }
+        /* LEAFLET TOOLTIP ESTILIZADO */
+        .custom-map-tooltip {
+            background: rgba(15, 23, 42, 0.9) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            color: #ffffff !important;
+            border-radius: 12px !important;
+            padding: 10px 14px !important;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
+        }
+        .custom-map-tooltip .tooltip-title { font-weight: 800; font-size: 0.9rem; margin-bottom: 4px; color: var(--naranja-base); }
+        .custom-map-tooltip .tooltip-line { font-size: 0.78rem; opacity: 0.9; }
+
+        /* --- METEOROLOGÍA (RUELTA DIGITOS) --- */
+        .premium-data-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
         
         .tarjeta-hero-lectura {
             background: var(--glass-bg);
             backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 22px;
+            border-radius: 18px;
+            padding: 20px;
             box-shadow: var(--glass-shadow);
             text-align: center;
             transition: var(--transicion);
         }
 
-        .tarjeta-hero-lectura:hover { 
-            transform: translateY(-5px) scale(1.02); 
-            background: rgba(255, 255, 255, 0.85);
-            box-shadow: 0 20px 30px rgba(0,0,0,0.06);
-        }
+        .tarjeta-hero-lectura:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.88); }
+        .tarjeta-hero-lectura .label { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: var(--texto-mutado); letter-spacing: 0.06em; margin-bottom: 6px; }
+        .tarjeta-hero-lectura .valor { font-size: 1.75rem; font-weight: 800; color: var(--texto-principal); font-variant-numeric: tabular-nums; }
 
-        .tarjeta-hero-lectura .label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--texto-mutado); letter-spacing: 0.06em; margin-bottom: 8px; }
-        .tarjeta-hero-lectura .valor { font-size: 1.85rem; font-weight: 800; color: var(--texto-principal); }
-
-        /* --- CONSEJOS --- */
-        .grid-consejos { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-bottom: 40px; }
+        /* --- TARJETAS DESTACADAS EN NARANJA --- */
+        .grid-consejos { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 36px; }
         
-        .bloque-consejo {
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border);
-            border-left: 6px solid var(--riesgo-color-dinamico);
+        .card-destacada-naranja {
+            background: var(--naranja-bg);
+            border: 1px solid var(--naranja-borde);
             border-radius: 20px;
             padding: 26px;
             box-shadow: var(--glass-shadow);
             transition: var(--transicion);
         }
 
-        .bloque-consejo:hover { transform: translateY(-3px); }
-        .bloque-consejo h3 { font-size: 1.1rem; font-weight: 800; margin-top: 0; margin-bottom: 12px; color: var(--texto-principal); }
-        .bloque-consejo div { color: var(--texto-mutado); font-size: 0.95rem; line-height: 1.6; }
+        .card-destacada-naranja:hover { transform: translateY(-3px); background: rgba(249, 115, 22, 0.09); }
+        .card-destacada-naranja h3 { font-size: 1.05rem; font-weight: 800; margin-top: 0; margin-bottom: 10px; color: var(--texto-principal); }
+        .card-destacada-naranja p { color: var(--texto-mutado); font-size: 0.92rem; line-height: 1.65; margin: 0; }
 
-        /* --- CÁMARA LIVE --- */
-        .header-sadrif-seccion { border-bottom: 2px solid var(--borde-claro); padding-bottom: 12px; margin-bottom: 24px; }
-        .header-sadrif-seccion h2 { margin: 0; font-size: 1.5rem; font-weight: 800; letter-spacing: -0.01em; }
+        /* --- CÁMARA LIVE & SECCIONES --- */
+        .header-sadrif-seccion { border-bottom: 2px solid var(--borde-claro); padding-bottom: 10px; margin-bottom: 20px; }
+        .header-sadrif-seccion h2 { margin: 0; font-size: 1.4rem; font-weight: 800; letter-spacing: -0.01em; }
         
         .tarjeta-camara { 
             background: var(--glass-bg); 
             backdrop-filter: blur(16px); 
             border: 1px solid var(--glass-border); 
-            border-radius: 22px; 
-            padding: 24px; 
+            border-radius: 20px; 
+            padding: 20px; 
             box-shadow: var(--glass-shadow); 
-            margin-bottom: 44px; 
+            margin-bottom: 40px; 
         }
 
-        .camara-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; font-size: 0.85rem; font-weight: 700; }
-        .camara-header-info { display: flex; align-items: center; gap: 14px; }
-        .camara-header-info img { height: 36px; width: auto; border-radius: 8px; }
-        .camara-visor { width: 100%; aspect-ratio: 16/9; background: #0f172a; border-radius: 16px; overflow: hidden; }
+        .camara-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 0.82rem; font-weight: 700; }
+        .camara-header-info { display: flex; align-items: center; gap: 12px; }
+        .camara-header-info img { height: 32px; width: auto; border-radius: 6px; }
+        .camara-visor { width: 100%; aspect-ratio: 16/9; background: #0f172a; border-radius: 14px; overflow: hidden; }
 
-        /* --- PLA DRIF INFO & VIDEO --- */
-        .seccion-info-drif { margin-bottom: 44px; }
-        .grid-info-drif { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; }
-        .video-youtube-placeholder { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 20px; overflow: hidden; box-shadow: var(--glass-shadow); }
-        .texto-drif p { color: var(--texto-mutado); line-height: 1.7; margin-bottom: 16px; font-size: 0.98rem; }
+        /* --- PLA DRIF VIDEO Y DESCRIPCIÓN --- */
+        .seccion-info-drif { margin-bottom: 40px; }
+        .grid-info-drif { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: center; }
+        .video-youtube-placeholder { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 18px; overflow: hidden; box-shadow: var(--glass-shadow); }
+        .texto-drif p { color: var(--texto-mutado); line-height: 1.65; margin-bottom: 14px; font-size: 0.95rem; }
 
         /* --- GRÁFICAS --- */
-        .grid-graficas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 44px; }
+        .grid-graficas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 40px; }
         .iframe-grafica-wrapper {
             width: 100%;
-            height: 220px;
+            height: 210px;
             background: var(--glass-bg);
             backdrop-filter: blur(16px);
             border: 1px solid var(--glass-border);
-            border-radius: 18px;
+            border-radius: 16px;
             box-shadow: var(--glass-shadow);
             overflow: hidden;
             transition: var(--transicion);
         }
-
-        .iframe-grafica-wrapper:hover { transform: translateY(-4px); }
+        .iframe-grafica-wrapper:hover { transform: translateY(-3px); }
         .iframe-grafica-wrapper iframe { width: 100%; height: 100%; border: none; overflow: hidden; }
 
-        /* --- TABLA TELEMETRÍA --- */
+        /* --- TABLA --- */
         .tabla-contenedor { 
             background: var(--glass-bg); 
             backdrop-filter: blur(16px); 
-            border-radius: 22px; 
-            padding: 28px; 
+            border-radius: 20px; 
+            padding: 24px; 
             border: 1px solid var(--glass-border); 
             box-shadow: var(--glass-shadow); 
-            margin-bottom: 50px; 
+            margin-bottom: 44px; 
         }
 
-        .tabla-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .tabla-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
         table { width: 100%; border-collapse: collapse; text-align: left; }
-        th { padding: 14px 12px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--texto-mutado); border-bottom: 2px solid var(--borde-claro); }
-        td { padding: 16px 12px; font-size: 0.92rem; border-bottom: 1px solid var(--borde-claro); font-weight: 600; }
+        th { padding: 12px 10px; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: var(--texto-mutado); border-bottom: 2px solid var(--borde-claro); }
+        td { padding: 14px 10px; font-size: 0.9rem; border-bottom: 1px solid var(--borde-claro); font-weight: 600; }
 
-        /* --- TARJETAS DE REDES SOCIALES (RED ISEÑADAS Y OFICIALES) --- */
+        /* --- REDES SOCIALES PROFESIONALES --- */
         .redes-sociales-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-top: 40px;
-            margin-bottom: 30px;
+            gap: 16px;
+            margin-bottom: 36px;
         }
 
         .card-social-link {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 14px;
             background: var(--glass-bg);
             backdrop-filter: blur(16px);
             border: 1px solid var(--glass-border);
-            padding: 18px 24px;
-            border-radius: 20px;
+            padding: 16px 20px;
+            border-radius: 16px;
             text-decoration: none;
             color: var(--texto-principal);
             font-weight: 700;
+            font-size: 0.92rem;
             box-shadow: var(--glass-shadow);
             transition: var(--transicion);
         }
 
-        .card-social-link:hover {
-            transform: translateY(-4px) scale(1.02);
-            background: rgba(255, 255, 255, 0.9);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.08);
-        }
+        .card-social-link:hover { transform: translateY(-3px); background: #ffffff; }
 
-        .card-social-link img { width: 32px; height: 32px; }
-
-        /* --- FOOTER: LOGOS INSTITUCIONALES MÁS GRANDES Y LIMPIOS --- */
+        /* --- FOOTER LOGOS INSTITUCIONALES --- */
         .footer-logos-contenedor { 
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            border-radius: 24px; 
-            padding: 35px 50px; 
+            border-radius: 20px; 
+            padding: 30px 40px; 
             display: flex; 
             justify-content: space-around; 
             align-items: center;
             box-shadow: var(--glass-shadow);
         }
 
-        .footer-logos-contenedor img { 
-            max-height: 110px; 
-            width: auto; 
-            object-fit: contain; 
-            transition: var(--transicion);
-        }
-
-        .footer-logos-contenedor img:hover { transform: scale(1.05); }
+        .footer-logos-contenedor img { max-height: 90px; width: auto; object-fit: contain; transition: var(--transicion); }
+        .footer-logos-contenedor img:hover { transform: scale(1.04); }
 
         .footer-disclaimer {
             text-align: center;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             color: var(--texto-mutado);
-            margin-top: 30px;
+            margin-top: 28px;
             margin-bottom: 20px;
             line-height: 1.6;
-            padding: 0 20px;
         }
 
-        /* --- RESPONSIVE OPTIMIZADO PARA MÓVIL Y TABLETS --- */
+        /* RESPONSIVE */
         @media (max-width: 900px) {
             .hero-compact { grid-template-columns: 1fr; }
-            .hero-map-wrapper { 
-                height: 280px; 
-                clip-path: none; 
-                -webkit-mask-image: none; 
-                mask-image: none; 
-            }
-            .premium-data-row, .grid-consejos, .grid-graficas, .grid-info-drif, .redes-sociales-grid { 
-                grid-template-columns: 1fr; 
-            }
-            .hero-left-content { padding: 28px 22px; }
-            .hero-num-pct { font-size: 4.8rem; }
-            .footer-logos-contenedor { flex-direction: column; gap: 30px; padding: 30px 20px; }
-            .footer-logos-contenedor img { max-height: 85px; }
+            .hero-map-wrapper { height: 260px; border-left: none; border-top: 1px solid var(--borde-claro); }
+            .premium-data-row, .grid-consejos, .grid-graficas, .grid-info-drif, .redes-sociales-grid { grid-template-columns: 1fr; }
+            .hero-left-content { padding: 24px; }
+            .hero-num-pct { font-size: 4.5rem; }
+            .footer-logos-contenedor { flex-direction: column; gap: 24px; padding: 24px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- NAVBAR LIQUID GLASS -->
+    <!-- NAVBAR -->
     <header class="navbar-top">
         <a href="#" class="navbar-brand">
             <img src="logo-sadrif.svg" alt="Pla DRIF Logo">
@@ -541,7 +473,7 @@
         <div class="navbar-right-controls">
             <div id="sticky-risk-badge" class="sticky-risk-badge">
                 <span class="sticky-risk-dot"></span>
-                <span>Risc: <strong id="sticky-risk-val">--%</strong></span>
+                <span>Risc: <strong id="sticky-risk-val">0%</strong></span>
             </div>
 
             <button class="btn-hamburger" id="btn-toggle-menu" aria-label="Obrir Menú">
@@ -556,135 +488,131 @@
     <div class="drawer-overlay" id="drawer-overlay"></div>
     <div class="nav-drawer" id="nav-drawer">
         <div class="drawer-header">
-            <span style="font-weight: 800; font-size: 1.15rem;">Navegació Pla DRIF</span>
+            <span style="font-weight: 800; font-size: 1.1rem;">Pla DRIF Menu</span>
             <button class="drawer-close" id="btn-close-drawer">&times;</button>
         </div>
         <ul class="drawer-menu">
-            <li><a href="#">🏠 Inici</a></li>
-            <li><a href="https://www.youtube.com/@PlaDRIF_Oficial" target="_blank">📺 Canal de YouTube</a></li>
-            <li><a href="https://www.twitch.tv/pla_drif" target="_blank">🔴 Directe Twitch</a></li>
-            <li><a href="https://www.instagram.com/pladrif_cat?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank">📷 Instagram</a></li>
-            <li><a href="#">ℹ️ Sobre el Treball de Recerca</a></li>
+            <li><a href="#">Inici</a></li>
+            <li><a href="https://www.youtube.com/@PlaDRIF_Oficial" target="_blank">Canal de YouTube</a></li>
+            <li><a href="https://www.twitch.tv/pla_drif" target="_blank">Directe Twitch</a></li>
+            <li><a href="https://www.instagram.com/pladrif_cat?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank">Instagram</a></li>
+            <li><a href="#">Sobre el Projecte</a></li>
         </ul>
     </div>
 
     <!-- BANNER REGLA 30-30-30 -->
     <div id="banner-urgente-30-30-30" class="banner-alerta-extrema">
-        🚨 ATENCIÓ: REGLA DEL 30-30-30 COMPLERTA — PERILL EXTREM D'INCENDI
+        ATENCIÓ: REGLA DEL 30-30-30 COMPLERTA — PERILL EXTREM D'INCENDI
     </div>
 
     <div class="contenedor-principal">
         
-        <!-- HERO COMPACTO: MONITORIZACIÓN + TERMÓMETRO + MAPA CURVO -->
-        <div class="hero-compact animated-element" id="hero-card">
+        <!-- HERO: RISC + BARRA MINIMALISTA + MAPA COMPACTO -->
+        <div class="hero-compact animated-element" style="animation-delay: 0.05s;">
             <div class="hero-left-content">
-                <div>
-                    <div class="hero-header-badge">📡 ESTACIÓ SENSOR SADRIF</div>
-                    <div class="hero-title-sub">Sistema Autònom de Detecció de Risc d'Incendis Forestals</div>
+                <div class="hero-badge-location">
+                    <div class="hero-header-badge">ESTACIÓ SENSOR SADRIF</div>
+                    <div class="hero-sensor-location">Ubicació: Sabadell - Torrent de Colobrers</div>
                 </div>
 
                 <div>
-                    <div class="hero-status-lbl" id="hero-riesgo-lbl">NIVELL DE RISC D'INCENDI</div>
                     <div class="hero-percentage-display">
-                        <span class="hero-num-pct" id="hero-riesgo-pct">--</span>
+                        <span class="hero-num-pct" id="hero-riesgo-pct">0</span>
                         <span class="hero-sim-pct">%</span>
                     </div>
-                </div>
 
-                <!-- TERMÓMETRO / BARRA DE RIESGO DEDICADA -->
-                <div class="termometro-container">
-                    <div class="termometro-track">
-                        <div class="termometro-fill" id="hero-risk-fill"></div>
-                    </div>
-                    <div class="termometro-labels">
-                        <span>0% (Baix)</span>
-                        <span>50% (Alt)</span>
-                        <span>100% (Extrem)</span>
+                    <!-- BARRA DE RIESGO MINIMALISTA -->
+                    <div class="termometro-minimal">
+                        <div class="termometro-track">
+                            <div class="termometro-fill" id="hero-risk-fill"></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- MAPA CON MÁSCARA CIRCULAR Y ENCUADRE A LA DERECHA -->
+            <!-- MAPA COMPACTO A LA DERECHA -->
             <div class="hero-map-wrapper">
                 <div id="mapa-real-catalunya"></div>
             </div>
         </div>
 
-        <!-- TARJETAS DE METEOROLOGÍA -->
-        <div class="premium-data-row animated-element" style="animation-delay: 0.1s;">
+        <!-- TARJETAS DE METEOROLOGÍA CON ANIMACIÓN DE RULETA -->
+        <div class="premium-data-row animated-element" style="animation-delay: 0.15s;">
             <div class="tarjeta-hero-lectura">
                 <div class="label">Temperatura</div>
-                <div class="valor" id="hero-temp">--</div>
+                <div class="valor"><span id="hero-temp">0.0</span> °C</div>
             </div>
             <div class="tarjeta-hero-lectura">
                 <div class="label">Humitat Relativa</div>
-                <div class="valor" id="hero-hum">--</div>
+                <div class="valor"><span id="hero-hum">0</span> %</div>
             </div>
             <div class="tarjeta-hero-lectura">
                 <div class="label">Velocitat Vent</div>
-                <div class="valor" id="hero-viento">--</div>
+                <div class="valor"><span id="hero-viento">0.0</span> km/h</div>
             </div>
             <div class="tarjeta-hero-lectura">
                 <div class="label">Pressió Atmosfèrica</div>
-                <div class="valor" id="hero-presion">--</div>
+                <div class="valor"><span id="hero-presion">0</span> hPa</div>
             </div>
         </div>
 
-        <!-- CONSEJOS -->
-        <div class="grid-consejos animated-element" style="animation-delay: 0.2s;">
-            <div class="bloque-consejo">
-                <h3>🌱 Estat Actual de la Vegetació</h3>
-                <div id="txt-consejo-sucediendo">Calculant estat de la vegetació...</div>
+        <!-- TARJETAS EN COLOR NARANJA DISTINTIVO Y CONTENIDO ENRIQUECIDO -->
+        <div class="grid-consejos animated-element" style="animation-delay: 0.25s;">
+            <div class="card-destacada-naranja">
+                <h3>Estat Actual de la Vegetació</h3>
+                <p id="txt-consejo-sucediendo">Anàlisi del combustible vegetal en curs: S'avalua la taxa d'estrès hídric i l'acumulació de biomasa seca al sotabosc. Les elevades temperatures combinades amb baixes humitats afavoreixen la pèrdua d'humitat interna de les espècies mediterrànies, incrementant l'inflamabilitat.</p>
             </div>
-            <div class="bloque-consejo">
-                <h3>🛡️ Pla d'Acció i Restriccions</h3>
-                <div id="txt-consejo-accion">Calculant protocols d'actuació...</div>
+            <div class="card-destacada-naranja">
+                <h3>Pla d'Acció i Restriccions</h3>
+                <p id="txt-consejo-accion">Protocol operatiu d'emergència: Mantenir supervisió constant a les zones d'interfície urbana-forestal. Restricció de treballs agrícoles o de manteniment que generin espurnes en franges perimetrals i activació dels equips de primera intervenció municipal.</p>
             </div>
         </div>
 
         <!-- CÁMARA LIVE -->
-        <div class="header-sadrif-seccion animated-element" style="animation-delay: 0.3s;">
+        <div class="header-sadrif-seccion animated-element" style="animation-delay: 0.35s;">
             <h2>Transmissió en Directe</h2>
         </div>
         
-        <div class="tarjeta-camara animated-element" style="animation-delay: 0.35s;">
+        <div class="tarjeta-camara animated-element" style="animation-delay: 0.4s;">
             <div class="camara-header">
                 <div class="camara-header-info">
                     <img src="foto-caja-sadrif.png" alt="Sensor SADRIF">
                     <span>ESTACIÓ SENSOR SADRIF (SABADELL)</span>
                 </div>
-                <span style="color:#a970ff;">🔴 Directe Twitch</span>
+                <span style="color:#a970ff; font-weight:800;">DIRECTE TWITCH</span>
             </div>
             <div class="camara-visor" id="contenedor-visor"></div>
         </div>
 
-        <!-- QUÈ ÉS EL PLA DRIF -->
-        <section class="seccion-info-drif animated-element" style="animation-delay: 0.4s;">
-            <h2>Què és el Pla DRIF?</h2>
-            <div class="grid-info-drif">
+        <!-- SECCIÓN INFORMACIÓN PLA DRIF + YOUTUBE SHORTS -->
+        <section class="seccion-info-drif animated-element" style="animation-delay: 0.45s;">
+            <div class="header-sadrif-seccion">
+                <h2>Què és el Pla DRIF?</h2>
+            </div>
+            <div class="grid-info-drif" style="margin-top: 20px;">
                 <div class="video-youtube-placeholder">
-                    <iframe width="100%" height="100%" src="https://www.youtube.com/embed/TU_ID_DE_VIDEO" title="Pla DRIF Video" frameborder="0" allowfullscreen></iframe>
+                    <iframe width="100%" height="100%" src="https://www.youtube.com/embed/Jiht0DbdYvE" title="Pla DRIF Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 </div>
                 <div class="texto-drif">
-                    <p><strong>El Pla DRIF (Detecció de Risc d'Incendis Forestals)</strong> és una iniciativa integral de prevenció i conscienciació desenvolupada en el marc d'un Treball de Recerca (TdR).</p>
-                    <p>El projecte utilitza el sensor iot <strong>SADRIF</strong>, un dispositiu autònom amb alimentació solar dissenyat per mesurar en temps real variables meteorològiques clau i determinar el risc d'incendi a la zona.</p>
+                    <p><strong>El Pla DRIF (Detecció de Risc d'Incendis Forestals)</strong> és una iniciativa integral de prevenció, monitoratge ambiental i conscienciació ciutadana desenvolupada en el marc d'un Treball de Recerca (TdR).</p>
+                    <p>Mitjançant la xarxa de sensors <strong>SADRIF</strong>, el sistema analitza contínuament la temperatura, la humitat relativa, la pressió atmosfèrica i la velocitat del vent per calcular l'índex de risc d'incendi en temps real.</p>
                 </div>
             </div>
         </section>
 
-        <!-- GRÁFICAS SIN DESLIZADORES -->
-        <div class="grid-graficas animated-element" style="animation-delay: 0.45s;">
-            <div class="iframe-grafica-wrapper"><iframe src="https://thingspeak.com/channels/3411217/charts/1?bgcolor=%23ffffff&color=%23f59e0b&dynamic=true&results=12" scrolling="no"></iframe></div>
+        <!-- GRÁFICAS -->
+        <div class="grid-graficas animated-element" style="animation-delay: 0.5s;">
+            <div class="iframe-grafica-wrapper"><iframe src="https://thingspeak.com/channels/3411217/charts/1?bgcolor=%23ffffff&color=%23f97316&dynamic=true&results=12" scrolling="no"></iframe></div>
             <div class="iframe-grafica-wrapper"><iframe src="https://thingspeak.com/channels/3411217/charts/2?bgcolor=%23ffffff&color=%230284c7&dynamic=true&results=12" scrolling="no"></iframe></div>
-            <div class="iframe-grafica-wrapper"><iframe src="https://thingspeak.com/channels/3411217/charts/4?bgcolor=%23ffffff&color=%23f97316&dynamic=true&results=12" scrolling="no"></iframe></div>
+            <div class="iframe-grafica-wrapper"><iframe src="https://thingspeak.com/channels/3411217/charts/4?bgcolor=%23ffffff&color=%23f59e0b&dynamic=true&results=12" scrolling="no"></iframe></div>
             <div class="iframe-grafica-wrapper"><iframe src="https://thingspeak.com/channels/3411217/charts/3?bgcolor=%23ffffff&color=%2364748b&dynamic=true&results=12" scrolling="no"></iframe></div>
         </div>
 
         <!-- TABLA TELEMETRÍA -->
-        <div class="tabla-contenedor animated-element" style="animation-delay: 0.5s;">
+        <div class="tabla-contenedor animated-element" style="animation-delay: 0.55s;">
             <div class="tabla-header">
                 <h3 style="margin:0; font-weight: 800;">Telemetria Històrica del Sensor SADRIF</h3>
-                <button onclick="exportarTablaAExcel()" style="background:#0f172a; color:#fff; border:none; padding:10px 18px; border-radius:10px; font-weight:700; cursor:pointer; transition:var(--transicion);">📥 Exportar Dades</button>
+                <button onclick="exportarTablaAExcel()" style="background:#0f172a; color:#fff; border:none; padding:9px 16px; border-radius:8px; font-weight:700; cursor:pointer; font-size:0.85rem;">Exportar Dades</button>
             </div>
             <table id="tabla-exportable">
                 <thead><tr><th>Hora</th><th>Temp °C</th><th>Hum %</th><th>Vent km/h</th><th>Pressió hPa</th><th>Risc (pts)</th><th>Estat</th></tr></thead>
@@ -692,32 +620,29 @@
             </table>
         </div>
 
-        <!-- REDES SOCIALES EN TARJETAS GLASS -->
-        <div class="redes-sociales-grid">
+        <!-- REDES SOCIALES -->
+        <div class="redes-sociales-grid animated-element" style="animation-delay: 0.6s;">
             <a href="https://www.youtube.com/@PlaDRIF_Oficial" target="_blank" class="card-social-link">
-                <img src="icon-youtube.svg" alt="YouTube">
                 <span>Canal Oficial de YouTube</span>
             </a>
             <a href="https://www.twitch.tv/pla_drif" target="_blank" class="card-social-link">
-                <img src="icon-twitch.svg" alt="Twitch">
                 <span>Emissió en Directe a Twitch</span>
             </a>
             <a href="https://www.instagram.com/pladrif_cat?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" class="card-social-link">
-                <img src="icon-instagram.png" alt="Instagram">
-                <span>Sígue'ns a Instagram</span>
+                <span>Perfil d'Instagram</span>
             </a>
         </div>
         
-        <!-- LOGOS INSTITUCIONALES DESTACADOS -->
-        <div class="footer-logos-contenedor">
+        <!-- LOGOS INSTITUCIONALES -->
+        <div class="footer-logos-contenedor animated-element" style="animation-delay: 0.65s;">
             <img src="logo-sabadell.png" alt="Ajuntament de Sabadell">
             <img src="logo-generalitat.png" alt="Generalitat de Catalunya">
         </div>
 
-        <!-- AVISO LEGAL FOOTER -->
+        <!-- FOOTER AVISO LEGAL -->
         <div class="footer-disclaimer">
             <p>© PLA DRIF Project. Tots els drets reservats.</p>
-            <p>Aquest lloc web forma part d'un projecte acadèmic de Treball de Recerca (TdR) de l'<strong>Institut Sabadell</strong>. El dispositiu de mesura s'anomena <strong>SADRIF</strong>. No existeix cap coordinació, afiliació directa ni vinculació oficial amb l'Ajuntament de Sabadell ni amb la Generalitat de Catalunya.</p>
+            <p>Aquest lloc web forma part d'un projecte acadèmic de Treball de Recerca (TdR) de l'Institut Sabadell. El dispositiu de mesura s'anomena SADRIF. No existeix vinculació oficial amb l'Ajuntament de Sabadell ni amb la Generalitat de Catalunya.</p>
         </div>
 
     </div>
@@ -729,13 +654,14 @@
         const CHANNEL_ID = "3411217"; 
         const READ_API_KEY = "GYE9XC7CJSA3916";
         
-        let dadesGlobalsESP32 = { temp: 24.5, hum: 55, pres: 1014, viento: 0.0 };
+        let dadesGlobalsESP32 = { temp: 32.0, hum: 37, pres: 989, viento: 4.7 };
         let capaGeoJSONGlobal = null; 
 
+        // Datos simulados para las otras provincias
         const simulacioComunitats = {
-            "Girona": { temp: 21.2, hum: 62, pres: 1016, viento: 8.5 },
-            "Lleida": { temp: 34.1, hum: 14, pres: 1008, viento: 12.0 }, 
-            "Tarragona": { temp: 26.4, hum: 48, pres: 1013, viento: 22.4 }
+            "Girona": { temp: 24.2, hum: 58, pres: 1015, viento: 11.2 },
+            "Lleida": { temp: 35.8, hum: 18, pres: 1004, viento: 15.4 }, 
+            "Tarragona": { temp: 28.1, hum: 44, pres: 1011, viento: 21.0 }
         };
 
         // CONTROLES DE DRAWER LATERAL
@@ -761,14 +687,14 @@
         // SCROLL BADGE VISIBILITY
         const stickyBadge = document.getElementById('sticky-risk-badge');
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 220) {
+            if (window.scrollY > 200) {
                 stickyBadge.classList.add('visible');
             } else {
                 stickyBadge.classList.remove('visible');
             }
         });
 
-        // TWITCH REPRODUCCIÓN
+        // REPRODUCTOR DE TWITCH
         function actualitzarStreamTwitch() {
             const contenedor = document.getElementById('contenedor-visor');
             let parentDomain = window.location.hostname || "localhost"; 
@@ -785,9 +711,82 @@
             }
         }
 
-        // MAPA CONFIGURADO ENFOCANDO CATALUÑA A LA DERECHA (Centro ajustado [41.6, 1.45])
-        const map = L.map('mapa-real-catalunya', { center: [41.6, 1.45], zoom: 7.6, zoomControl: false });
+        // ANIMACIÓN DE RULETA / SLOT MACHINE PARA LOS NÚMEROS
+        function animateNumber(id, start, end, duration, decimals = 0) {
+            const obj = document.getElementById(id);
+            if (!obj) return;
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                // Efecto easeOutQuart para simular frenado de ruleta
+                const easeProgress = 1 - Math.pow(1 - progress, 4);
+                const currentVal = start + (end - start) * easeProgress;
+                obj.innerText = currentVal.toFixed(decimals);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // CÁLCULO DINÁMICO DE COLOR Y RIESGO
+        function calcularColorPorcentaje(puntos) {
+            if (puntos <= 25) return "#10b981"; // Verde (Bajo)
+            if (puntos <= 50) return "#f59e0b"; // Amarillo/Naranja (Moderado)
+            if (puntos <= 75) return "#f97316"; // Naranja (Alto)
+            return "#ef4444"; // Rojo (Extremo)
+        }
+
+        function calcularRiesgoCriterio(temp, hum, pres, viento) {
+            let ptsT = 0, ptsH = 0, ptsV = 0, ptsP = 0;
+            if (temp >= 20 && temp <= 25) ptsT = 10; else if (temp > 25 && temp <= 30) ptsT = 20; else if (temp > 30 && temp <= 35) ptsT = 30; else if (temp > 35) ptsT = 40;
+            if (hum >= 40 && hum <= 60) ptsH = 10; else if (hum >= 25 && hum < 40) ptsH = 19; else if (hum >= 15 && hum < 25) ptsH = 29; else if (hum < 15) ptsH = 38;
+            if (viento >= 10 && viento <= 20) ptsV = 5; else if (viento > 20 && viento <= 40) ptsV = 10; else if (viento > 40 && viento <= 60) ptsV = 15; else if (viento > 60) ptsV = 20;
+            if (pres >= 1010 && pres <= 1020) ptsP = 1; else if (pres < 1010) ptsP = 2;
+
+            let totalPuntos = Math.min(ptsT + ptsH + ptsV + ptsP, 100);
+            let regla30 = (temp > 30 && hum < 30 && viento > 30);
+            if (regla30) totalPuntos = 100;
+
+            let nivel = "Baix";
+            if (totalPuntos > 20) nivel = "Moderat";
+            if (totalPuntos > 45) nivel = "Alt";
+            if (totalPuntos > 70) nivel = "Molt Alt";
+            if (totalPuntos > 85) nivel = "Extrem";
+
+            let color = calcularColorPorcentaje(totalPuntos);
+
+            return { puntos: totalPuntos, nivel, color, regla30 };
+        }
+
+        function aplicarDisenyRiscDinamico(r) {
+            document.documentElement.style.setProperty('--riesgo-color-dinamico', r.color);
+
+            // Animar números con efecto ruleta
+            animateNumber('hero-riesgo-pct', 0, r.puntos, 1400, 0);
+            document.getElementById('sticky-risk-val').innerText = r.puntos + "%";
+
+            // Animar la barra de 0 al porcentaje real
+            setTimeout(() => {
+                document.getElementById('hero-risk-fill').style.width = r.puntos + "%";
+            }, 100);
+
+            document.getElementById('banner-urgente-30-30-30').style.display = r.regla30 ? 'block' : 'none';
+        }
+
+        // MAPA CONFIGURADO Y COMPACTO CON PIN EN SABADELL Y HOVER INTERACTIVO
+        const map = L.map('mapa-real-catalunya', { center: [41.6, 1.55], zoom: 7.4, zoomControl: false });
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { attribution: '' }).addTo(map);
+
+        // Marcador exclusivo en Sabadell (Sensor SADRIF)
+        const sabadellCoords = [41.5481, 2.1074];
+        const sabadellIcon = L.divIcon({
+            className: 'custom-pin',
+            html: `<div style="background:#f97316; width:14px; height:14px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 10px rgba(249,115,22,0.8);"></div>`,
+            iconSize: [14, 14]
+        });
+        L.marker(sabadellCoords, { icon: sabadellIcon }).addTo(map).bindTooltip("Sensor SADRIF (Sabadell)", { permanent: false, direction: 'top' });
 
         function obtenerDatosProvincia(nombre) { return (nombre === "Barcelona") ? dadesGlobalsESP32 : simulacioComunitats[nombre]; }
 
@@ -802,65 +801,38 @@
                     style: function(feature) {
                         let d = obtenerDatosProvincia(feature.properties.name);
                         let r = calcularRiesgoCriterio(d.temp, d.hum, d.pres, d.viento);
-                        return { fillColor: r.color, fillOpacity: 0.65, color: r.color, weight: 2 };
+                        return { fillColor: r.color, fillOpacity: 0.55, color: r.color, weight: 1.5 };
+                    },
+                    onEachFeature: function(feature, layer) {
+                        let nom = feature.properties.name;
+                        let d = obtenerDatosProvincia(nom);
+                        let r = calcularRiesgoCriterio(d.temp, d.hum, d.pres, d.viento);
+
+                        let tooltipContent = `
+                            <div class="custom-map-tooltip">
+                                <div class="tooltip-title">${nom} ${nom === 'Barcelona' ? '(SADRIF Real)' : ''}</div>
+                                <div class="tooltip-line">Risc: <strong>${r.puntos}% (${r.nivel})</strong></div>
+                                <div class="tooltip-line">Temp: ${d.temp.toFixed(1)}°C | Hum: ${d.hum.toFixed(0)}%</div>
+                                <div class="tooltip-line">Vent: ${d.viento.toFixed(1)} km/h</div>
+                            </div>
+                        `;
+
+                        layer.bindTooltip(tooltipContent, { sticky: true, className: 'leaflet-tooltip-reset' });
+
+                        layer.on({
+                            mouseover: (e) => {
+                                let l = e.target;
+                                l.setStyle({ fillOpacity: 0.8, weight: 2.5 });
+                            },
+                            mouseout: (e) => {
+                                capaGeoJSONGlobal.resetStyle(e.target);
+                            }
+                        });
                     }
                 }).addTo(map);
             });
 
-        // CÁLCULO DE RIESGO
-        function calcularRiesgoCriterio(temp, hum, pres, viento) {
-            let ptsT = 0, ptsH = 0, ptsV = 0, ptsP = 0;
-            if (temp >= 20 && temp <= 25) ptsT = 10; else if (temp > 25 && temp <= 30) ptsT = 20; else if (temp > 30 && temp <= 35) ptsT = 30; else if (temp > 35) ptsT = 40;
-            if (hum >= 40 && hum <= 60) ptsH = 10; else if (hum >= 25 && hum < 40) ptsH = 19; else if (hum >= 15 && hum < 25) ptsH = 29; else if (hum < 15) ptsH = 38;
-            if (viento >= 10 && viento <= 20) ptsV = 5; else if (viento > 20 && viento <= 40) ptsV = 10; else if (viento > 40 && viento <= 60) ptsV = 15; else if (viento > 60) ptsV = 20;
-            if (pres >= 1010 && pres <= 1020) ptsP = 1; else if (pres < 1010) ptsP = 2;
-
-            let totalPuntos = Math.min(ptsT + ptsH + ptsV + ptsP, 100);
-            let regla30 = (temp > 30 && hum < 30 && viento > 30);
-            
-            let nivel = "Molt Baix", color = "var(--color-n0)", gradient = "var(--color-n0-bg)", sucediendo = "", accion = "";
-
-            if (totalPuntos <= 20 && !regla30) {
-                nivel = "Molt Baix"; color = "var(--color-n0)"; gradient = "var(--color-n0-bg)";
-                sucediendo = "Vegetació amb humitat elevada. Condicions favorables per evitar incendis.";
-                accion = "Respectar la normativa. No abandonar residus al medi natural.";
-            } else if (totalPuntos >= 21 && totalPuntos <= 40 && !regla30) {
-                nivel = "Moderat"; color = "var(--color-n1)"; gradient = "var(--color-n1-bg)";
-                sucediendo = "La vegetació comença a assecar-se lleugerament.";
-                accion = "Consultar el nivell de risc abans d'accedir al medi natural. Evitar negligències.";
-            } else if (totalPuntos >= 41 && totalPuntos <= 60 && !regla30) {
-                nivel = "Alt"; color = "var(--color-n2)"; gradient = "var(--color-n2-bg)";
-                sucediendo = "Temperatura i baixa humitat afavoreixen l'inici del foc.";
-                accion = "Evitar activitats que generin espurnes. Mantenir vigilància constant.";
-            } else if (totalPuntos >= 61 && totalPuntos <= 80 && !regla30) {
-                nivel = "Molt Alt"; color = "var(--color-n3)"; gradient = "var(--color-n3-bg)";
-                sucediendo = "Vegetació molt seca. Ràpida propagació en cas d'ignició.";
-                accion = "Prohibit encendre foc o maquinària prop del bosc. Màxima precaució.";
-            } else if (totalPuntos >= 81 || regla30) {
-                nivel = regla30 ? "Extrem (Regla 30)" : "Extrem"; 
-                color = "var(--color-n4)"; gradient = "var(--color-n4-bg)"; totalPuntos = 100;
-                sucediendo = "CONDICIONS EXTREMES. Qualsevol ignició causarà un gran incendi.";
-                accion = "Tancament d'accessos forestals. Limitació integral d'activitats al medi natural.";
-            }
-
-            return { puntos: totalPuntos, nivel, color, gradient, sucediendoText: sucediendo, accionText: accion, regla30 };
-        }
-
-        function aplicarDisenyRiscDinamico(r) {
-            document.documentElement.style.setProperty('--riesgo-color-dinamico', r.color);
-            document.documentElement.style.setProperty('--riesgo-bg-dinamico', r.gradient);
-
-            document.getElementById('hero-riesgo-lbl').innerText = "RISC " + r.nivel;
-            document.getElementById('hero-riesgo-pct').innerText = r.puntos;
-            document.getElementById('hero-risk-fill').style.width = r.puntos + "%";
-            document.getElementById('sticky-risk-val').innerText = r.puntos + "%";
-
-            document.getElementById('txt-consejo-sucediendo').innerHTML = r.sucediendoText;
-            document.getElementById('txt-consejo-accion').innerHTML = r.accionText;
-
-            document.getElementById('banner-urgente-30-30-30').style.display = r.regla30 ? 'block' : 'none';
-        }
-
+        // OBTENCIÓN DE DATOS REALES DE THINGSPEAK CON ANIMACIÓN DE RULETA
         async function actualizarDatosWeb() {
             const url = `https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json?api_key=${READ_API_KEY}&results=5`;
             try {
@@ -878,10 +850,11 @@
                         viento: parseFloat(ultimo.field4) || 0 
                     };
 
-                    document.getElementById('hero-temp').innerText = dadesGlobalsESP32.temp.toFixed(1) + " °C";
-                    document.getElementById('hero-hum').innerText = dadesGlobalsESP32.hum.toFixed(0) + " %";
-                    document.getElementById('hero-viento').innerText = dadesGlobalsESP32.viento.toFixed(1) + " km/h";
-                    document.getElementById('hero-presion').innerText = dadesGlobalsESP32.pres.toFixed(0) + " hPa";
+                    // Animar números meteo tipo ruleta
+                    animateNumber('hero-temp', 0, dadesGlobalsESP32.temp, 1200, 1);
+                    animateNumber('hero-hum', 0, dadesGlobalsESP32.hum, 1200, 0);
+                    animateNumber('hero-viento', 0, dadesGlobalsESP32.viento, 1200, 1);
+                    animateNumber('hero-presion', 0, dadesGlobalsESP32.pres, 1200, 0);
 
                     let rLive = calcularRiesgoCriterio(dadesGlobalsESP32.temp, dadesGlobalsESP32.hum, dadesGlobalsESP32.pres, dadesGlobalsESP32.viento);
                     aplicarDisenyRiscDinamico(rLive);
@@ -910,6 +883,7 @@
             let link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Pla_DRIF_Telemetria.xls"; link.click();
         }
 
+        // Ejecución al iniciar la página
         actualizarDatosWeb();
         setInterval(actualizarDatosWeb, 15000);
     </script>
