@@ -3,188 +3,320 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Modelo 3D SADRIF - Proyecto TDR</title>
+  <title>Visor 3D - PLA DRIF</title>
   
-  <!-- 1. Cargar la librería oficial de Google para 3D en la web -->
+  <!-- Cargar model-viewer de Google -->
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
-  
+  <!-- Fuente Google Fonts (Inter) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
 
     body {
-      background-color: #0f172a;
-      color: #f8fafc;
+      background-color: #fbf9f5;
+      color: #1e293b;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+    }
+
+    /* Navbar superior tipo Dashboard */
+    header.navbar {
+      display: flex;
+      justify-content: space-between;
       align-items: center;
-      padding: 2rem 1rem;
+      padding: 1rem 2rem;
+      background-color: #ffffff;
+      border-bottom: 1px solid #f1f5f9;
     }
 
-    header {
-      text-align: center;
-      max-width: 700px;
-      margin-bottom: 1.5rem;
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.025em;
+      color: #0f172a;
     }
 
-    /* Enlace para volver a la web principal */
     .back-btn {
-      display: inline-block;
-      color: #38bdf8;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: #475569;
       text-decoration: none;
-      font-size: 0.95rem;
+      font-size: 0.88rem;
       font-weight: 600;
-      margin-bottom: 1rem;
-      padding: 0.4rem 0.8rem;
-      border: 1px solid #0284c7;
-      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      background: #f1f5f9;
+      border-radius: 9999px;
       transition: all 0.2s ease;
     }
 
     .back-btn:hover {
-      background-color: #0284c7;
-      color: #ffffff;
+      background-color: #e2e8f0;
+      color: #0f172a;
     }
 
-    h1 {
-      font-size: 2.2rem;
-      color: #38bdf8;
+    /* Contenedor principal Grid */
+    main.main-content {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 2rem;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .badge-status {
+      display: inline-block;
+      background-color: #fef3c7;
+      color: #d97706;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
       margin-bottom: 0.5rem;
     }
 
-    p.subtitle {
-      color: #94a3b8;
-      font-size: 1rem;
+    /* Layout principal: Visor 3D + Panel Informativo */
+    .viewport-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+      align-items: stretch;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
+      border: 1px solid #f1f5f9;
+      padding: 1.5rem;
+      position: relative;
     }
 
     .container-3d {
-      width: 100%;
-      max-width: 950px;
-      height: 580px;
-      background: radial-gradient(circle, #1e293b 0%, #0f172a 100%);
-      border: 1px solid #334155;
-      border-radius: 16px;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-      position: relative;
+      height: 600px;
       overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle, #ffffff 0%, #f8fafc 100%);
     }
 
-    /* Elemento del modelo 3D */
     model-viewer {
       width: 100%;
       height: 100%;
       --poster-color: transparent;
     }
 
-    /* Estilo de los puntos interactivos (Hotspots) */
+    /* Estilo de Hotspots */
     .Hotspot {
-      background: #38bdf8;
+      background: #d97706;
       border-radius: 50%;
-      border: 2px solid #ffffff;
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.9);
+      border: 3px solid #ffffff;
+      box-shadow: 0 4px 12px rgba(217, 119, 6, 0.4);
       cursor: pointer;
-      height: 22px;
-      width: 22px;
+      height: 24px;
+      width: 24px;
       padding: 0;
-      transition: transform 0.2s ease, background 0.2s ease;
+      transition: transform 0.2s ease, background-color 0.2s ease;
     }
 
-    .Hotspot:hover {
-      transform: scale(1.3);
-      background: #0284c7;
+    .Hotspot:hover, .Hotspot.active {
+      transform: scale(1.25);
+      background: #b45309;
     }
 
-    /* Ventana emergente al pasar el cursor sobre el punto */
-    .HotspotAnnotation {
-      background: #1e293b;
-      border: 1px solid #475569;
-      border-radius: 8px;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
-      color: #f8fafc;
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      left: calc(100% + 12px);
-      padding: 8px 12px;
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      white-space: nowrap;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.3s ease;
+    /* Panel informativo dinámico lateral */
+    .info-panel {
+      border-left: 5px solid #d97706;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
-    .Hotspot:hover .HotspotAnnotation,
-    .Hotspot:focus .HotspotAnnotation {
-      opacity: 1;
+    .info-panel h2 {
+      font-size: 1.4rem;
+      color: #0f172a;
+      margin-bottom: 0.75rem;
+      font-weight: 700;
     }
 
-    /* Indicador visual en la parte inferior */
-    .controls-hint {
+    .info-panel p {
+      color: #64748b;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .spec-list {
       margin-top: 1.5rem;
-      background-color: #1e293b;
-      padding: 0.75rem 1.5rem;
-      border-radius: 9999px;
-      font-size: 0.88rem;
-      color: #94a3b8;
-      border: 1px solid #334155;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
     }
 
-    /* Ajustes para pantallas pequeñas/móviles */
-    @media (max-width: 640px) {
-      .container-3d {
-        height: 420px;
+    .spec-item {
+      background: #f8fafc;
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.88rem;
+    }
+
+    .spec-label {
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .spec-value {
+      color: #0f172a;
+      font-weight: 700;
+    }
+
+    .controls-hint {
+      background-color: #ffffff;
+      padding: 1rem 1.5rem;
+      border-radius: 16px;
+      font-size: 0.88rem;
+      color: #64748b;
+      border: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .viewport-grid {
+        grid-template-columns: 1fr;
       }
-      h1 {
-        font-size: 1.6rem;
+      .container-3d {
+        height: 400px;
       }
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <!-- Enlace para retornar a la página principal -->
-    <a href="web tdr Pruebas.html" class="back-btn">← Volver al Inicio</a>
-    
-    <h1>Dispositivo SADRIF</h1>
-    <p class="subtitle">Arrastra para girar | Rueda del ratón para Zoom | Pasa el cursor por los puntos de información</p>
+  <header class="navbar">
+    <div class="logo-container">
+      🔥 PLA DRIF
+    </div>
+    <a href="web tdr Pruebas.html" class="back-btn">← Torna al panel</a>
   </header>
 
-  <div class="container-3d">
-    <!-- Carga tu archivo mi_dispositivo.glb -->
-    <model-viewer 
-      src="mi_dispositivo.glb" 
-      alt="Modelo 3D del dispositivo SADRIF" 
-      camera-controls 
-      auto-rotate 
-      shadow-intensity="1.5"
-      shadow-softness="1"
-      exposure="1"
-      ar>
+  <main class="main-content">
+    
+    <div>
+      <span class="badge-status">Estació SADRIF</span>
+      <h1 style="font-size: 1.8rem; font-weight: 800; color: #0f172a;">Anàlisi interactiva del dispositiu 3D</h1>
+    </div>
 
-      <!-- Punto interactivo 1 -->
-      <button class="Hotspot" slot="hotspot-1" data-position="0m 0.1m 0m" data-normal="0m 1m 0m">
-        <div class="HotspotAnnotation">Anemómetro / Sensores Superiores</div>
-      </button>
+    <div class="viewport-grid">
+      <!-- Visor 3D -->
+      <div class="card container-3d">
+        <model-viewer 
+          id="sadrif-viewer"
+          src="mi_dispositivo.glb" 
+          alt="Modelo 3D del dispositivo SADRIF" 
+          camera-controls 
+          auto-rotate 
+          shadow-intensity="1"
+          shadow-softness="0.8"
+          exposure="1.1"
+          ar>
 
-      <!-- Punto interactivo 2 -->
-      <button class="Hotspot" slot="hotspot-2" data-position="0.1m 0m 0m" data-normal="1m 0m 0m">
-        <div class="HotspotAnnotation">Panel Frontal SADRIF</div>
-      </button>
+          <!-- Hotspot 1 -->
+          <button class="Hotspot" slot="hotspot-1" data-position="0m 0.1m 0m" data-normal="0m 1m 0m" onclick="selectComponent('anemometro')">
+          </button>
 
-    </model-viewer>
-  </div>
+          <!-- Hotspot 2 -->
+          <button class="Hotspot" slot="hotspot-2" data-position="0.1m 0m 0m" data-normal="1m 0m 0m" onclick="selectComponent('panel')">
+          </button>
 
-  <div class="controls-hint">
-    💡 <strong>Tip:</strong> Si abres esta página desde un smartphone, puedes pulsar el icono de Realidad Aumentada para situar el SADRIF en tu mesa.
-  </div>
+        </model-viewer>
+      </div>
 
+      <!-- Panel Informativo Cambiante -->
+      <div class="card info-panel">
+        <div>
+          <span class="badge-status" id="comp-badge">COMPONENT SELECCIONAT</span>
+          <h2 id="comp-title">Selecciona una part</h2>
+          <p id="comp-desc">Fes clic sobre els punts taronja de l'estació 3D per veure la informació detallada dels sensors i la tecnologia integrada.</p>
+          
+          <div class="spec-list" id="comp-specs">
+            <!-- Las especificaciones se inyectan con JavaScript -->
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem; font-size: 0.8rem; color: #94a3b8;">
+          Estació SADRIF v2.4 • Dissenyat per a prevenció d'incendis
+        </div>
+      </div>
+    </div>
+
+    <div class="controls-hint">
+      💡 <strong>Consell:</strong> Pots arrossegar per girar, utilitzar la roda del ratolí per fer zoom, o prémer en un smartphone la icona de RA per veure el dispositiu al teu entorn real.
+    </div>
+
+  </main>
+
+  <script>
+    // Datos de los componentes para actualizar el panel al hacer clic
+    const componentsData = {
+      anemometro: {
+        title: "Anemòmetre i Sensor de Vent",
+        badge: "SENSOR SUPERIOR",
+        desc: "Mesura la velocitat i direcció del vent en temps real. Aquestes dades són crucials per predir la propagació d'un possible incendi a la zona de vegetació.",
+        specs: [
+          { label: "Rang de mesura", value: "0 - 150 km/h" },
+          { label: "Precisió", value: "±0.5 km/h" },
+          { label: "Actualització", value: "Cada 5 segons" }
+        ]
+      },
+      panel: {
+        title: "Panel Frontal SADRIF",
+        badge: "MÒDUL PRINCIPAL",
+        desc: "Alberga la unitat de processament central, les bateries alimentades per panell solar i els mòduls de transmissió per xarxa LORA/IoT.",
+        specs: [
+          { label: "Alimentació", value: "Bateria + Cèl·lula Solar" },
+          { label: "Connectivitat", value: "LoRaWAN / 4G" },
+          { label: "Protecció", value: "IP66 (Resistent al foc/aigua)" }
+        ]
+      }
+    };
+
+    function selectComponent(key) {
+      const data = componentsData[key];
+      if (!data) return;
+
+      document.getElementById('comp-title').innerText = data.title;
+      document.getElementById('comp-badge').innerText = data.badge;
+      document.getElementById('comp-desc').innerText = data.desc;
+
+      const specsContainer = document.getElementById('comp-specs');
+      specsContainer.innerHTML = '';
+
+      data.specs.forEach(spec => {
+        const item = document.createElement('div');
+        item.className = 'spec-item';
+        item.innerHTML = `<span class="spec-label">${spec.label}</span><span class="spec-value">${spec.value}</span>`;
+        specsContainer.appendChild(item);
+      });
+    }
+  </script>
 </body>
 </html>
