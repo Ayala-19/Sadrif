@@ -1,322 +1,286 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="ca" style="scroll-behavior: smooth;">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Visor 3D - PLA DRIF</title>
-  
-  <!-- Cargar model-viewer de Google -->
-  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
-  <!-- Fuente Google Fonts (Inter) -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visor 3D - PLA DRIF</title>
+    
+    <!-- Fuentes y estilos base -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Cargar model-viewer de Google -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    }
+    <style>
+        :root {
+            --bg-principal: #f8fafc;
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --glass-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+            
+            --texto-principal: #0f172a;
+            --texto-mutado: #64748b;
+            --borde-claro: rgba(226, 232, 240, 0.6);
 
-    body {
-      background-color: #fbf9f5;
-      color: #1e293b;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+            --riesgo-color-dinamico: #f97316; /* Taronja per defecte al visor */
+            --riesgo-bg-suave: rgba(249, 115, 22, 0.15);
+            --transicion: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
-    /* Navbar superior tipo Dashboard */
-    header.navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 2rem;
-      background-color: #ffffff;
-      border-bottom: 1px solid #f1f5f9;
-    }
+        * { box-sizing: border-box; }
 
-    .logo-container {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-weight: 800;
-      font-size: 1.25rem;
-      letter-spacing: -0.025em;
-      color: #0f172a;
-    }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-principal);
+            background-image: radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.08) 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, var(--riesgo-bg-suave) 0px, transparent 50%);
+            color: var(--texto-principal);
+            margin: 0; padding: 0; line-height: 1.5; overflow-x: hidden;
+        }
 
-    .back-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      color: #475569;
-      text-decoration: none;
-      font-size: 0.88rem;
-      font-weight: 600;
-      padding: 0.5rem 1rem;
-      background: #f1f5f9;
-      border-radius: 9999px;
-      transition: all 0.2s ease;
-    }
+        /* NAVBAR (Idéntico a la página principal) */
+        .navbar-top {
+            position: sticky; top: 0; z-index: 1000;
+            background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border-bottom: 1px solid var(--glass-border); padding: 14px 32px;
+            display: flex; justify-content: space-between; align-items: center; 
+            box-shadow: 0 4px 30px rgba(0,0,0,0.05);
+        }
+        
+        .navbar-brand { 
+            display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.25rem; 
+            color: var(--texto-principal); text-decoration: none; transition: var(--transicion);
+        }
+        .navbar-brand:hover { transform: scale(1.05) translateY(-1px); }
+        .navbar-brand img { height: 36px; width: auto; }
+        
+        .navbar-right-controls { display: flex; align-items: center; gap: 12px; }
+        
+        .btn-3d-nav {
+            display: flex; align-items: center; gap: 8px; background: var(--texto-principal);
+            border: 1px solid var(--texto-principal); padding: 8px 16px; border-radius: 99px;
+            font-weight: 700; font-size: 0.85rem; color: #ffffff; text-decoration: none; transition: var(--transicion);
+        }
+        .btn-3d-nav:hover { background: #334155; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15); }
 
-    .back-btn:hover {
-      background-color: #e2e8f0;
-      color: #0f172a;
-    }
+        .btn-hamburger {
+            background: rgba(255, 255, 255, 0.9); border: 1px solid var(--glass-border); border-radius: 10px;
+            padding: 12px; cursor: pointer; display: flex; flex-direction: column; gap: 5px; 
+            transition: var(--transicion); width: 44px; height: 44px; justify-content: center; align-items: center;
+        }
+        .btn-hamburger:hover { background: #fff; transform: scale(1.08); box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        .btn-hamburger span { 
+            display: block; width: 22px; height: 2px; background-color: var(--texto-principal); 
+            border-radius: 2px; transition: all 0.3s ease-in-out; 
+        }
 
-    /* Contenedor principal Grid */
-    main.main-content {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 2rem;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
+        /* MENÚ LATERAL */
+        .drawer-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); backdrop-filter: blur(10px); z-index: 1500; opacity: 0; pointer-events: none; transition: var(--transicion); }
+        .drawer-overlay.active { opacity: 1; pointer-events: auto; }
 
-    .badge-status {
-      display: inline-block;
-      background-color: #fef3c7;
-      color: #d97706;
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 0.25rem 0.75rem;
-      border-radius: 9999px;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      margin-bottom: 0.5rem;
-    }
+        .nav-drawer {
+            position: fixed; top: 0; right: -360px; width: 340px; height: 100vh;
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(35px);
+            box-shadow: -15px 0 35px rgba(0,0,0,0.12); z-index: 2000; padding: 35px 28px;
+            transition: var(--transicion); display: flex; flex-direction: column; gap: 25px;
+        }
+        .nav-drawer.open { right: 0; }
+        .drawer-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--borde-claro); padding-bottom: 15px; }
+        .drawer-close { background: none; border: none; font-size: 2rem; cursor: pointer; color: var(--texto-mutado); transition: var(--transicion); padding: 0; line-height: 1; }
+        
+        .drawer-menu { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+        .drawer-menu a {
+            text-decoration: none; color: var(--texto-principal); font-weight: 700; font-size: 1.05rem;
+            padding: 12px 16px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between;
+            transition: var(--transicion);
+        }
+        .drawer-menu a:hover { color: #ef4444; background: rgba(239, 68, 68, 0.08); transform: translateX(8px); }
 
-    /* Layout principal: Visor 3D + Panel Informativo */
-    .viewport-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 1.5rem;
-      align-items: stretch;
-    }
+        /* CONTENEDOR 3D Y ESTÉTICA */
+        .contenedor-principal { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+        
+        .header-seccion { text-align: center; margin-bottom: 40px; }
+        .header-seccion h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; color: var(--texto-principal); }
+        .header-seccion p { color: var(--texto-mutado); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
 
-    .card {
-      background: #ffffff;
-      border-radius: 20px;
-      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
-      border: 1px solid #f1f5f9;
-      padding: 1.5rem;
-      position: relative;
-    }
+        .layout-3d {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
 
-    .container-3d {
-      height: 600px;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(circle, #ffffff 0%, #f8fafc 100%);
-    }
+        /* VISOR 3D ESTILO GLASSMORPHISM */
+        .visor-container {
+            background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border);
+            border-radius: 24px; box-shadow: var(--glass-shadow); overflow: hidden;
+            height: 500px; display: flex; justify-content: center; align-items: center;
+            position: relative; transition: var(--transicion);
+        }
+        .visor-container:hover { box-shadow: 0 30px 60px -12px rgba(0,0,0,0.12); }
+        
+        model-viewer {
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+            --poster-color: transparent;
+        }
 
-    model-viewer {
-      width: 100%;
-      height: 100%;
-      --poster-color: transparent;
-    }
+        /* PANELES DE INFORMACIÓN INTERACTIVA */
+        .info-componentes {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
 
-    /* Estilo de Hotspots */
-    .Hotspot {
-      background: #d97706;
-      border-radius: 50%;
-      border: 3px solid #ffffff;
-      box-shadow: 0 4px 12px rgba(217, 119, 6, 0.4);
-      cursor: pointer;
-      height: 24px;
-      width: 24px;
-      padding: 0;
-      transition: transform 0.2s ease, background-color 0.2s ease;
-    }
+        .tarjeta-componente {
+            background: var(--glass-bg); backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border); border-radius: 16px;
+            padding: 20px; box-shadow: var(--glass-shadow);
+            cursor: pointer; transition: var(--transicion);
+            position: relative; overflow: hidden;
+        }
+        .tarjeta-componente::before {
+            content: ''; position: absolute; left: 0; top: 0; width: 4px; height: 100%;
+            background: var(--texto-mutado); transition: var(--transicion);
+        }
+        .tarjeta-componente:hover { transform: translateX(5px); background: #ffffff; }
+        .tarjeta-componente.activa { border-color: var(--riesgo-color-dinamico); background: #ffffff; }
+        .tarjeta-componente.activa::before { background: var(--riesgo-color-dinamico); }
 
-    .Hotspot:hover, .Hotspot.active {
-      transform: scale(1.25);
-      background: #b45309;
-    }
+        .tarjeta-componente h3 { margin: 0 0 5px 0; font-size: 1.1rem; display: flex; align-items: center; gap: 10px; }
+        .tarjeta-componente p { margin: 0; font-size: 0.9rem; color: var(--texto-mutado); display: none; }
+        .tarjeta-componente.activa p { display: block; margin-top: 10px; animation: fadeIn 0.5s ease; }
 
-    /* Panel informativo dinámico lateral */
-    .info-panel {
-      border-left: 5px solid #d97706;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
-    .info-panel h2 {
-      font-size: 1.4rem;
-      color: #0f172a;
-      margin-bottom: 0.75rem;
-      font-weight: 700;
-    }
+        /* FOOTER SIMPLIFICADO */
+        .footer-volver { text-align: center; margin-top: 40px; }
+        .btn-volver {
+            display: inline-flex; align-items: center; gap: 8px; background: #ffffff;
+            border: 1px solid var(--borde-claro); padding: 12px 24px; border-radius: 12px;
+            font-weight: 700; color: var(--texto-principal); text-decoration: none;
+            box-shadow: var(--glass-shadow); transition: var(--transicion);
+        }
+        .btn-volver:hover { background: var(--texto-principal); color: #ffffff; transform: translateY(-3px); }
 
-    .info-panel p {
-      color: #64748b;
-      font-size: 0.95rem;
-      line-height: 1.6;
-    }
-
-    .spec-list {
-      margin-top: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .spec-item {
-      background: #f8fafc;
-      padding: 0.75rem 1rem;
-      border-radius: 12px;
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.88rem;
-    }
-
-    .spec-label {
-      color: #64748b;
-      font-weight: 500;
-    }
-
-    .spec-value {
-      color: #0f172a;
-      font-weight: 700;
-    }
-
-    .controls-hint {
-      background-color: #ffffff;
-      padding: 1rem 1.5rem;
-      border-radius: 16px;
-      font-size: 0.88rem;
-      color: #64748b;
-      border: 1px solid #f1f5f9;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    /* Responsive */
-    @media (max-width: 900px) {
-      .viewport-grid {
-        grid-template-columns: 1fr;
-      }
-      .container-3d {
-        height: 400px;
-      }
-    }
-  </style>
+        @media (max-width: 950px) {
+            .layout-3d { grid-template-columns: 1fr; }
+            .visor-container { height: 400px; }
+        }
+    </style>
 </head>
 <body>
 
-  <header class="navbar">
-    <div class="logo-container">
-      🔥 PLA DRIF
+    <!-- NAVBAR TOP -->
+    <header class="navbar-top">
+        <a href="index.html" class="navbar-brand">
+            <img src="logo-sadrif.svg" alt="SADRIF" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/a/ab/Icon-mac.svg';">
+            <span>PLA DRIF</span>
+        </a>
+        <div class="navbar-right-controls">
+            <a href="index.html" class="btn-3d-nav" style="background: transparent; color: var(--texto-principal); border-color: var(--borde-claro);">
+                <span>🏠 Tornar a l'Inici</span>
+            </a>
+            <button class="btn-hamburger" id="btn-toggle-menu" aria-label="Obrir menú">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MENÚ LATERAL (DRAWER) -->
+    <div class="drawer-overlay" id="drawer-overlay"></div>
+    <div class="nav-drawer" id="nav-drawer">
+        <div class="drawer-header">
+            <span style="font-weight: 800; font-size: 1.1rem;">Navegació PLA DRIF</span>
+            <button class="drawer-close" id="btn-close-drawer">&times;</button>
+        </div>
+        <ul class="drawer-menu">
+            <li><a href="index.html">Inici <span>➔</span></a></li>
+            <li><a href="#" style="color: #ef4444; background: rgba(239, 68, 68, 0.08);">📦 Model 3D Dispositiu <span>➔</span></a></li>
+            <li><a href="https://www.youtube.com/@PlaDRIF_Oficial" target="_blank">Canal de YouTube <span>➔</span></a></li>
+            <li><a href="https://www.twitch.tv/pla_drif" target="_blank">Directe Twitch <span>➔</span></a></li>
+            <li><a href="https://www.instagram.com/pladrif_cat" target="_blank">Instagram <span>➔</span></a></li>
+        </ul>
     </div>
-    <a href="web tdr Pruebas.html" class="back-btn">← Torna al panel</a>
-  </header>
 
-  <main class="main-content">
-    
-    <div>
-      <span class="badge-status">Estació SADRIF</span>
-      <h1 style="font-size: 1.8rem; font-weight: 800; color: #0f172a;">Anàlisi interactiva del dispositiu 3D</h1>
-    </div>
-
-    <div class="viewport-grid">
-      <!-- Visor 3D -->
-      <div class="card container-3d">
-        <model-viewer 
-          id="sadrif-viewer"
-          src="mi_dispositivo.glb" 
-          alt="Modelo 3D del dispositivo SADRIF" 
-          camera-controls 
-          auto-rotate 
-          shadow-intensity="1"
-          shadow-softness="0.8"
-          exposure="1.1"
-          ar>
-
-          <!-- Hotspot 1 -->
-          <button class="Hotspot" slot="hotspot-1" data-position="0m 0.1m 0m" data-normal="0m 1m 0m" onclick="selectComponent('anemometro')">
-          </button>
-
-          <!-- Hotspot 2 -->
-          <button class="Hotspot" slot="hotspot-2" data-position="0.1m 0m 0m" data-normal="1m 0m 0m" onclick="selectComponent('panel')">
-          </button>
-
-        </model-viewer>
-      </div>
-
-      <!-- Panel Informativo Cambiante -->
-      <div class="card info-panel">
-        <div>
-          <span class="badge-status" id="comp-badge">COMPONENT SELECCIONAT</span>
-          <h2 id="comp-title">Selecciona una part</h2>
-          <p id="comp-desc">Fes clic sobre els punts taronja de l'estació 3D per veure la informació detallada dels sensors i la tecnologia integrada.</p>
-          
-          <div class="spec-list" id="comp-specs">
-            <!-- Las especificaciones se inyectan con JavaScript -->
-          </div>
+    <div class="contenedor-principal">
+        
+        <div class="header-seccion">
+            <h1>Explora l'Estació SADRIF</h1>
+            <p>Interactua amb el model 3D per descobrir els components físics que fan possible el monitoratge en temps real del risc d'incendi.</p>
         </div>
 
-        <div style="margin-top: 1.5rem; font-size: 0.8rem; color: #94a3b8;">
-          Estació SADRIF v2.4 • Dissenyat per a prevenció d'incendis
+        <div class="layout-3d">
+            <!-- VISOR 3D -->
+            <div class="visor-container">
+                <model-viewer 
+                    src="mi_dispositivo.glb" 
+                    alt="Model 3D de l'Estació SADRIF" 
+                    auto-rotate 
+                    camera-controls 
+                    shadow-intensity="1"
+                    environment-image="neutral"
+                    exposure="1.2"
+                    interaction-prompt="hover">
+                </model-viewer>
+            </div>
+
+            <!-- BOTONES INTERACTIVOS -->
+            <div class="info-componentes">
+                <div class="tarjeta-componente activa" onclick="activarTarjeta(this)">
+                    <h3>🌡️ Sensor de Temperatura i Humitat</h3>
+                    <p>Càpsula ventilada que allotja els sensors d'alta precisió per mesurar la calor i l'estrès hídric de l'aire, fonamentals per calcular la regla del 30-30-30.</p>
+                </div>
+                <div class="tarjeta-componente" onclick="activarTarjeta(this)">
+                    <h3>💨 Anemòmetre</h3>
+                    <p>Situat a la part superior per evitar interferències. Mesura la velocitat i direcció del vent contínuament per preveure la ràpida propagació de les flames.</p>
+                </div>
+                <div class="tarjeta-componente" onclick="activarTarjeta(this)">
+                    <h3>☀️ Placa Solar i Bateria</h3>
+                    <p>Proporciona autonomia total al sistema. La placa solar recarrega una bateria de liti interna, permetent a l'estació funcionar ininterrompudament al mig del bosc.</p>
+                </div>
+                <div class="tarjeta-componente" onclick="activarTarjeta(this)">
+                    <h3>🧠 Microcontrolador ESP32</h3>
+                    <p>El cervell de l'operació. Recopila totes les dades dels sensors i les envia mitjançant xarxa Wi-Fi/Mòbil als servidors del Pla DRIF per a la seva visualització web.</p>
+                </div>
+            </div>
         </div>
-      </div>
+
+        <div class="footer-volver">
+            <a href="index.html" class="btn-volver">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                Tornar al Tauler Principal
+            </a>
+        </div>
+
     </div>
 
-    <div class="controls-hint">
-      💡 <strong>Consell:</strong> Pots arrossegar per girar, utilitzar la roda del ratolí per fer zoom, o prémer en un smartphone la icona de RA per veure el dispositiu al teu entorn real.
-    </div>
+    <!-- SCRIPTS -->
+    <script>
+        // Lógica del menú hamburguesa (idéntica a la principal)
+        const btnMenu = document.getElementById('btn-toggle-menu');
+        const drawer = document.getElementById('nav-drawer');
+        const overlay = document.getElementById('drawer-overlay');
+        
+        const openDrawer = () => { drawer.classList.add('open'); overlay.classList.add('active'); btnMenu.classList.add('open'); };
+        const closeDrawer = () => { drawer.classList.remove('open'); overlay.classList.remove('active'); btnMenu.classList.remove('open'); };
+        
+        btnMenu.addEventListener('click', () => { if (btnMenu.classList.contains('open')) closeDrawer(); else openDrawer(); });
+        document.getElementById('btn-close-drawer').addEventListener('click', closeDrawer);
+        overlay.addEventListener('click', closeDrawer);
 
-  </main>
-
-  <script>
-    // Datos de los componentes para actualizar el panel al hacer clic
-    const componentsData = {
-      anemometro: {
-        title: "Anemòmetre i Sensor de Vent",
-        badge: "SENSOR SUPERIOR",
-        desc: "Mesura la velocitat i direcció del vent en temps real. Aquestes dades són crucials per predir la propagació d'un possible incendi a la zona de vegetació.",
-        specs: [
-          { label: "Rang de mesura", value: "0 - 150 km/h" },
-          { label: "Precisió", value: "±0.5 km/h" },
-          { label: "Actualització", value: "Cada 5 segons" }
-        ]
-      },
-      panel: {
-        title: "Panel Frontal SADRIF",
-        badge: "MÒDUL PRINCIPAL",
-        desc: "Alberga la unitat de processament central, les bateries alimentades per panell solar i els mòduls de transmissió per xarxa LORA/IoT.",
-        specs: [
-          { label: "Alimentació", value: "Bateria + Cèl·lula Solar" },
-          { label: "Connectivitat", value: "LoRaWAN / 4G" },
-          { label: "Protecció", value: "IP66 (Resistent al foc/aigua)" }
-        ]
-      }
-    };
-
-    function selectComponent(key) {
-      const data = componentsData[key];
-      if (!data) return;
-
-      document.getElementById('comp-title').innerText = data.title;
-      document.getElementById('comp-badge').innerText = data.badge;
-      document.getElementById('comp-desc').innerText = data.desc;
-
-      const specsContainer = document.getElementById('comp-specs');
-      specsContainer.innerHTML = '';
-
-      data.specs.forEach(spec => {
-        const item = document.createElement('div');
-        item.className = 'spec-item';
-        item.innerHTML = `<span class="spec-label">${spec.label}</span><span class="spec-value">${spec.value}</span>`;
-        specsContainer.appendChild(item);
-      });
-    }
-  </script>
+        // Lógica para las tarjetas interactivas
+        function activarTarjeta(elemento) {
+            // Quitar clase activa a todas
+            const tarjetas = document.querySelectorAll('.tarjeta-componente');
+            tarjetas.forEach(t => t.classList.remove('activa'));
+            
+            // Añadir clase activa a la clicada
+            elemento.classList.add('activa');
+        }
+    </script>
 </body>
 </html>
