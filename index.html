@@ -72,8 +72,19 @@
         }
         .navbar-brand img { height: 36px; width: auto; transition: var(--transicion); }
         
-        .navbar-right-controls { display: flex; align-items: center; gap: 16px; }
+        .navbar-right-controls { display: flex; align-items: center; gap: 12px; }
         
+        .btn-3d-nav {
+            display: flex; align-items: center; gap: 8px; background: rgba(15, 23, 42, 0.05);
+            border: 1px solid var(--borde-claro); padding: 8px 16px; border-radius: 99px;
+            font-weight: 700; font-size: 0.85rem; color: var(--texto-principal);
+            text-decoration: none; transition: var(--transicion);
+        }
+        .btn-3d-nav:hover {
+            background: var(--texto-principal); color: #ffffff; transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+        }
+
         .sticky-risk-badge {
             display: flex; align-items: center; gap: 10px; background: rgba(255, 255, 255, 0.9);
             border: 1px solid var(--glass-border); padding: 7px 16px; border-radius: 99px;
@@ -254,6 +265,22 @@
         .video-youtube-placeholder { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 18px; overflow: hidden; box-shadow: var(--glass-shadow); transition: var(--transicion); }
         .video-youtube-placeholder:hover { transform: scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
 
+        /* BANNER ACCÉS MODEL 3D */
+        .card-3d-banner {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff;
+            border-radius: 20px; padding: 32px; box-shadow: var(--glass-shadow); margin-bottom: 40px;
+            display: flex; justify-content: space-between; align-items: center; gap: 24px; transition: var(--transicion);
+        }
+        .card-3d-banner:hover { transform: translateY(-4px); box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25); }
+        .card-3d-info h3 { margin: 0 0 8px 0; font-size: 1.5rem; font-weight: 800; color: #ffffff; }
+        .card-3d-info p { margin: 0; color: #94a3b8; font-size: 0.95rem; }
+        .btn-3d-hero {
+            background: #ffffff; color: #0f172a; font-weight: 800; font-size: 0.95rem;
+            padding: 14px 28px; border-radius: 14px; text-decoration: none; display: inline-flex;
+            align-items: center; gap: 10px; transition: var(--transicion); white-space: nowrap; flex-shrink: 0;
+        }
+        .btn-3d-hero:hover { background: var(--riesgo-color-dinamico); color: #ffffff; transform: scale(1.05); }
+
         /* GRÀFIQUES */
         .grid-graficas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 40px; }
         .grafica-box { background: var(--glass-bg); backdrop-filter: blur(15px); border: 1px solid var(--glass-border); border-radius: 16px; padding: 15px; box-shadow: var(--glass-shadow); height: 230px; transition: var(--transicion); }
@@ -294,6 +321,7 @@
             .hero-map-wrapper { height: 300px; border-left: none; border-top: 1px solid var(--borde-claro); }
             .premium-data-row { grid-template-columns: repeat(2, 1fr); }
             .grid-graficas, .grid-consejos, .grid-info-drif, .redes-sociales-grid { grid-template-columns: 1fr; }
+            .card-3d-banner { flex-direction: column; text-align: center; }
             .panel-impacto-global.obert { max-height: 800px; }
         }
     </style>
@@ -312,6 +340,9 @@
             <span>PLA DRIF</span>
         </a>
         <div class="navbar-right-controls">
+            <a href="producto3d.html" class="btn-3d-nav">
+                <span>📦 Visor 3D</span>
+            </a>
             <div id="sticky-risk-badge" class="sticky-risk-badge">
                 <span class="sticky-risk-dot"></span>
                 <span>Risc: <strong id="sticky-risk-val">0%</strong></span>
@@ -330,6 +361,7 @@
         </div>
         <ul class="drawer-menu">
             <li><a href="#inicio" onclick="closeDrawer()">Inici <span>➔</span></a></li>
+            <li><a href="producto3d.html">📦 Model 3D Dispositiu <span>➔</span></a></li>
             <li><a href="https://www.youtube.com/@PlaDRIF_Oficial" target="_blank">Canal de YouTube <span>➔</span></a></li>
             <li><a href="https://www.twitch.tv/pla_drif" target="_blank">Directe Twitch <span>➔</span></a></li>
             <li><a href="https://www.instagram.com/pladrif_cat" target="_blank">Instagram <span>➔</span></a></li>
@@ -424,6 +456,18 @@
                     <span id="extra-pla-text">Sincronitzant amb el departament d'Interior...</span>
                 </div>
             </div>
+        </div>
+
+        <!-- BANNER D'ACCÉS AL MODEL 3D -->
+        <div class="card-3d-banner animated-element" style="animation-delay: 0.25s;">
+            <div class="card-3d-info">
+                <h3>Explora l'Estació SADRIF en 3D</h3>
+                <p>Inspecciona el disseny, els components i l'estructura del dispositiu físic de monitoratge amb el nostre visor interactiu.</p>
+            </div>
+            <a href="producto3d.html" class="btn-3d-hero">
+                <span>Veure Model 3D</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </a>
         </div>
 
         <!-- CÀMERA TWITCH -->
