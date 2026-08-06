@@ -3,283 +3,390 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visor 3D Interactiu - PLA DRIF</title>
+    <title>PlaDRIF 3D - Visor i Sistema de Detecció d'Incendis Forestals</title>
     
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Model-viewer -->
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
     <style>
         :root {
             --bg-principal: #f8fafc;
-            --glass-bg: rgba(255, 255, 255, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.6);
-            --glass-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.7);
+            --glass-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.9);
             
             --texto-principal: #0f172a;
             --texto-mutado: #64748b;
-            --borde-claro: rgba(226, 232, 240, 0.6);
+            --borde-claro: rgba(226, 232, 240, 0.8);
 
-            --riesgo-color-dinamico: #f97316; 
+            --riesgo-color: #10b981; 
+            --riesgo-bg-suave: rgba(16, 185, 129, 0.12);
+            --riesgo-borde: rgba(16, 185, 129, 0.3);
+
             --transicion: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         * { box-sizing: border-box; }
 
-        /* Fondo Animado */
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: linear-gradient(-45deg, #f8fafc, #e0f2fe, #fff7ed, #f1f5f9);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
+            background-color: var(--bg-principal);
+            background-image: radial-gradient(at 50% 0%, rgba(16, 185, 129, 0.08) 0px, transparent 60%),
+                              radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.05) 0px, transparent 50%);
             color: var(--texto-principal);
             margin: 0; padding: 0; line-height: 1.5; overflow-x: hidden;
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+        @keyframes pageEntrance { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes floatEffect { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-10px) rotate(1deg); } }
+        @keyframes pulseLive { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
 
-        /* Animaciones de Entrada */
-        .fade-in-up { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(30px); }
-        .delay-1 { animation-delay: 0.1s; }
-        .delay-2 { animation-delay: 0.3s; }
-        .delay-3 { animation-delay: 0.5s; }
+        .animated-element { opacity: 0; animation: pageEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
-
-        /* NAVBAR */
+        /* NAVBAR TOP MINIMALISTA */
         .navbar-top {
             position: sticky; top: 0; z-index: 1000;
-            background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border-bottom: 1px solid var(--glass-border); padding: 14px 32px;
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--borde-claro); padding: 14px 32px;
             display: flex; justify-content: space-between; align-items: center; 
-            box-shadow: 0 4px 30px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
         }
-        .navbar-brand { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.25rem; color: var(--texto-principal); text-decoration: none; transition: var(--transicion); }
-        .navbar-brand:hover { transform: scale(1.05); }
-        .navbar-brand img { height: 36px; width: auto; }
-        .navbar-right-controls { display: flex; align-items: center; gap: 12px; }
-        .btn-3d-nav { display: flex; align-items: center; gap: 8px; border: 1px solid var(--borde-claro); padding: 8px 16px; border-radius: 99px; font-weight: 700; font-size: 0.85rem; color: var(--texto-principal); text-decoration: none; transition: var(--transicion); background: transparent; }
-        .btn-3d-nav:hover { background: #ffffff; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1); }
-        .btn-hamburger { background: rgba(255, 255, 255, 0.9); border: 1px solid var(--glass-border); border-radius: 10px; padding: 12px; cursor: pointer; display: flex; flex-direction: column; gap: 5px; transition: var(--transicion); width: 44px; height: 44px; justify-content: center; align-items: center; }
-        .btn-hamburger span { display: block; width: 22px; height: 2px; background-color: var(--texto-principal); border-radius: 2px; }
+        
+        .navbar-brand { 
+            display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.2rem; 
+            color: var(--texto-principal); text-decoration: none; transition: var(--transicion);
+        }
+        .navbar-brand:hover { transform: translateY(-1px); }
+        .navbar-brand img { height: 34px; width: auto; }
+        
+        .navbar-right-controls { display: flex; align-items: center; gap: 16px; }
+        
+        /* INDICADOR DE RISC MINIMALISTA IGUAL A LA PÀGINA PRINCIPAL */
+        .permanent-risk-badge {
+            display: flex; align-items: center; gap: 8px;
+            background: var(--riesgo-bg-suave); border: 1px solid var(--riesgo-borde);
+            padding: 6px 14px; border-radius: 99px; font-weight: 700; font-size: 0.85rem;
+            color: var(--texto-principal); transition: var(--transicion);
+        }
+        .permanent-risk-dot { 
+            width: 8px; height: 8px; border-radius: 50%; 
+            background-color: var(--riesgo-color); 
+            box-shadow: 0 0 8px var(--riesgo-color); 
+            animation: pulseLive 1.8s infinite; 
+        }
 
-        /* MENÚ LATERAL */
-        .drawer-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); backdrop-filter: blur(10px); z-index: 1500; opacity: 0; pointer-events: none; transition: var(--transicion); }
+        /* MENÚ HAMBURGUESA */
+        .btn-hamburger {
+            background: rgba(255, 255, 255, 0.9); border: 1px solid var(--borde-claro); border-radius: 12px;
+            padding: 10px; cursor: pointer; display: flex; flex-direction: column; gap: 5px; 
+            transition: var(--transicion); width: 42px; height: 42px; justify-content: center; align-items: center;
+        }
+        .btn-hamburger:hover { background: #fff; transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+        .btn-hamburger span { 
+            display: block; width: 20px; height: 2px; background-color: var(--texto-principal); 
+            border-radius: 2px; transition: all 0.3s ease-in-out; transform-origin: center;
+        }
+        .btn-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); background-color: #ef4444; }
+        .btn-hamburger.open span:nth-child(2) { opacity: 0; }
+        .btn-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); background-color: #ef4444; }
+
+        /* DRAWER LATERAL IGUAL AL PRINCIPAL */
+        .drawer-overlay {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(8px);
+            z-index: 1500; opacity: 0; pointer-events: none; transition: var(--transicion);
+        }
         .drawer-overlay.active { opacity: 1; pointer-events: auto; }
-        .nav-drawer { position: fixed; top: 0; right: -360px; width: 340px; height: 100vh; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(35px); box-shadow: -15px 0 35px rgba(0,0,0,0.12); z-index: 2000; padding: 35px 28px; transition: var(--transicion); display: flex; flex-direction: column; gap: 25px; }
+
+        .nav-drawer {
+            position: fixed; top: 0; right: -360px; width: 340px; height: 100vh;
+            background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            box-shadow: -15px 0 35px rgba(0,0,0,0.1); z-index: 2000; padding: 32px 24px;
+            transition: var(--transicion); display: flex; flex-direction: column; gap: 24px;
+        }
         .nav-drawer.open { right: 0; }
-        .drawer-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--borde-claro); padding-bottom: 15px; }
-        .drawer-close { background: none; border: none; font-size: 2rem; cursor: pointer; color: var(--texto-mutado); transition: var(--transicion); }
-        .drawer-menu { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
-        .drawer-menu a { text-decoration: none; color: var(--texto-principal); font-weight: 700; font-size: 1.05rem; padding: 12px 16px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; transition: var(--transicion); }
-        .drawer-menu a:hover { color: #ef4444; background: rgba(239, 68, 68, 0.08); transform: translateX(8px); }
-
-        /* CONTENEDOR PRINCIPAL */
-        .contenedor-principal { max-width: 1400px; margin: 0 auto; padding: 40px 24px 80px 24px; display: flex; flex-direction: column; align-items: center; }
+        .drawer-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--borde-claro); padding-bottom: 16px; }
+        .drawer-close { background: none; border: none; font-size: 1.6rem; cursor: pointer; color: var(--texto-mutado); transition: var(--transicion); padding: 0; line-height: 1; }
+        .drawer-close:hover { color: #ef4444; transform: rotate(90deg); }
         
-        .header-seccion { text-align: center; margin-bottom: 30px; }
-        .header-seccion h1 { font-size: 3.5rem; font-weight: 800; margin-bottom: 15px; background: linear-gradient(90deg, #0f172a, #334155); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1px; }
-        .header-seccion p { color: var(--texto-mutado); font-size: 1.2rem; max-width: 700px; margin: 0 auto; }
+        .drawer-menu { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+        .drawer-menu a {
+            text-decoration: none; color: var(--texto-principal); font-weight: 700; font-size: 0.98rem;
+            padding: 12px 16px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between;
+            transition: var(--transicion);
+        }
+        .drawer-menu a:hover { color: #10b981; background: rgba(16, 185, 129, 0.08); transform: translateX(6px); }
+        .drawer-menu a.highlight-main { background: #0f172a; color: #ffffff; }
+        .drawer-menu a.highlight-main:hover { background: #10b981; color: #ffffff; }
 
-        /* VISOR 3D GIGANTE */
-        .visor-container {
-            width: 100%; height: 65vh; min-height: 500px;
+        .contenedor-principal { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+
+        /* HERO CENTRALITZAT PER AL MODEL 3D */
+        .hero-3d-centered {
             background: var(--glass-bg); backdrop-filter: blur(25px); border: 1px solid var(--glass-border);
-            border-radius: 32px; box-shadow: var(--glass-shadow); overflow: hidden;
-            position: relative; transition: var(--transicion); margin-bottom: 40px;
+            border-radius: 28px; box-shadow: var(--glass-shadow); padding: 40px 32px;
+            text-align: center; margin-bottom: 40px; position: relative; overflow: hidden;
+            transition: var(--transicion);
         }
-        .visor-container:hover { box-shadow: 0 35px 70px -15px rgba(0,0,0,0.2); transform: translateY(-5px); }
         
-        model-viewer { width: 100%; height: 100%; outline: none; }
-
-        /* Capa superpuesta indicando que se puede mover */
-        .instrucciones-3d {
-            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-            background: rgba(15, 23, 42, 0.8); color: white; padding: 10px 24px;
-            border-radius: 99px; font-size: 0.9rem; font-weight: 600;
-            backdrop-filter: blur(10px); pointer-events: none;
-            animation: pulse 2s infinite; display: flex; gap: 8px; align-items: center;
+        .badge-padrif-3d {
+            display: inline-flex; align-items: center; gap: 8px; background: var(--riesgo-bg-suave);
+            color: var(--riesgo-color); padding: 6px 16px; border-radius: 99px;
+            font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em;
+            border: 1px solid var(--riesgo-borde); margin-bottom: 16px;
         }
-        @keyframes pulse { 0% { opacity: 0.7; transform: translateX(-50%) scale(1); } 50% { opacity: 1; transform: translateX(-50%) scale(1.05); } 100% { opacity: 0.7; transform: translateX(-50%) scale(1); } }
+        .title-3d-main { font-size: 2.5rem; font-weight: 800; margin: 0 0 12px 0; color: var(--texto-principal); letter-spacing: -0.02em; }
+        .sub-3d-main { font-size: 1.05rem; color: var(--texto-mutado); font-weight: 500; max-width: 700px; margin: 0 auto 32px auto; line-height: 1.6; }
 
-        /* TARJETAS INTERACTIVAS (GRID INFERIOR) */
-        .info-componentes {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; width: 100%;
+        /* VIEWPORT 3D AMPLIFIAT I EN EL MIG */
+        .viewport-3d-container {
+            position: relative; width: 100%; min-height: 520px;
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+            border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            overflow: hidden; box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
         }
-
-        .tarjeta-componente {
-            background: var(--glass-bg); backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border); border-radius: 20px;
-            padding: 24px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
-            cursor: pointer; transition: var(--transicion);
-            position: relative; overflow: hidden; text-align: left;
-            display: flex; flex-direction: column; justify-content: flex-start;
+        .canvas-3d-placeholder {
+            width: 100%; height: 100%; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; color: #ffffff; position: relative; padding: 40px;
         }
-        .tarjeta-componente::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
-            background: transparent; transition: var(--transicion);
+        .model-3d-box {
+            width: 220px; height: 220px; border: 2px dashed rgba(255,255,255,0.25);
+            border-radius: 24px; display: flex; flex-direction: column; justify-content: center;
+            align-items: center; text-align: center; padding: 24px;
+            animation: floatEffect 5s ease-in-out infinite; background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(10px); box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
-        .tarjeta-componente:hover { transform: translateY(-10px); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1); background: #ffffff; }
-        .tarjeta-componente.activa { border-color: var(--riesgo-color-dinamico); background: #ffffff; transform: translateY(-10px); box-shadow: 0 20px 40px -10px rgba(249, 115, 22, 0.2); }
-        .tarjeta-componente.activa::before { background: var(--riesgo-color-dinamico); }
-
-        .icono-tarjeta { font-size: 2rem; margin-bottom: 12px; display: inline-block; transition: all 0.3s; }
-        .tarjeta-componente:hover .icono-tarjeta { transform: scale(1.2) rotate(5deg); }
-
-        .tarjeta-componente h3 { margin: 0 0 10px 0; font-size: 1.15rem; font-weight: 700; }
-        .tarjeta-componente p { margin: 0; font-size: 0.95rem; color: var(--texto-mutado); opacity: 0.8; transition: var(--transicion); }
-        .tarjeta-componente.activa p { opacity: 1; color: var(--texto-principal); }
-
-        /* FOOTER */
-        .footer-volver { text-align: center; margin-top: 60px; width: 100%; }
-        .btn-volver {
-            display: inline-flex; align-items: center; gap: 10px; background: var(--texto-principal);
-            padding: 16px 32px; border-radius: 99px; font-weight: 700; color: #ffffff; text-decoration: none;
-            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.3); transition: var(--transicion); font-size: 1.1rem;
+        .controls-3d-bar {
+            position: absolute; bottom: 20px; display: flex; gap: 10px; background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(15px); padding: 10px 20px; border-radius: 99px; border: 1px solid rgba(255,255,255,0.15);
         }
-        .btn-volver:hover { background: #334155; transform: translateY(-5px); box-shadow: 0 20px 35px -5px rgba(15, 23, 42, 0.4); }
+        .btn-3d-action {
+            background: rgba(255,255,255,0.1); border: none; color: #fff; padding: 8px 18px;
+            border-radius: 12px; font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: var(--transicion);
+        }
+        .btn-3d-action:hover { background: #10b981; color: #ffffff; transform: translateY(-2px); }
 
-        /* RESPONSIVE */
-        @media (max-width: 1100px) { .info-componentes { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 768px) {
-            .header-seccion h1 { font-size: 2.5rem; }
-            .visor-container { height: 50vh; border-radius: 20px; }
-            .info-componentes { grid-template-columns: 1fr; }
+        /* SECCIONS ACOMPANYANTS */
+        .header-sadrif-seccion { border-bottom: 2px solid var(--borde-claro); padding-bottom: 12px; margin-bottom: 28px; margin-top: 48px; }
+        .header-sadrif-seccion h2 { margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--texto-principal); letter-spacing: -0.01em; }
+
+        /* SECCIÓ DE VÍDEO AMB TEXT OFICIAL MILLORAT */
+        .video-presentation-container {
+            background: var(--glass-bg); backdrop-filter: blur(25px); border: 1px solid var(--glass-border);
+            border-radius: 28px; padding: 36px; box-shadow: var(--glass-shadow); margin-bottom: 48px;
+        }
+        .video-text-content { margin-bottom: 24px; }
+        .video-text-content h3 { font-size: 1.4rem; font-weight: 800; margin: 6px 0 12px 0; color: var(--texto-principal); }
+        .video-text-content p { color: var(--texto-mutado); font-size: 0.98rem; line-height: 1.7; margin: 0 0 12px 0; }
+
+        .video-wrapper {
+            width: 100%; aspect-ratio: 16/9; background: #000000; border-radius: 20px;
+            overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.18); border: 1px solid var(--borde-claro);
+        }
+        .video-wrapper iframe { width: 100%; height: 100%; border: none; }
+
+        /* ESPECIFICACIONS HARDWARE EN GRID */
+        .grid-tech-specs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 48px; }
+        .card-tech-spec {
+            background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border);
+            border-radius: 20px; padding: 28px; box-shadow: var(--glass-shadow); transition: var(--transicion);
+        }
+        .card-tech-spec:hover { transform: translateY(-6px); background: #ffffff; box-shadow: 0 25px 45px rgba(0,0,0,0.08); }
+        .card-tech-spec .spec-icon {
+            width: 44px; height: 44px; background: var(--riesgo-bg-suave); border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; color: var(--riesgo-color); margin-bottom: 16px;
+        }
+        .card-tech-spec h4 { font-size: 1.1rem; font-weight: 800; margin: 0 0 10px 0; color: var(--texto-principal); }
+        .card-tech-spec p { font-size: 0.92rem; color: var(--texto-mutado); margin: 0; line-height: 1.6; }
+
+        /* CARDS XARXES SOCIALS CALCADES DEL PROJECTE PRINCIPAL */
+        .redes-sociales-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 40px; }
+        .card-social-link { 
+            display: flex; align-items: center; justify-content: center; gap: 12px; 
+            background: var(--glass-bg); backdrop-filter: blur(15px); border: 1px solid var(--glass-border); 
+            padding: 18px 24px; border-radius: 18px; text-decoration: none; box-shadow: var(--glass-shadow); 
+            color: var(--texto-principal); font-weight: 700; font-size: 1rem; transition: var(--transicion); 
+        }
+        .card-social-link:hover { transform: translateY(-6px) scale(1.01); background: #ffffff; }
+        .social-icon svg { width: 22px; height: 22px; fill: currentColor; transition: transform 0.3s ease; }
+        .card-social-link:hover .social-icon svg { transform: scale(1.15) rotate(4deg); }
+        .social-yt:hover { color: #ef4444; border-color: rgba(239, 68, 68, 0.4); box-shadow: 0 15px 30px rgba(239, 68, 68, 0.12); }
+        .social-tw:hover { color: #9146FF; border-color: rgba(145, 70, 255, 0.4); box-shadow: 0 15px 30px rgba(145, 70, 255, 0.12); }
+        .social-ig:hover { color: #E1306C; border-color: rgba(225, 48, 108, 0.4); box-shadow: 0 15px 30px rgba(225, 48, 108, 0.12); }
+
+        /* FOOTER I LOGOS INSTITUCIONALS */
+        .footer-logos-contenedor { 
+            background: var(--glass-bg); backdrop-filter: blur(15px); border: 1px solid var(--glass-border); 
+            border-radius: 22px; padding: 32px 48px; display: flex; justify-content: center; gap: 60px; 
+            align-items: center; margin-bottom: 24px; box-shadow: var(--glass-shadow);
+        }
+        .footer-logos-contenedor img { height: 75px; filter: grayscale(15%); transition: var(--transicion); opacity: 0.85; }
+        .footer-logos-contenedor img:hover { filter: grayscale(0%); opacity: 1; transform: scale(1.08); }
+        .footer-disclaimer { text-align: center; font-size: 0.8rem; color: var(--texto-mutado); margin-bottom: 24px; font-weight: 500; }
+
+        @media (max-width: 900px) {
+            .grid-tech-specs, .redes-sociales-grid { grid-template-columns: 1fr; }
+            .footer-logos-contenedor { flex-direction: column; gap: 28px; padding: 28px; }
+            .title-3d-main { font-size: 2rem; }
+            .viewport-3d-container { min-height: 380px; }
+            .navbar-top { padding: 12px 20px; }
         }
     </style>
 </head>
-<body>
+<body id="inicio">
 
-    <!-- NAVBAR -->
+    <!-- NAVBAR TOP MINIMALISTA -->
     <header class="navbar-top">
         <a href="index.html" class="navbar-brand">
-            <img src="logo-sadrif.svg" alt="SADRIF" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/a/ab/Icon-mac.svg';">
-            <span>PLA DRIF</span>
+            <img src="logo-sadrif.svg" alt="PlaDRIF" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/a/ab/Icon-mac.svg';">
+            <span>PlaDRIF 3D</span>
         </a>
+        
         <div class="navbar-right-controls">
-            <a href="index.html" class="btn-3d-nav"><span>🏠 Tornar a l'Inici</span></a>
-            <button class="btn-hamburger" id="btn-toggle-menu" aria-label="Obrir menú">
+            <!-- INDICADOR DE RISC CALCAT DE LA PÀGINA PRINCIPAL -->
+            <div class="permanent-risk-badge">
+                <span class="permanent-risk-dot"></span>
+                <span>Risc: <strong>Baix (15%)</strong></span>
+            </div>
+
+            <!-- BOTÓ MENÚ HAMBURGUESA -->
+            <button class="btn-hamburger" id="btn-toggle-menu" aria-label="Obrir menú navegació">
                 <span></span><span></span><span></span>
             </button>
         </div>
     </header>
 
-    <!-- DRAWER LATERAL -->
+    <!-- DRAWER MENU DESPLEGABLE CALCAT AL DE LA PÀGINA PRINCIPAL -->
     <div class="drawer-overlay" id="drawer-overlay"></div>
     <div class="nav-drawer" id="nav-drawer">
         <div class="drawer-header">
-            <span style="font-weight: 800; font-size: 1.1rem;">Navegació PLA DRIF</span>
+            <span style="font-weight: 800; font-size: 1.05rem;">Navegació PlaDRIF</span>
             <button class="drawer-close" id="btn-close-drawer">&times;</button>
         </div>
         <ul class="drawer-menu">
-            <li><a href="index.html">Inici <span>➔</span></a></li>
-            <li><a href="#" style="color: #ef4444; background: rgba(239, 68, 68, 0.08);">📦 Model 3D Dispositiu <span>➔</span></a></li>
-            <li><a href="https://www.youtube.com/@PlaDRIF_Oficial" target="_blank">Canal de YouTube <span>➔</span></a></li>
-            <li><a href="https://www.twitch.tv/pla_drif" target="_blank">Directe Twitch <span>➔</span></a></li>
-            <li><a href="https://www.instagram.com/pladrif_cat" target="_blank">Instagram <span>➔</span></a></li>
+            <li><a href="index.html" class="highlight-main">← Tornar a l'Inici (Pàgina Principal)</a></li>
+            <li><a href="#visor-3d" onclick="closeDrawer()">Visor 3D PlaDRIF</a></li>
+            <li><a href="#presentacio-video" onclick="closeDrawer()">Presentació Oficial</a></li>
+            <li><a href="#especificacions" onclick="closeDrawer()">Arquitectura Hardware</a></li>
+            <li><a href="https://www.youtube.com/@PlaDRIF_Oficial" target="_blank">Canal YouTube Oficial</a></li>
+            <li><a href="https://www.twitch.tv/pla_drif" target="_blank">Directe Twitch</a></li>
+            <li><a href="https://www.instagram.com/pladrif_cat" target="_blank">Instagram PlaDRIF</a></li>
         </ul>
     </div>
 
-    <!-- CONTENIDO PRINCIPAL -->
     <div class="contenedor-principal">
         
-        <div class="header-seccion fade-in-up">
-            <h1>Explora l'Estació SADRIF</h1>
-            <p>Descobreix l'enginyeria darrere de la nostra estació meteorològica autònoma. Mou, apropa i analitza cada component en 360º.</p>
+        <!-- HERO CENTRALITZAT: VISOR 3D PLA DRIF -->
+        <section class="hero-3d-centered animated-element" id="visor-3d">
+            <div class="badge-padrif-3d">MÒDUL D'ENGINYERIA 3D</div>
+            <h1 class="title-3d-main">Visor 3D PlaDRIF</h1>
+            <p class="sub-3d-main">Exploració tridimensional interactiva de la unitat física de monitoratge meteorològic i detecció precoç. Examina l'arquitectura de xassís IP67, la disposició dels sensors de camp i el nucli de telemetria.</p>
+            
+            <div class="viewport-3d-container">
+                <div class="canvas-3d-placeholder">
+                    <div class="model-3d-box">
+                        <svg width="68" height="68" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: #10b981; margin-bottom: 14px;">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                        </svg>
+                        <span style="font-weight: 800; font-size: 1.05rem; letter-spacing: -0.01em;">PlaDRIF Model 3D</span>
+                        <span style="font-size: 0.78rem; color: #94a3b8; margin-top: 6px;">Renderitzat Digital CAD</span>
+                    </div>
+
+                    <div class="controls-3d-bar">
+                        <button class="btn-3d-action" onclick="alert('Rotació automàtica 360° activada')">Rotació 360°</button>
+                        <button class="btn-3d-action" onclick="alert('Desglossament de components CAD')">Vista Desglossada</button>
+                        <button class="btn-3d-action" onclick="alert('Rerestabliment de la càmera')">Reset Càmera</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VÍDEO DE PRESENTACIÓ INSTITUCIONAL AMB TEXT MILLORAT -->
+        <section class="video-presentation-container animated-element" id="presentacio-video" style="animation-delay: 0.1s;">
+            <div class="video-text-content">
+                <span style="font-size: 0.8rem; font-weight: 800; color: var(--riesgo-color); text-transform: uppercase; letter-spacing: 0.05em;">PROJECTE D'INVESTIGACIÓ I PREVENCIÓ</span>
+                <h3>Presentació Tècnica i Institucional de PlaDRIF</h3>
+                <p>El projecte <strong>PlaDRIF</strong> (Pla de Detecció i Resposta davant Incendis Forestals) constitueix una solució tecnològica integral dissenyada per a la monitorització contínua i automatitzada del medi natural. Mitjançant la integració de xarxes de sensors intel·ligents, anàlisi predictiva i telemetria en temps real, el sistema permet als serveis d'emergència i gestió forestal anticipar escenaris d'alt risc ambiental.</p>
+                <p>A través del següent audiovisual, es detalla el desenvolupament de l'estació, la validació dels algorismes de càlcul de risc (incloent el control estricte del patró 30-30-30) i el protocol de coordinació operativa en entorns d'interfície urbana-forestal.</p>
+            </div>
+            
+            <div class="video-wrapper">
+                <iframe src="https://www.youtube.com/embed/Jiht0DbdYvE" title="Presentació Tècnica i Institucional PlaDRIF" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </section>
+
+        <!-- ESPECIFICACIONS HARDWARE -->
+        <div class="header-sadrif-seccion animated-element" id="especificacions" style="animation-delay: 0.15s;">
+            <h2>Arquitectura Hardware PlaDRIF</h2>
         </div>
 
-        <!-- VISOR 3D GIGANTE -->
-        <div class="visor-container fade-in-up delay-1">
-            <!-- AQUÍ CARGA TU MODELO A COLOR -->
-            <model-viewer 
-                id="visor"
-                src="mi_dispositivo_color.glb" 
-                alt="Model 3D de l'Estació SADRIF a color" 
-                auto-rotate 
-                rotation-per-second="15deg"
-                camera-controls 
-                shadow-intensity="1.5"
-                shadow-softness="1"
-                environment-image="neutral"
-                exposure="1.3"
-                interaction-prompt="none">
-            </model-viewer>
-            
-            <div class="instrucciones-3d" id="instrucciones">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.21l-5.44-5.44"/></svg>
-                Arrossega per girar l'estació
+        <div class="grid-tech-specs animated-element" style="animation-delay: 0.2s;">
+            <div class="card-tech-spec">
+                <div class="spec-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+                <h4>Sensòrica d'Alta Precisió</h4>
+                <p>Equipat amb sensors d'última generació per a la mesura contínua de temperatura ambient, humitat relativa, velocitat del vent i pressió atmosfèrica amb calibratge industrial integrat.</p>
+            </div>
+            <div class="card-tech-spec">
+                <div class="spec-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/></svg>
+                </div>
+                <h4>Processament IoT & Algorísmica</h4>
+                <p>Microcontrolador d'alt rendiment i baix consum encarregat de processar localment l'índex de risc, avaluant patrons meteorològics complexos abans de la transmissió de dades.</p>
+            </div>
+            <div class="card-tech-spec">
+                <div class="spec-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                </div>
+                <h4>Autonomia Solar & Protecció IP67</h4>
+                <p>Sistema d'alimentació ininterrompuda mitjançant panell fotovoltaic i acumuladors LiFePO4, integrat dins d'un xassís hermètic IP67 resistent a condicions ambientals extremes.</p>
             </div>
         </div>
 
-        <!-- TARJETAS INTERACTIVAS ABAJO -->
-        <div class="info-componentes">
-            <div class="tarjeta-componente fade-in-up delay-2 activa" onclick="activarTarjeta(this)">
-                <span class="icono-tarjeta">🌡️</span>
-                <h3>Sensors T/H</h3>
-                <p>Càpsula ventilada amb sensors d'alta precisió per mesurar la temperatura i humitat, clau per a la regla 30-30-30.</p>
-            </div>
-            
-            <div class="tarjeta-componente fade-in-up delay-2" style="animation-delay: 0.3s;" onclick="activarTarjeta(this)">
-                <span class="icono-tarjeta">💨</span>
-                <h3>Anemòmetre</h3>
-                <p>Ubicat a la zona superior lliure d'obstacles. Registra la velocitat del vent en temps real per preveure la propagació.</p>
-            </div>
-            
-            <div class="tarjeta-componente fade-in-up delay-2" style="animation-delay: 0.4s;" onclick="activarTarjeta(this)">
-                <span class="icono-tarjeta">☀️</span>
-                <h3>Energia Solar</h3>
-                <p>Placa fotovoltaica i bateria de liti que atorguen autonomia infinita a l'equipament en ple medi forestal.</p>
-            </div>
-            
-            <div class="tarjeta-componente fade-in-up delay-2" style="animation-delay: 0.5s;" onclick="activarTarjeta(this)">
-                <span class="icono-tarjeta">🧠</span>
-                <h3>Nucli ESP32</h3>
-                <p>Microcontrolador central que processa i envia les dades via xarxa sense fils als servidors del Pla DRIF.</p>
-            </div>
-        </div>
-
-        <!-- BOTÓN VOLVER INFERIOR -->
-        <div class="footer-volver fade-in-up delay-3">
-            <a href="index.html" class="btn-volver">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                Tornar al Tauler de Control
+        <!-- XARXES SOCIALS CALCADES DEL PROJECTE PRINCIPAL -->
+        <div class="redes-sociales-grid animated-element" id="xarxes" style="animation-delay: 0.25s;">
+            <a href="https://www.youtube.com/@PlaDRIF_Oficial" target="_blank" class="card-social-link social-yt">
+                <span class="social-icon"><svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span>
+                <span>Canal YouTube</span>
+            </a>
+            <a href="https://www.twitch.tv/pla_drif" target="_blank" class="card-social-link social-tw">
+                <span class="social-icon"><svg viewBox="0 0 24 24"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg></span>
+                <span>Twitch Live</span>
+            </a>
+            <a href="https://www.instagram.com/pladrif_cat" target="_blank" class="card-social-link social-ig">
+                <span class="social-icon"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg></span>
+                <span>Instagram</span>
             </a>
         </div>
-
+        
+        <!-- LOGOS INSTITUCIONALS -->
+        <div class="footer-logos-contenedor animated-element" style="animation-delay: 0.3s;">
+            <img src="logo-sabadell.png" alt="Ajuntament de Sabadell" onerror="this.style.display='none'">
+            <img src="logo-generalitat.png" alt="Generalitat de Catalunya" onerror="this.style.display='none'">
+        </div>
+        
+        <!-- FOOTER DISCLAIMS -->
+        <div class="footer-disclaimer">
+            <p>© Projecte PlaDRIF. Tots els drets reservats. Sistema de Prevenció d'Incendis Forestals.</p>
+        </div>
     </div>
 
-    <!-- SCRIPTS -->
+    <!-- SCRIPT DE CONTROL NAVEGACIÓ -->
     <script>
-        // Lógica Drawer
         const btnMenu = document.getElementById('btn-toggle-menu');
         const drawer = document.getElementById('nav-drawer');
         const overlay = document.getElementById('drawer-overlay');
-        const closeDrawer = () => { drawer.classList.remove('open'); overlay.classList.remove('active'); };
-        btnMenu.addEventListener('click', () => { drawer.classList.add('open'); overlay.classList.add('active'); });
+        
+        const openDrawer = () => { drawer.classList.add('open'); overlay.classList.add('active'); btnMenu.classList.add('open'); };
+        const closeDrawer = () => { drawer.classList.remove('open'); overlay.classList.remove('active'); btnMenu.classList.remove('open'); };
+        
+        btnMenu.addEventListener('click', () => { if (btnMenu.classList.contains('open')) closeDrawer(); else openDrawer(); });
         document.getElementById('btn-close-drawer').addEventListener('click', closeDrawer);
         overlay.addEventListener('click', closeDrawer);
-
-        // Tarjetas interactivas
-        function activarTarjeta(elemento) {
-            document.querySelectorAll('.tarjeta-componente').forEach(t => t.classList.remove('activa'));
-            elemento.classList.add('activa');
-        }
-
-        // Ocultar instrucciones al interactuar con el 3D
-        const visor = document.getElementById('visor');
-        const instrucciones = document.getElementById('instrucciones');
-        visor.addEventListener('pointerdown', () => {
-            instrucciones.style.opacity = '0';
-            setTimeout(() => instrucciones.style.display = 'none', 300);
-        }, { once: true });
     </script>
 </body>
 </html>
