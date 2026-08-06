@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visor 3D - PLA DRIF</title>
+    <title>Visor 3D Interactiu - PLA DRIF</title>
     
-    <!-- Fuentes y estilos base -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Cargar model-viewer de Google -->
+    <!-- Model-viewer -->
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
     <style>
@@ -18,179 +18,161 @@
             --bg-principal: #f8fafc;
             --glass-bg: rgba(255, 255, 255, 0.75);
             --glass-border: rgba(255, 255, 255, 0.6);
-            --glass-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+            --glass-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.9);
             
             --texto-principal: #0f172a;
             --texto-mutado: #64748b;
             --borde-claro: rgba(226, 232, 240, 0.6);
 
-            --riesgo-color-dinamico: #f97316; /* Taronja per defecte al visor */
-            --riesgo-bg-suave: rgba(249, 115, 22, 0.15);
+            --riesgo-color-dinamico: #f97316; 
             --transicion: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         * { box-sizing: border-box; }
 
+        /* Fondo Animado */
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg-principal);
-            background-image: radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.08) 0px, transparent 50%),
-                              radial-gradient(at 100% 100%, var(--riesgo-bg-suave) 0px, transparent 50%);
+            background: linear-gradient(-45deg, #f8fafc, #e0f2fe, #fff7ed, #f1f5f9);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
             color: var(--texto-principal);
             margin: 0; padding: 0; line-height: 1.5; overflow-x: hidden;
         }
 
-        /* NAVBAR (Idéntico a la página principal) */
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Animaciones de Entrada */
+        .fade-in-up { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(30px); }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.3s; }
+        .delay-3 { animation-delay: 0.5s; }
+
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+        /* NAVBAR */
         .navbar-top {
             position: sticky; top: 0; z-index: 1000;
-            background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             border-bottom: 1px solid var(--glass-border); padding: 14px 32px;
             display: flex; justify-content: space-between; align-items: center; 
             box-shadow: 0 4px 30px rgba(0,0,0,0.05);
         }
-        
-        .navbar-brand { 
-            display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.25rem; 
-            color: var(--texto-principal); text-decoration: none; transition: var(--transicion);
-        }
-        .navbar-brand:hover { transform: scale(1.05) translateY(-1px); }
+        .navbar-brand { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.25rem; color: var(--texto-principal); text-decoration: none; transition: var(--transicion); }
+        .navbar-brand:hover { transform: scale(1.05); }
         .navbar-brand img { height: 36px; width: auto; }
-        
         .navbar-right-controls { display: flex; align-items: center; gap: 12px; }
-        
-        .btn-3d-nav {
-            display: flex; align-items: center; gap: 8px; background: var(--texto-principal);
-            border: 1px solid var(--texto-principal); padding: 8px 16px; border-radius: 99px;
-            font-weight: 700; font-size: 0.85rem; color: #ffffff; text-decoration: none; transition: var(--transicion);
-        }
-        .btn-3d-nav:hover { background: #334155; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15); }
-
-        .btn-hamburger {
-            background: rgba(255, 255, 255, 0.9); border: 1px solid var(--glass-border); border-radius: 10px;
-            padding: 12px; cursor: pointer; display: flex; flex-direction: column; gap: 5px; 
-            transition: var(--transicion); width: 44px; height: 44px; justify-content: center; align-items: center;
-        }
-        .btn-hamburger:hover { background: #fff; transform: scale(1.08); box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
-        .btn-hamburger span { 
-            display: block; width: 22px; height: 2px; background-color: var(--texto-principal); 
-            border-radius: 2px; transition: all 0.3s ease-in-out; 
-        }
+        .btn-3d-nav { display: flex; align-items: center; gap: 8px; border: 1px solid var(--borde-claro); padding: 8px 16px; border-radius: 99px; font-weight: 700; font-size: 0.85rem; color: var(--texto-principal); text-decoration: none; transition: var(--transicion); background: transparent; }
+        .btn-3d-nav:hover { background: #ffffff; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1); }
+        .btn-hamburger { background: rgba(255, 255, 255, 0.9); border: 1px solid var(--glass-border); border-radius: 10px; padding: 12px; cursor: pointer; display: flex; flex-direction: column; gap: 5px; transition: var(--transicion); width: 44px; height: 44px; justify-content: center; align-items: center; }
+        .btn-hamburger span { display: block; width: 22px; height: 2px; background-color: var(--texto-principal); border-radius: 2px; }
 
         /* MENÚ LATERAL */
         .drawer-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); backdrop-filter: blur(10px); z-index: 1500; opacity: 0; pointer-events: none; transition: var(--transicion); }
         .drawer-overlay.active { opacity: 1; pointer-events: auto; }
-
-        .nav-drawer {
-            position: fixed; top: 0; right: -360px; width: 340px; height: 100vh;
-            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(35px);
-            box-shadow: -15px 0 35px rgba(0,0,0,0.12); z-index: 2000; padding: 35px 28px;
-            transition: var(--transicion); display: flex; flex-direction: column; gap: 25px;
-        }
+        .nav-drawer { position: fixed; top: 0; right: -360px; width: 340px; height: 100vh; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(35px); box-shadow: -15px 0 35px rgba(0,0,0,0.12); z-index: 2000; padding: 35px 28px; transition: var(--transicion); display: flex; flex-direction: column; gap: 25px; }
         .nav-drawer.open { right: 0; }
         .drawer-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--borde-claro); padding-bottom: 15px; }
-        .drawer-close { background: none; border: none; font-size: 2rem; cursor: pointer; color: var(--texto-mutado); transition: var(--transicion); padding: 0; line-height: 1; }
-        
+        .drawer-close { background: none; border: none; font-size: 2rem; cursor: pointer; color: var(--texto-mutado); transition: var(--transicion); }
         .drawer-menu { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
-        .drawer-menu a {
-            text-decoration: none; color: var(--texto-principal); font-weight: 700; font-size: 1.05rem;
-            padding: 12px 16px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between;
-            transition: var(--transicion);
-        }
+        .drawer-menu a { text-decoration: none; color: var(--texto-principal); font-weight: 700; font-size: 1.05rem; padding: 12px 16px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; transition: var(--transicion); }
         .drawer-menu a:hover { color: #ef4444; background: rgba(239, 68, 68, 0.08); transform: translateX(8px); }
 
-        /* CONTENEDOR 3D Y ESTÉTICA */
-        .contenedor-principal { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+        /* CONTENEDOR PRINCIPAL */
+        .contenedor-principal { max-width: 1400px; margin: 0 auto; padding: 40px 24px 80px 24px; display: flex; flex-direction: column; align-items: center; }
         
-        .header-seccion { text-align: center; margin-bottom: 40px; }
-        .header-seccion h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; color: var(--texto-principal); }
-        .header-seccion p { color: var(--texto-mutado); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+        .header-seccion { text-align: center; margin-bottom: 30px; }
+        .header-seccion h1 { font-size: 3.5rem; font-weight: 800; margin-bottom: 15px; background: linear-gradient(90deg, #0f172a, #334155); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1px; }
+        .header-seccion p { color: var(--texto-mutado); font-size: 1.2rem; max-width: 700px; margin: 0 auto; }
 
-        .layout-3d {
-            display: grid;
-            grid-template-columns: 1.5fr 1fr;
-            gap: 30px;
-            margin-bottom: 40px;
-        }
-
-        /* VISOR 3D ESTILO GLASSMORPHISM */
+        /* VISOR 3D GIGANTE */
         .visor-container {
-            background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border);
-            border-radius: 24px; box-shadow: var(--glass-shadow); overflow: hidden;
-            height: 500px; display: flex; justify-content: center; align-items: center;
-            position: relative; transition: var(--transicion);
+            width: 100%; height: 65vh; min-height: 500px;
+            background: var(--glass-bg); backdrop-filter: blur(25px); border: 1px solid var(--glass-border);
+            border-radius: 32px; box-shadow: var(--glass-shadow); overflow: hidden;
+            position: relative; transition: var(--transicion); margin-bottom: 40px;
         }
-        .visor-container:hover { box-shadow: 0 30px 60px -12px rgba(0,0,0,0.12); }
+        .visor-container:hover { box-shadow: 0 35px 70px -15px rgba(0,0,0,0.2); transform: translateY(-5px); }
         
-        model-viewer {
-            width: 100%;
-            height: 100%;
-            background-color: transparent;
-            --poster-color: transparent;
-        }
+        model-viewer { width: 100%; height: 100%; outline: none; }
 
-        /* PANELES DE INFORMACIÓN INTERACTIVA */
+        /* Capa superpuesta indicando que se puede mover */
+        .instrucciones-3d {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.8); color: white; padding: 10px 24px;
+            border-radius: 99px; font-size: 0.9rem; font-weight: 600;
+            backdrop-filter: blur(10px); pointer-events: none;
+            animation: pulse 2s infinite; display: flex; gap: 8px; align-items: center;
+        }
+        @keyframes pulse { 0% { opacity: 0.7; transform: translateX(-50%) scale(1); } 50% { opacity: 1; transform: translateX(-50%) scale(1.05); } 100% { opacity: 0.7; transform: translateX(-50%) scale(1); } }
+
+        /* TARJETAS INTERACTIVAS (GRID INFERIOR) */
         .info-componentes {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; width: 100%;
         }
 
         .tarjeta-componente {
             background: var(--glass-bg); backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border); border-radius: 16px;
-            padding: 20px; box-shadow: var(--glass-shadow);
+            border: 1px solid var(--glass-border); border-radius: 20px;
+            padding: 24px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
             cursor: pointer; transition: var(--transicion);
-            position: relative; overflow: hidden;
+            position: relative; overflow: hidden; text-align: left;
+            display: flex; flex-direction: column; justify-content: flex-start;
         }
         .tarjeta-componente::before {
-            content: ''; position: absolute; left: 0; top: 0; width: 4px; height: 100%;
-            background: var(--texto-mutado); transition: var(--transicion);
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+            background: transparent; transition: var(--transicion);
         }
-        .tarjeta-componente:hover { transform: translateX(5px); background: #ffffff; }
-        .tarjeta-componente.activa { border-color: var(--riesgo-color-dinamico); background: #ffffff; }
+        .tarjeta-componente:hover { transform: translateY(-10px); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1); background: #ffffff; }
+        .tarjeta-componente.activa { border-color: var(--riesgo-color-dinamico); background: #ffffff; transform: translateY(-10px); box-shadow: 0 20px 40px -10px rgba(249, 115, 22, 0.2); }
         .tarjeta-componente.activa::before { background: var(--riesgo-color-dinamico); }
 
-        .tarjeta-componente h3 { margin: 0 0 5px 0; font-size: 1.1rem; display: flex; align-items: center; gap: 10px; }
-        .tarjeta-componente p { margin: 0; font-size: 0.9rem; color: var(--texto-mutado); display: none; }
-        .tarjeta-componente.activa p { display: block; margin-top: 10px; animation: fadeIn 0.5s ease; }
+        .icono-tarjeta { font-size: 2rem; margin-bottom: 12px; display: inline-block; transition: all 0.3s; }
+        .tarjeta-componente:hover .icono-tarjeta { transform: scale(1.2) rotate(5deg); }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        .tarjeta-componente h3 { margin: 0 0 10px 0; font-size: 1.15rem; font-weight: 700; }
+        .tarjeta-componente p { margin: 0; font-size: 0.95rem; color: var(--texto-mutado); opacity: 0.8; transition: var(--transicion); }
+        .tarjeta-componente.activa p { opacity: 1; color: var(--texto-principal); }
 
-        /* FOOTER SIMPLIFICADO */
-        .footer-volver { text-align: center; margin-top: 40px; }
+        /* FOOTER */
+        .footer-volver { text-align: center; margin-top: 60px; width: 100%; }
         .btn-volver {
-            display: inline-flex; align-items: center; gap: 8px; background: #ffffff;
-            border: 1px solid var(--borde-claro); padding: 12px 24px; border-radius: 12px;
-            font-weight: 700; color: var(--texto-principal); text-decoration: none;
-            box-shadow: var(--glass-shadow); transition: var(--transicion);
+            display: inline-flex; align-items: center; gap: 10px; background: var(--texto-principal);
+            padding: 16px 32px; border-radius: 99px; font-weight: 700; color: #ffffff; text-decoration: none;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.3); transition: var(--transicion); font-size: 1.1rem;
         }
-        .btn-volver:hover { background: var(--texto-principal); color: #ffffff; transform: translateY(-3px); }
+        .btn-volver:hover { background: #334155; transform: translateY(-5px); box-shadow: 0 20px 35px -5px rgba(15, 23, 42, 0.4); }
 
-        @media (max-width: 950px) {
-            .layout-3d { grid-template-columns: 1fr; }
-            .visor-container { height: 400px; }
+        /* RESPONSIVE */
+        @media (max-width: 1100px) { .info-componentes { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) {
+            .header-seccion h1 { font-size: 2.5rem; }
+            .visor-container { height: 50vh; border-radius: 20px; }
+            .info-componentes { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-    <!-- NAVBAR TOP -->
+    <!-- NAVBAR -->
     <header class="navbar-top">
         <a href="index.html" class="navbar-brand">
             <img src="logo-sadrif.svg" alt="SADRIF" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/a/ab/Icon-mac.svg';">
             <span>PLA DRIF</span>
         </a>
         <div class="navbar-right-controls">
-            <a href="index.html" class="btn-3d-nav" style="background: transparent; color: var(--texto-principal); border-color: var(--borde-claro);">
-                <span>🏠 Tornar a l'Inici</span>
-            </a>
+            <a href="index.html" class="btn-3d-nav"><span>🏠 Tornar a l'Inici</span></a>
             <button class="btn-hamburger" id="btn-toggle-menu" aria-label="Obrir menú">
                 <span></span><span></span><span></span>
             </button>
         </div>
     </header>
 
-    <!-- MENÚ LATERAL (DRAWER) -->
+    <!-- DRAWER LATERAL -->
     <div class="drawer-overlay" id="drawer-overlay"></div>
     <div class="nav-drawer" id="nav-drawer">
         <div class="drawer-header">
@@ -206,53 +188,69 @@
         </ul>
     </div>
 
+    <!-- CONTENIDO PRINCIPAL -->
     <div class="contenedor-principal">
         
-        <div class="header-seccion">
+        <div class="header-seccion fade-in-up">
             <h1>Explora l'Estació SADRIF</h1>
-            <p>Interactua amb el model 3D per descobrir els components físics que fan possible el monitoratge en temps real del risc d'incendi.</p>
+            <p>Descobreix l'enginyeria darrere de la nostra estació meteorològica autònoma. Mou, apropa i analitza cada component en 360º.</p>
         </div>
 
-        <div class="layout-3d">
-            <!-- VISOR 3D -->
-            <div class="visor-container">
-                <model-viewer 
-                    src="mi_dispositivo.glb" 
-                    alt="Model 3D de l'Estació SADRIF" 
-                    auto-rotate 
-                    camera-controls 
-                    shadow-intensity="1"
-                    environment-image="neutral"
-                    exposure="1.2"
-                    interaction-prompt="hover">
-                </model-viewer>
-            </div>
-
-            <!-- BOTONES INTERACTIVOS -->
-            <div class="info-componentes">
-                <div class="tarjeta-componente activa" onclick="activarTarjeta(this)">
-                    <h3>🌡️ Sensor de Temperatura i Humitat</h3>
-                    <p>Càpsula ventilada que allotja els sensors d'alta precisió per mesurar la calor i l'estrès hídric de l'aire, fonamentals per calcular la regla del 30-30-30.</p>
-                </div>
-                <div class="tarjeta-componente" onclick="activarTarjeta(this)">
-                    <h3>💨 Anemòmetre</h3>
-                    <p>Situat a la part superior per evitar interferències. Mesura la velocitat i direcció del vent contínuament per preveure la ràpida propagació de les flames.</p>
-                </div>
-                <div class="tarjeta-componente" onclick="activarTarjeta(this)">
-                    <h3>☀️ Placa Solar i Bateria</h3>
-                    <p>Proporciona autonomia total al sistema. La placa solar recarrega una bateria de liti interna, permetent a l'estació funcionar ininterrompudament al mig del bosc.</p>
-                </div>
-                <div class="tarjeta-componente" onclick="activarTarjeta(this)">
-                    <h3>🧠 Microcontrolador ESP32</h3>
-                    <p>El cervell de l'operació. Recopila totes les dades dels sensors i les envia mitjançant xarxa Wi-Fi/Mòbil als servidors del Pla DRIF per a la seva visualització web.</p>
-                </div>
+        <!-- VISOR 3D GIGANTE -->
+        <div class="visor-container fade-in-up delay-1">
+            <!-- AQUÍ CARGA TU MODELO A COLOR -->
+            <model-viewer 
+                id="visor"
+                src="mi_dispositivo_color.glb" 
+                alt="Model 3D de l'Estació SADRIF a color" 
+                auto-rotate 
+                rotation-per-second="15deg"
+                camera-controls 
+                shadow-intensity="1.5"
+                shadow-softness="1"
+                environment-image="neutral"
+                exposure="1.3"
+                interaction-prompt="none">
+            </model-viewer>
+            
+            <div class="instrucciones-3d" id="instrucciones">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.21l-5.44-5.44"/></svg>
+                Arrossega per girar l'estació
             </div>
         </div>
 
-        <div class="footer-volver">
+        <!-- TARJETAS INTERACTIVAS ABAJO -->
+        <div class="info-componentes">
+            <div class="tarjeta-componente fade-in-up delay-2 activa" onclick="activarTarjeta(this)">
+                <span class="icono-tarjeta">🌡️</span>
+                <h3>Sensors T/H</h3>
+                <p>Càpsula ventilada amb sensors d'alta precisió per mesurar la temperatura i humitat, clau per a la regla 30-30-30.</p>
+            </div>
+            
+            <div class="tarjeta-componente fade-in-up delay-2" style="animation-delay: 0.3s;" onclick="activarTarjeta(this)">
+                <span class="icono-tarjeta">💨</span>
+                <h3>Anemòmetre</h3>
+                <p>Ubicat a la zona superior lliure d'obstacles. Registra la velocitat del vent en temps real per preveure la propagació.</p>
+            </div>
+            
+            <div class="tarjeta-componente fade-in-up delay-2" style="animation-delay: 0.4s;" onclick="activarTarjeta(this)">
+                <span class="icono-tarjeta">☀️</span>
+                <h3>Energia Solar</h3>
+                <p>Placa fotovoltaica i bateria de liti que atorguen autonomia infinita a l'equipament en ple medi forestal.</p>
+            </div>
+            
+            <div class="tarjeta-componente fade-in-up delay-2" style="animation-delay: 0.5s;" onclick="activarTarjeta(this)">
+                <span class="icono-tarjeta">🧠</span>
+                <h3>Nucli ESP32</h3>
+                <p>Microcontrolador central que processa i envia les dades via xarxa sense fils als servidors del Pla DRIF.</p>
+            </div>
+        </div>
+
+        <!-- BOTÓN VOLVER INFERIOR -->
+        <div class="footer-volver fade-in-up delay-3">
             <a href="index.html" class="btn-volver">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                Tornar al Tauler Principal
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                Tornar al Tauler de Control
             </a>
         </div>
 
@@ -260,27 +258,28 @@
 
     <!-- SCRIPTS -->
     <script>
-        // Lógica del menú hamburguesa (idéntica a la principal)
+        // Lógica Drawer
         const btnMenu = document.getElementById('btn-toggle-menu');
         const drawer = document.getElementById('nav-drawer');
         const overlay = document.getElementById('drawer-overlay');
-        
-        const openDrawer = () => { drawer.classList.add('open'); overlay.classList.add('active'); btnMenu.classList.add('open'); };
-        const closeDrawer = () => { drawer.classList.remove('open'); overlay.classList.remove('active'); btnMenu.classList.remove('open'); };
-        
-        btnMenu.addEventListener('click', () => { if (btnMenu.classList.contains('open')) closeDrawer(); else openDrawer(); });
+        const closeDrawer = () => { drawer.classList.remove('open'); overlay.classList.remove('active'); };
+        btnMenu.addEventListener('click', () => { drawer.classList.add('open'); overlay.classList.add('active'); });
         document.getElementById('btn-close-drawer').addEventListener('click', closeDrawer);
         overlay.addEventListener('click', closeDrawer);
 
-        // Lógica para las tarjetas interactivas
+        // Tarjetas interactivas
         function activarTarjeta(elemento) {
-            // Quitar clase activa a todas
-            const tarjetas = document.querySelectorAll('.tarjeta-componente');
-            tarjetas.forEach(t => t.classList.remove('activa'));
-            
-            // Añadir clase activa a la clicada
+            document.querySelectorAll('.tarjeta-componente').forEach(t => t.classList.remove('activa'));
             elemento.classList.add('activa');
         }
+
+        // Ocultar instrucciones al interactuar con el 3D
+        const visor = document.getElementById('visor');
+        const instrucciones = document.getElementById('instrucciones');
+        visor.addEventListener('pointerdown', () => {
+            instrucciones.style.opacity = '0';
+            setTimeout(() => instrucciones.style.display = 'none', 300);
+        }, { once: true });
     </script>
 </body>
 </html>
