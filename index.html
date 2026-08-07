@@ -179,20 +179,36 @@
         }
         .nav-card-link:hover { opacity: 0.6; }
 
-        /* Badge Risc dins del nav */
+        /* Badge Risc dins del nav (DINÀMIC QUAN SURT DE PANTALLA) */
         .sticky-risk-badge {
             display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border); padding: 5px 12px; border-radius: 99px;
-            font-weight: 700; font-size: 0.85rem; transition: var(--transicion); box-shadow: var(--glass-shadow);
+            font-weight: 700; font-size: 0.85rem; box-shadow: var(--glass-shadow);
+            
+            /* Amagat per defecte, apareix quan fem scroll i el % gran desapareix */
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px) scale(0.95);
+            transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s;
+            pointer-events: none;
         }
+
+        .sticky-risk-badge.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
         .sticky-risk-dot { width: 10px; height: 10px; border-radius: 50%; background-color: var(--riesgo-color-dinamico); box-shadow: 0 0 8px var(--riesgo-color-dinamico); animation: pulseLive 1.5s infinite; }
 
         @media (max-width: 768px) {
             .card-nav-container { width: 95%; top: 0.5rem; }
-            .card-nav-top { justify-content: space-between; }
-            .hamburger-menu { order: 2; }
+            .card-nav-top { justify-content: space-between; gap: 8px; }
+            .hamburger-menu { order: 3; }
             .logo-container { order: 1; }
-            .right-controls-nav { display: none !important; } 
+            .right-controls-nav { order: 2; display: flex !important; } 
+            .sticky-risk-badge { padding: 4px 8px; font-size: 0.78rem; }
             
             /* Corrección para que haga scroll en móvil */
             .card-nav-content {
@@ -217,7 +233,7 @@
         .banner-alerta-extrema { display: none; background: linear-gradient(90deg, #ef4444 0%, #b91c1c 100%); color: #fff; text-align: center; padding: 12px 20px; font-weight: 800; font-size: 0.85rem; letter-spacing: 0.05em; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); margin-bottom: 20px; }
 
         /* HERO COMPACTE */
-        .hero-compact { background: var(--glass-bg); backdrop-filter: blur(25px) saturate(120%); -webkit-backdrop-filter: blur(25px) saturate(120%); border: 1px solid var(--glass-border); border-radius: 24px; box-shadow: var(--glass-shadow); overflow: hidden; display: grid; grid-template-columns: 1.2fr 1fr; min-height: 320px; margin-bottom: 24px; transition: var(--transicion); }
+        .hero-compact { background: var(--glass-bg); backdrop-filter: blur(25px) saturate(120%); -webkit-backdrop-filter: blur(25px) saturate(120%); border: 1px solid var(--glass-border); border-radius: 24px; box-shadow: var(--glass-shadow); overflow: hidden; display: grid; grid-template-columns: 1.2fr 1fr; min-height: 320px; margin-bottom: 12px; transition: var(--transicion); }
         .hero-compact:hover { box-shadow: 0 30px 60px -12px rgba(0,0,0,0.12), inset 0 1px 2px rgba(255, 255, 255, 0.9); transform: translateY(-3px); }
         .hero-left-content { padding: 32px 36px; display: flex; flex-direction: column; justify-content: space-between; z-index: 10; }
         .hero-header-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--riesgo-bg-suave); color: var(--riesgo-color-dinamico); padding: 5px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; width: fit-content; border: 1px solid var(--riesgo-borde); transition: var(--transicion); }
@@ -235,18 +251,144 @@
         #mapa-real-catalunya { width: 100%; height: 100%; background: transparent; }
         .leaflet-tooltip { background: rgba(255,255,255,0.95); border: 1px solid var(--borde-claro); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); color: var(--texto-principal); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.85rem; }
 
-        /* METEO */
+        /* LLEGENDA MAPA DINÀMICA */
+        .leyenda-container {
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        .btn-leyenda {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            padding: 8px 20px;
+            border-radius: 99px;
+            font-size: 0.85rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            color: var(--texto-principal);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--glass-shadow);
+            transition: var(--transicion);
+            z-index: 2;
+        }
+        .btn-leyenda:hover {
+            background: rgba(255, 255, 255, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        .btn-leyenda svg {
+            transition: transform 0.3s ease;
+        }
+        .btn-leyenda.actiu svg {
+            transform: rotate(180deg);
+        }
+        .leyenda-content {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease, margin 0.4s ease;
+            width: 100%;
+            max-width: 850px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid transparent;
+            border-radius: 16px;
+            box-shadow: none;
+            margin-top: 0;
+        }
+        .leyenda-content.obert {
+            max-height: 250px;
+            opacity: 1;
+            margin-top: 16px;
+            border-color: var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            padding: 20px 24px;
+        }
+        .leyenda-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+        .leyenda-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--texto-principal);
+            background: rgba(255, 255, 255, 0.5);
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.6);
+            transition: var(--transicion);
+        }
+        .leyenda-item:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+        }
+        .leyenda-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+        }
+
+        /* METEO (ESTILOS NUEVOS PARA BORDES Y BURBUJAS) */
         .contenedor-meteo { margin-bottom: 32px; }
-        .premium-data-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 12px; }
-        .tarjeta-hero-lectura { background: var(--glass-bg); backdrop-filter: blur(20px) saturate(120%); -webkit-backdrop-filter: blur(20px) saturate(120%); border: 1px solid var(--glass-border); border-radius: 18px; padding: 20px 15px; box-shadow: var(--glass-shadow); text-align: center; transition: var(--transicion); cursor: pointer; position: relative; user-select: none; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
+        .premium-data-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 12px; padding-top: 15px; /* Espacio para las burbujas */ }
+        
+        .tarjeta-hero-lectura { 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(20px) saturate(120%); 
+            -webkit-backdrop-filter: blur(20px) saturate(120%); 
+            border: 2px solid var(--glass-border); /* Aumentado a 2px para que el color destaque */
+            border-radius: 18px; 
+            padding: 20px 15px; 
+            box-shadow: var(--glass-shadow); 
+            text-align: center; 
+            transition: var(--transicion); 
+            cursor: pointer; 
+            position: relative; 
+            user-select: none; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: space-between; 
+        }
         .tarjeta-hero-lectura::after { content: ''; position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); width: 0%; height: 4px; background: var(--riesgo-color-dinamico); border-radius: 4px 4px 0 0; transition: width 0.3s ease; }
-        .tarjeta-hero-lectura:hover { transform: translateY(-6px) scale(1.01); background: rgba(255, 255, 255, 0.7); box-shadow: 0 15px 30px rgba(0,0,0,0.08); }
-        .tarjeta-hero-lectura.activa { border-color: var(--riesgo-color-dinamico); background: rgba(255, 255, 255, 0.85); transform: translateY(-6px); box-shadow: 0 15px 30px rgba(0,0,0,0.12); }
+        .tarjeta-hero-lectura:hover { transform: translateY(-6px) scale(1.01); background: rgba(255, 255, 255, 0.7); }
+        .tarjeta-hero-lectura.activa { background: rgba(255, 255, 255, 0.85); transform: translateY(-6px); }
         .tarjeta-hero-lectura.activa::after { width: 40%; }
+        
         .tarjeta-hero-lectura .label { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: var(--texto-mutado); letter-spacing: 0.06em; margin-bottom: 6px; }
         .tarjeta-hero-lectura .valor { font-size: 1.75rem; font-weight: 800; color: var(--texto-principal); font-variant-numeric: tabular-nums; margin-top: 6px; }
         .click-hint { font-size: 0.68rem; font-weight: 700; color: var(--riesgo-color-dinamico); margin-top: 8px; animation: pulseInfo 2s infinite ease-in-out; }
         .tarjeta-hero-lectura.activa .click-hint { animation: none; opacity: 1; color: var(--texto-principal); }
+
+        /* BURBUJA DE ESTADO DINÁMICA */
+        .status-bubble {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            white-space: nowrap;
+            z-index: 10;
+            transition: background-color 0.4s ease;
+        }
 
         /* WIDGETS VISUALS */
         .vis-thermo-container { display: flex; flex-direction: column; align-items: center; margin: 6px 0; }
@@ -341,6 +483,15 @@
             .card-3d-banner { flex-direction: column; text-align: center; }
             .panel-impacto-global.obert { max-height: 800px; }
         }
+        
+        @media (max-width: 768px) {
+            .leyenda-grid { grid-template-columns: repeat(2, 1fr); }
+            .leyenda-content.obert { max-height: 350px; }
+        }
+        @media (max-width: 480px) {
+            .leyenda-grid { grid-template-columns: 1fr; }
+            .leyenda-content.obert { max-height: 450px; }
+        }
     </style>
 </head>
 <body id="inicio">
@@ -349,7 +500,7 @@
         🚨 ATENCIÓ: REGLA DEL 30-30-30 COMPLERTA — PERILL EXTREM D'INCENDI FORESTAL
     </div>
 
-    <!-- NUEVO MENÚ CARDNAV ADAPTADO -->
+    <!-- MENÚ CARDNAV -->
     <div class="card-nav-container">
         <nav id="card-nav" class="card-nav">
             <div class="card-nav-top">
@@ -367,13 +518,12 @@
                     </a>
                 </div>
 
-                <!-- Controles Nav Derecho (Riesgo + Botón 3D) -->
+                <!-- Controles Nav Derecho (Riesgo Dinámico) -->
                 <div class="right-controls-nav" style="display: flex; gap: 12px; align-items: center;">
                     <div id="sticky-risk-badge" class="sticky-risk-badge">
                         <span class="sticky-risk-dot"></span>
                         <span>Risc: <strong id="sticky-risk-val">0%</strong></span>
                     </div>
-                    <a href="producto3d.html" class="card-nav-cta-button">📦 Visor 3D</a>
                 </div>
             </div>
 
@@ -440,7 +590,8 @@
                     <div class="ubicacion-sub">Bosc de Can Deu / Torrent de Colobrers</div>
                 </div>
                 <div>
-                    <div class="hero-percentage-display">
+                    <!-- ID AFEGIT PER OBSERVAR EL PORCENTATGE EN PANTALLA -->
+                    <div class="hero-percentage-display" id="hero-percentage-display">
                         <span class="hero-num-pct" id="hero-riesgo-pct">0</span>
                         <span class="hero-sim-pct">%</span>
                     </div>
@@ -453,29 +604,65 @@
                 <div id="mapa-real-catalunya"></div>
             </div>
         </div>
+        
+        <!-- LLEGENDA MAPA (NOVA IMPLEMENTACIÓ) -->
+        <div class="leyenda-container animated-element" style="animation-delay: 0.05s;">
+            <button class="btn-leyenda" onclick="toggleLeyenda(this)">
+                Llegenda de Riscos del Mapa
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="leyenda-content" id="leyenda-mapa">
+                <div class="leyenda-grid">
+                    <div class="leyenda-item">
+                        <div class="leyenda-color" style="background: #10b981; border: 2px solid rgba(16, 185, 129, 0.4);"></div>
+                        <span>Baix (Pla Alfa 0)</span>
+                    </div>
+                    <div class="leyenda-item">
+                        <div class="leyenda-color" style="background: #f59e0b; border: 2px solid rgba(245, 158, 11, 0.4);"></div>
+                        <span>Moderat (Pla Alfa 1)</span>
+                    </div>
+                    <div class="leyenda-item">
+                        <div class="leyenda-color" style="background: #f97316; border: 2px solid rgba(249, 115, 22, 0.4);"></div>
+                        <span>Alt (Pla Alfa 2)</span>
+                    </div>
+                    <div class="leyenda-item">
+                        <div class="leyenda-color" style="background: #ef4444; border: 2px solid rgba(239, 68, 68, 0.4);"></div>
+                        <span>Extrem (Pla Alfa 3)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- TARGETES METEO AMB WIDGETS VISUALS -->
         <div class="contenedor-meteo animated-element" style="animation-delay: 0.1s;">
             <div class="premium-data-row">
-                <div class="tarjeta-hero-lectura" onclick="obrirDetallMeteo('temp', this)">
+                <!-- Tarjeta Temperatura -->
+                <div class="tarjeta-hero-lectura" id="card-temp" onclick="obrirDetallMeteo('temp', this)">
+                    <div class="status-bubble" id="bubble-temp" style="background-color: #64748b;">Analitzant...</div>
                     <div class="label">Temperatura <span>ⓘ</span></div>
                     <div class="vis-thermo-container"><div class="vis-thermo-tube"><div class="vis-thermo-fill" id="vis-temp-fill"></div></div><div class="vis-thermo-bulb" id="vis-temp-bulb"></div></div>
                     <div class="valor"><span id="hero-temp">0.0</span> °C</div>
                     <div class="click-hint">Premeu per veure impacte</div>
                 </div>
-                <div class="tarjeta-hero-lectura" onclick="obrirDetallMeteo('hum', this)">
+                <!-- Tarjeta Humedad -->
+                <div class="tarjeta-hero-lectura" id="card-hum" onclick="obrirDetallMeteo('hum', this)">
+                    <div class="status-bubble" id="bubble-hum" style="background-color: #64748b;">Analitzant...</div>
                     <div class="label">Humitat Relativa <span>ⓘ</span></div>
                     <div class="vis-hum-gota"><div class="vis-hum-fill-wrapper"><div class="vis-hum-fill" id="vis-hum-fill"></div></div></div>
                     <div class="valor"><span id="hero-hum">0</span> %</div>
                     <div class="click-hint">Premeu per veure impacte</div>
                 </div>
-                <div class="tarjeta-hero-lectura" onclick="obrirDetallMeteo('vent', this)">
+                <!-- Tarjeta Viento -->
+                <div class="tarjeta-hero-lectura" id="card-vent" onclick="obrirDetallMeteo('vent', this)">
+                    <div class="status-bubble" id="bubble-vent" style="background-color: #64748b;">Analitzant...</div>
                     <div class="label">Velocitat Vent <span>ⓘ</span></div>
                     <div class="vis-speedo"><div class="vis-speedo-needle" id="vis-vent-needle"></div><div class="vis-speedo-center"></div></div>
                     <div class="valor"><span id="hero-viento">0.0</span> km/h</div>
                     <div class="click-hint">Premeu per veure impacte</div>
                 </div>
-                <div class="tarjeta-hero-lectura" onclick="obrirDetallMeteo('pres', this)">
+                <!-- Tarjeta Presión -->
+                <div class="tarjeta-hero-lectura" id="card-pres" onclick="obrirDetallMeteo('pres', this)">
+                    <div class="status-bubble" id="bubble-pres" style="background-color: #64748b;">Analitzant...</div>
                     <div class="label">Pressió Atmosfèrica <span>ⓘ</span></div>
                     <div class="vis-baro"><div class="vis-baro-center"></div><div class="vis-baro-needle" id="vis-pres-needle"></div></div>
                     <div class="valor"><span id="hero-presion">0</span> hPa</div>
@@ -578,7 +765,7 @@
 
         <!-- XARXES SOCIALS -->
         <div class="redes-sociales-grid animated-element" style="animation-delay: 0.6s;">
-            <a href="https://www.youtube.com/@PlaDRIF_Oficial" target="_blank" class="card-social-link social-yt"><span class="social-icon"><svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span><span>Canal YouTube</span></a>
+            <a href="https://www.youtube.com/@PlaDRIF_Oficial" target="_blank" class="card-social-link social-yt"><span class="social-icon"><svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93$.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span><span>Canal YouTube</span></a>
             <a href="https://www.twitch.tv/pla_drif" target="_blank" class="card-social-link social-tw"><span class="social-icon"><svg viewBox="0 0 24 24"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg></span><span>Twitch Live</span></a>
             <a href="https://www.instagram.com/pladrif_cat" target="_blank" class="card-social-link social-ig"><span class="social-icon"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg></span><span>Instagram</span></a>
         </div>
@@ -596,6 +783,13 @@
     <!-- SCRIPTS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+        // Funció per obrir/tancar la Llegenda
+        function toggleLeyenda(btn) {
+            const content = document.getElementById('leyenda-mapa');
+            content.classList.toggle('obert');
+            btn.classList.toggle('actiu');
+        }
+
         // Lógica del CardNav (Adaptada a Vanilla JS con GSAP y cierre rápido)
         document.addEventListener('DOMContentLoaded', () => {
             const navEl = document.getElementById('card-nav');
@@ -644,10 +838,8 @@
                 contentEl.setAttribute('aria-hidden', !isExpanded);
 
                 if (isExpanded) {
-                    // Velocidad normal al abrir
                     navTimeline.timeScale(1).play(0);
                 } else {
-                    // Cierre rápido (multiplicamos la velocidad por 3)
                     navTimeline.timeScale(3).reverse();
                 }
             });
@@ -662,7 +854,6 @@
                 }
             });
             
-            // Cerrar menú al hacer clic en un enlace (opcional para mejorar experiencia móvil)
             document.querySelectorAll('.nav-card-link').forEach(link => {
                 link.addEventListener('click', () => {
                     if (isExpanded) {
@@ -670,7 +861,33 @@
                     }
                 });
             });
+
+            // LÓGICA DINÁMICA DEL PORCENTAJE SUPERIOR DERECHO
+            initStickyRiskObserver();
         });
+
+        // Función IntersectionObserver para mostrar el porcentaje solo cuando el Hero ya no es visible
+        function initStickyRiskObserver() {
+            const heroDisplay = document.getElementById('hero-percentage-display');
+            const stickyBadge = document.getElementById('sticky-risk-badge');
+
+            if (heroDisplay && stickyBadge) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        // Si el bloque principal del porcentaje NO está visible en pantalla (scrolled past), mostramos el badge del menú
+                        if (!entry.isIntersecting) {
+                            stickyBadge.classList.add('visible');
+                        } else {
+                            stickyBadge.classList.remove('visible');
+                        }
+                    });
+                }, {
+                    threshold: 0.1 // Se activa cuando menos del 10% del número grande es visible
+                });
+
+                observer.observe(heroDisplay);
+            }
+        }
 
         // Configuración y variables Pla DRIF originales
         const TWITCH_CHANNEL = "pla_drif"; 
@@ -697,7 +914,7 @@
             hum: { 
                 titul: "💧 Estrès Hídric i Inflamabilitat del Combustible", 
                 text: `<p><strong>El llindar crític del 30%:</strong> La Humitat Relativa (HR) determina l'intercanvi d'aigua entre l'aire i la vegetació morta. Un aire molt sec actua com una esponja, extreient la humitat de la fusta i la fullaraca en qüestió d'hores.</p>
-                       <p><strong>Efecte 'Pólvora':</strong> Quan la humitat ambiental baixa dràsticament, els combustibles prims assoleixen nivells d'humitat interns inferiors al 10%. En aquest estat, qualsevol espurna, burilla o reflex solar pot iniciar una combustió pràcticament instantània.</p>`
+                       <p><strong>Efecte 'Pólvora':</strong> Quan la humitat ambiental baixa dràsticament, los combustibles prims assoleixen nivells d'humitat interns inferiors al 10%. En aquest estat, qualsevol espurna, burilla o reflex solar pot iniciar una combustió pràcticament instantània.</p>`
             },
             vent: { 
                 titul: "💨 Propagació i Aportació d'Oxigen", 
@@ -823,7 +1040,7 @@
                 txtV = "Es registra un assecament progressiu del sotabosc herbaci. Les espècies resinoses (pins) comencen les primeres emissions de terpens volàtils per estrès.";
                 txtA = "Precaució moderada i vigilància activa. Prohibides les cremes de restes vegetals a menys de 500m d'àrees boscoses.";
                 extraVeg = "La capa morta (fullaraca, pinassa) ja ha perdut gran part de l'aigua lliure, fent-la susceptible d'encendre's si rep una guspira o burilla mal apagada.";
-                extraAccion = "L'activació del <b>Pla Alfa 1</b> implica que les unitats dels Agents Rurals incrementen les rutes de patrullatge per dissuadir imprudències. Està estrictament prohibit llançar coets, petards o fanalets voladors prop d'àrees forestals o camps secs.";
+                extraAccion = "L'activació del <b>Pla Alfa 1</b> implica que les unitats dels Agents Rurals incrementen les rutes de patrullatge per dissuadir imprudències. Està strictly prohibit llançar coets, petards o fanalets voladors prop d'àrees forestals o camps secs.";
             } else if (totalPuntos <= 75) {
                 color = "#f97316"; bg = "rgba(249, 115, 22, 0.08)"; border = "rgba(249, 115, 22, 0.4)"; nivel = "Alt";
                 vegBadge = "Estrès Hídric Sever"; alfa = "Nivell 2 (Taronja)";
@@ -840,6 +1057,51 @@
                 extraAccion = "<b>ALERTA MÀXIMA (Pla Alfa 3):</b> Es mobilitzen tots els mitjans aeris i terrestres en punts estratègics. Es precinta l'accés a massissos naturals vulnerables. Qualsevol emissió de fum ha de ser comunicada a l'instant al 112. Màxim risc ciutadà.";
             }
             return { puntos: totalPuntos, color, bg, border, nivel, txtV, txtA, alfa, vegBadge, extraVeg, extraAccion, regla30 };
+        }
+
+        function obtenirEstatImpacte(tipus, valor) {
+            if (tipus === 'temp') {
+                if (valor >= 35) return { text: 'Crítica', color: '#ef4444' };
+                if (valor >= 30) return { text: 'Alta', color: '#f97316' };
+                if (valor >= 25) return { text: 'Moderada', color: '#f59e0b' };
+                return { text: 'Òptima', color: '#3b82f6' };
+            }
+            if (tipus === 'hum') {
+                if (valor <= 15) return { text: 'Crítica', color: '#ef4444' };
+                if (valor <= 25) return { text: 'Baixa', color: '#f97316' };
+                if (valor <= 40) return { text: 'Moderada', color: '#f59e0b' };
+                return { text: 'Òptima', color: '#3b82f6' };
+            }
+            if (tipus === 'vent') {
+                if (valor >= 60) return { text: 'Crític', color: '#ef4444' };
+                if (valor >= 40) return { text: 'Fort', color: '#f97316' };
+                if (valor >= 20) return { text: 'Moderat', color: '#f59e0b' };
+                return { text: 'Normal', color: '#3b82f6' };
+            }
+            if (tipus === 'pres') {
+                if (valor >= 1025) return { text: 'Alta', color: '#f97316' };
+                if (valor > 1015) return { text: 'Moderada', color: '#f59e0b' };
+                if (valor >= 1005) return { text: 'Normal', color: '#10b981' };
+                return { text: 'Baixa (Inestable)', color: '#3b82f6' };
+            }
+        }
+
+        function actualitzarBordesYEtiquetes(dades) {
+            const variables = ['temp', 'hum', 'vent', 'pres'];
+            const valors = { temp: dades.temp, hum: dades.hum, vent: dades.viento, pres: dades.pres };
+            
+            variables.forEach(param => {
+                const info = obtenirEstatImpacte(param, valors[param]);
+                const card = document.getElementById(`card-${param}`);
+                const bubble = document.getElementById(`bubble-${param}`);
+                
+                if (card && bubble) {
+                    card.style.borderColor = info.color;
+                    card.style.boxShadow = `0 8px 32px 0 rgba(31, 38, 135, 0.07), 0 0 15px ${info.color}30, inset 0 1px 2px rgba(255, 255, 255, 0.8)`;
+                    bubble.style.backgroundColor = info.color;
+                    bubble.innerText = info.text;
+                }
+            });
         }
 
         function actualitzarVisors(dades) {
@@ -898,6 +1160,8 @@
                     animateNumber('hero-presion', lastValues.pres, dadesGlobalsESP32.pres, 1000, 0);
                     
                     actualitzarVisors(dadesGlobalsESP32);
+                    actualitzarBordesYEtiquetes(dadesGlobalsESP32);
+                    
                     lastValues = { temp: dadesGlobalsESP32.temp, hum: dadesGlobalsESP32.hum, viento: dadesGlobalsESP32.viento, pres: dadesGlobalsESP32.pres, riesgo: conf.puntos };
 
                     let labels = [], dTemp = [], dHum = [], dVent = [], dPres = [];
