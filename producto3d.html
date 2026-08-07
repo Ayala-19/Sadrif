@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pla DRIF | Prevenció d'Incendis Forestals</title>
   
+  <!-- Fuentes para el menú CardNav -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   
@@ -26,17 +31,198 @@
 
   <style>
     /* =========================================
-       CSS BASE & ESTILOS GLOBALES (TEMA CLARO)
+       VARIABLES Y ESTILOS DEL MENÚ CARDNAV
        ========================================= */
+    :root {
+        --bg-principal: #f8fafc;
+        --glass-bg: rgba(255, 255, 255, 0.45); 
+        --glass-border: rgba(255, 255, 255, 0.7);
+        --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07), inset 0 1px 2px rgba(255, 255, 255, 0.8);
+        
+        --texto-principal: #0f172a;
+        --texto-mutado: #64748b;
+        --borde-claro: rgba(226, 232, 240, 0.6);
+
+        /* Variables Dinámicas */
+        --riesgo-color-dinamico: #10b981; 
+        --riesgo-bg-suave: rgba(16, 185, 129, 0.15);
+        --riesgo-borde: rgba(16, 185, 129, 0.4);
+
+        --transicion: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * { box-sizing: border-box; }
+
     body {
-      background-color: #f8fafc; /* Slate 50 */
-      color: #0f172a; /* Slate 900 */
-      font-family: system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-principal);
+      /* Se ha eliminado el background-image para quitar el degradado cortado */
+      color: var(--texto-principal);
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      margin: 0; 
+      padding: 0; 
+      line-height: 1.5; 
       overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* ========= NUEVOS ESTILOS CARDNAV ========= */
+    .card-nav-container {
+        position: sticky;
+        top: 1rem;
+        margin: 0 auto;
+        width: 90%;
+        max-width: 1200px;
+        z-index: 1000;
+        box-sizing: border-box;
+        margin-bottom: 2rem;
+    }
+
+    .card-nav {
+        display: block;
+        height: 60px;
+        padding: 0;
+        background-color: var(--glass-bg);
+        backdrop-filter: blur(25px) saturate(120%);
+        -webkit-backdrop-filter: blur(25px) saturate(120%);
+        border: 1px solid var(--glass-border);
+        border-radius: 0.75rem;
+        box-shadow: var(--glass-shadow);
+        position: relative;
+        overflow: hidden;
+        will-change: height;
+    }
+
+    .card-nav-top {
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 1rem;
+        z-index: 2;
+    }
+
+    .hamburger-menu {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        gap: 6px;
+        width: 40px;
+    }
+
+    .hamburger-menu:hover .hamburger-line { opacity: 0.75; }
+
+    .hamburger-line {
+        width: 24px;
+        height: 2px;
+        background-color: var(--texto-principal);
+        transition: transform 0.25s ease, opacity 0.2s ease, margin 0.3s ease;
+        transform-origin: 50% 50%;
+    }
+
+    .hamburger-menu.open .hamburger-line:first-child { transform: translateY(4px) rotate(45deg); }
+    .hamburger-menu.open .hamburger-line:last-child { transform: translateY(-4px) rotate(-45deg); }
+
+    .navbar-brand {
+        display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.25rem;
+        color: var(--texto-principal); text-decoration: none;
+        transition: var(--transicion);
+    }
+    .navbar-brand img { height: 28px; }
+
+    .card-nav-content {
+        position: absolute;
+        left: 0; right: 0; top: 60px; bottom: 0;
+        padding: 0.5rem;
+        display: flex;
+        align-items: flex-end;
+        gap: 12px;
+        visibility: hidden;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .card-nav.open .card-nav-content {
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    .nav-card {
+        height: 100%;
+        flex: 1 1 0;
+        min-width: 0;
+        border-radius: calc(0.75rem - 0.2rem);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        padding: 16px 20px;
+        gap: 8px;
+        user-select: none;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-card-label { font-weight: 700; font-size: 1.25rem; letter-spacing: -0.5px; opacity: 0.9; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; margin-bottom: 5px; }
+    .nav-card-links { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+    
+    .nav-card-link {
+        font-size: 0.95rem; font-weight: 500; color: inherit; cursor: pointer; text-decoration: none; transition: opacity 0.3s ease; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .nav-card-link:hover { opacity: 0.6; }
+
+    /* Badge Risc dins del nav */
+    .sticky-risk-badge {
+        display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border); padding: 5px 12px; border-radius: 99px;
+        font-weight: 700; font-size: 0.85rem; box-shadow: var(--glass-shadow);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-8px) scale(0.95);
+        transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s;
+        pointer-events: none;
+    }
+
+    .sticky-risk-badge.visible {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+    }
+
+    .sticky-risk-dot { width: 10px; height: 10px; border-radius: 50%; background-color: var(--riesgo-color-dinamico); box-shadow: 0 0 8px var(--riesgo-color-dinamico); animation: pulseLive 1.5s infinite; }
+
+    @keyframes pulseLive { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
+
+    @media (max-width: 768px) {
+        .card-nav-container { width: 95%; top: 0.5rem; }
+        .card-nav-top { justify-content: space-between; gap: 8px; }
+        .hamburger-menu { order: 3; }
+        .logo-container { order: 1; }
+        .right-controls-nav { order: 2; display: flex !important; } 
+        .sticky-risk-badge { padding: 4px 8px; font-size: 0.78rem; }
+        
+        .card-nav-content {
+            flex-direction: column; 
+            align-items: stretch; 
+            gap: 8px; 
+            padding: 0.5rem; 
+            top: 60px; 
+            bottom: auto; 
+            justify-content: flex-start;
+            overflow-y: auto; 
+            max-height: calc(100vh - 80px); 
+        }
+        .nav-card { height: auto; min-height: auto; flex: none; padding: 16px; }
+        .nav-card-label { font-size: 1.1rem; }
+        .nav-card-links { gap: 12px; margin-top: 10px; }
     }
 
     /* =========================================
-       CSS: ROTATING TEXT
+       CSS: ROTATING TEXT & OTROS COMPONENTES
        ========================================= */
     .text-rotate {
       display: flex;
@@ -55,209 +241,156 @@
       white-space: nowrap;
       border: 0;
     }
-    .text-rotate-word {
-      display: inline-flex;
-    }
-    .text-rotate-lines {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-    }
-    .text-rotate-element {
-      display: inline-block;
-    }
-    .text-rotate-space {
-      white-space: pre;
-    }
+    .text-rotate-word { display: inline-flex; }
+    .text-rotate-lines { display: flex; flex-direction: column; width: 100%; }
+    .text-rotate-element { display: inline-block; }
+    .text-rotate-space { white-space: pre; }
 
-    /* =========================================
-       CSS: SCROLL VELOCITY
-       ========================================= */
-    .parallax {
-      position: relative;
-      overflow: hidden;
-    }
+    .parallax { position: relative; overflow: hidden; }
     .scroller {
-      display: flex;
-      white-space: nowrap;
-      text-align: center;
-      font-family: sans-serif;
-      font-size: 2.25rem;
-      font-weight: bold;
-      letter-spacing: -0.02em;
+      display: flex; white-space: nowrap; text-align: center; font-family: sans-serif;
+      font-size: 2.25rem; font-weight: bold; letter-spacing: -0.02em;
     }
-    .scroller span {
-      flex-shrink: 0;
-    }
-    @media (min-width: 768px) {
-      .scroller {
-        font-size: 4rem;
-        line-height: 4rem;
-      }
-    }
-    .custom-scroll-text {
-      color: #059669; /* Verde esmeralda oscuro para contraste en fondo claro */
-      text-transform: uppercase;
-      padding-right: 2rem;
-    }
+    .scroller span { flex-shrink: 0; }
+    @media (min-width: 768px) { .scroller { font-size: 4rem; line-height: 4rem; } }
+    .custom-scroll-text { color: #059669; text-transform: uppercase; padding-right: 2rem; }
 
-    /* =========================================
-       CSS: ACCORDION GALLERY
-       ========================================= */
     .accordion-gallery {
-      --ag-accent: #059669;
-      --ag-overlay: #f8fafc;
-      --ag-text: #0f172a;
-      --ag-gap: 12px;
-      --ag-radius: 20px;
-      --ag-media-size: 320px;
-
-      display: flex;
-      flex-direction: row;
-      gap: var(--ag-gap);
-      width: 100%;
-      max-width: 100%;
-      perspective: 1400px;
-      perspective-origin: 50% 50%;
+      --ag-accent: #059669; --ag-overlay: #f8fafc; --ag-text: #0f172a; --ag-gap: 12px; --ag-radius: 20px; --ag-media-size: 320px;
+      display: flex; flex-direction: row; gap: var(--ag-gap); width: 100%; max-width: 100%;
+      perspective: 1400px; perspective-origin: 50% 50%;
     }
-    .accordion-gallery--vertical {
-      flex-direction: column;
-    }
+    .accordion-gallery--vertical { flex-direction: column; }
     .ag-panel {
-      position: relative;
-      flex: 1 1 0;
-      min-width: 0;
-      min-height: 0;
-      overflow: hidden;
-      border-radius: var(--ag-radius);
-      cursor: pointer;
-      display: block;
-      text-decoration: none;
-      outline: none;
-      transform-style: preserve-3d;
-      transform-origin: center center;
-      background: #e2e8f0; /* Fondo gris claro */
-      box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.2);
-      will-change: flex-grow, transform;
-      -webkit-tap-highlight-color: transparent;
+      position: relative; flex: 1 1 0; min-width: 0; min-height: 0; overflow: hidden; border-radius: var(--ag-radius);
+      cursor: pointer; display: block; text-decoration: none; outline: none; transform-style: preserve-3d;
+      transform-origin: center center; background: #e2e8f0; box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.2);
+      will-change: flex-grow, transform; -webkit-tap-highlight-color: transparent;
     }
-    .ag-panel:focus-visible {
-      box-shadow:
-        0 0 0 2px var(--ag-accent),
-        0 10px 30px -18px rgba(0, 0, 0, 0.3);
-    }
-    .ag-panel__frame {
-      position: absolute;
-      inset: 0;
-      overflow: hidden;
-      border-radius: inherit;
-    }
+    .ag-panel:focus-visible { box-shadow: 0 0 0 2px var(--ag-accent), 0 10px 30px -18px rgba(0, 0, 0, 0.3); }
+    .ag-panel__frame { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; }
     .ag-panel__media {
-      --ag-gray: 1;
-      --ag-dim: 0.15;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: var(--ag-media-size);
-      height: 100%;
-      filter: grayscale(var(--ag-gray));
-      will-change: transform, filter;
+      --ag-gray: 1; --ag-dim: 0.15; position: absolute; top: 50%; left: 50%; width: var(--ag-media-size);
+      height: 100%; filter: grayscale(var(--ag-gray)); will-change: transform, filter;
     }
-    .accordion-gallery--vertical .ag-panel__media {
-      width: 100%;
-      height: var(--ag-media-size);
-    }
-    .ag-panel__media img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      user-select: none;
-      -webkit-user-drag: none;
-    }
+    .accordion-gallery--vertical .ag-panel__media { width: 100%; height: var(--ag-media-size); }
+    .ag-panel__media img { width: 100%; height: 100%; object-fit: cover; display: block; user-select: none; -webkit-user-drag: none; }
     .ag-panel__overlay {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background:
-        linear-gradient(180deg, transparent 35%, color-mix(in srgb, var(--ag-overlay) 90%, transparent) 100%),
-        color-mix(in srgb, var(--ag-overlay) calc(var(--ag-dim, 0.15) * 100%), transparent);
+      position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(180deg, transparent 35%, color-mix(in srgb, var(--ag-overlay) 90%, transparent) 100%),
+                  color-mix(in srgb, var(--ag-overlay) calc(var(--ag-dim, 0.15) * 100%), transparent);
     }
-    .ag-panel__label {
-      position: absolute;
-      left: 20px;
-      bottom: 20px;
-      right: 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      pointer-events: none;
-      z-index: 2;
-    }
-    .ag-panel__bar {
-      flex: 0 0 auto;
-      width: 4px;
-      height: 26px;
-      border-radius: 4px;
-      background: var(--ag-accent);
-      opacity: 0;
-    }
+    .ag-panel__label { position: absolute; left: 20px; bottom: 20px; right: 20px; display: flex; align-items: center; gap: 12px; pointer-events: none; z-index: 2; }
+    .ag-panel__bar { flex: 0 0 auto; width: 4px; height: 26px; border-radius: 4px; background: var(--ag-accent); opacity: 0; }
     .ag-panel__text {
-      color: var(--ag-text);
-      font-family: inherit;
-      font-weight: 700;
-      font-size: clamp(1rem, 1.4vw, 1.4rem);
-      letter-spacing: 0.01em;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      opacity: 0;
+      color: var(--ag-text); font-family: inherit; font-weight: 700; font-size: clamp(1rem, 1.4vw, 1.4rem);
+      letter-spacing: 0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0;
     }
     @media (max-width: 520px) {
-      .accordion-gallery {
-        flex-direction: column;
-        perspective: none;
-        height: auto !important;
-      }
-      .ag-panel {
-        min-height: 100px;
-        transform: none !important;
-      }
-      .accordion-gallery .ag-panel__media {
-        width: 100%;
-        height: var(--ag-media-size);
-      }
+      .accordion-gallery { flex-direction: column; perspective: none; height: auto !important; }
+      .ag-panel { min-height: 100px; transform: none !important; }
+      .accordion-gallery .ag-panel__media { width: 100%; height: var(--ag-media-size); }
     }
-    @media (prefers-reduced-motion: reduce) {
-      .ag-panel,
-      .ag-panel__media {
-        will-change: auto;
-      }
-    }
+    @media (prefers-reduced-motion: reduce) { .ag-panel, .ag-panel__media { will-change: auto; } }
     
-    /* Efecto Glow en contenedor 3D */
     .model-container {
       background: radial-gradient(circle at center, rgba(16, 185, 129, 0.05) 0%, rgba(255, 255, 255, 1) 70%);
     }
   </style>
 </head>
 <body>
+
+  <!-- MENÚ CARDNAV INTEGRADO -->
+  <div class="card-nav-container">
+      <nav id="card-nav" class="card-nav">
+          <div class="card-nav-top">
+              <!-- Hamburger -->
+              <div class="hamburger-menu" id="card-nav-hamburger" role="button" aria-label="Abrir menú" tabindex="0">
+                  <div class="hamburger-line"></div>
+                  <div class="hamburger-line"></div>
+              </div>
+
+              <!-- Logo -->
+              <div class="logo-container">
+                  <a href="#inicio" class="navbar-brand">
+                      <img src="logo-sadrif.svg" alt="SADRIF" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/a/ab/Icon-mac.svg';">
+                      <span>PLA DRIF</span>
+                  </a>
+              </div>
+
+              <!-- Controles Nav Derecho (Riesgo Dinámico) -->
+              <div class="right-controls-nav" style="display: flex; gap: 12px; align-items: center;">
+                  <div id="sticky-risk-badge" class="sticky-risk-badge">
+                      <span class="sticky-risk-dot"></span>
+                      <span>Risc: <strong id="sticky-risk-val">0%</strong></span>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Contenido desplegable del menú (Tarjetas) -->
+          <div class="card-nav-content" id="card-nav-content" aria-hidden="true">
+              
+              <!-- Tarjeta 1 -->
+              <div class="nav-card" style="background-color: rgba(27, 23, 34, 0.85); color: #fff;">
+                  <div class="nav-card-label">Navegació</div>
+                  <div class="nav-card-links">
+                      <a class="nav-card-link" href="index.html">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                          Inici DRIF
+                      </a>
+                      <a class="nav-card-link" href="producto3d.html">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                          Model 3D Dispositiu
+                      </a>
+                  </div>
+              </div>
+
+              <!-- Tarjeta 2 -->
+              <div class="nav-card" style="background-color: rgba(47, 41, 58, 0.85); color: #fff;">
+                  <div class="nav-card-label">Projectes & Live</div>
+                  <div class="nav-card-links">
+                      <a class="nav-card-link" href="https://www.twitch.tv/pla_drif" target="_blank">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                          Directe Twitch
+                      </a>
+                      <a class="nav-card-link" href="#contenedor-visor">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                          Càmera de Vigilància
+                      </a>
+                  </div>
+              </div>
+
+              <!-- Tarjeta 3 -->
+              <div class="nav-card" style="background-color: rgba(47, 41, 58, 0.85); color: #fff;">
+                  <div class="nav-card-label">Xarxes Socials</div>
+                  <div class="nav-card-links">
+                      <a class="nav-card-link" href="https://www.youtube.com/@PlaDRIF_Oficial" target="_blank">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                          Canal de YouTube
+                      </a>
+                      <a class="nav-card-link" href="https://www.instagram.com/pladrif_cat" target="_blank">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                          Instagram
+                      </a>
+                  </div>
+              </div>
+
+          </div>
+      </nav>
+  </div>
+
   <!-- Aquí se montará la aplicación React -->
   <div id="root"></div>
 
-  <!-- ATENCIÓN: El script debe ser "text/babel" para que el código JSX funcione -->
+  <!-- Lógica React -->
   <script type="text/babel">
     const { useState, useEffect, useRef, useLayoutEffect, useMemo, useCallback, forwardRef, useImperativeHandle } = React;
     const { motion, AnimatePresence, useScroll, useSpring, useTransform, useMotionValue, useVelocity, useAnimationFrame } = window.Motion;
 
-    // Utilidad CSS
     function cn(...classes) {
       return classes.filter(Boolean).join(' ');
     }
 
-    // ==========================================
-    // COMPONENTE: RotatingText
-    // ==========================================
     const RotatingText = forwardRef((props, ref) => {
       const {
         texts,
@@ -355,9 +488,6 @@
       );
     });
 
-    // ==========================================
-    // COMPONENTE: ScrollVelocity
-    // ==========================================
     function useElementWidth(ref) {
       const [width, setWidth] = useState(0);
       useLayoutEffect(() => {
@@ -429,9 +559,6 @@
       );
     };
 
-    // ==========================================
-    // COMPONENTE: AccordionGallery
-    // ==========================================
     const AccordionGallery = ({ items }) => {
       const rootRef = useRef(null);
       const panelRefs = useRef([]);
@@ -532,10 +659,6 @@
       );
     };
 
-
-    // ==========================================
-    // APLICACIÓN PRINCIPAL (APP)
-    // ==========================================
     function App() {
       const heroWords = [
         'seguretat per als boscos',
@@ -559,13 +682,8 @@
       ];
 
       return (
-        <div className="min-h-screen font-sans">
+        <div className="font-sans">
           
-          {/* NAV */}
-          <nav className="p-6 flex justify-center border-b border-slate-200 bg-white/80 backdrop-blur-md sticky top-0 z-50">
-            <h1 className="text-2xl font-bold tracking-widest text-emerald-600">Pla DRIF</h1>
-          </nav>
-
           {/* HERO SECTION */}
           <header className="hero-container flex flex-col items-center text-center py-24 px-4 min-h-[60vh] justify-center relative overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-100/60 via-slate-50 to-slate-50 -z-10"></div>
@@ -605,7 +723,6 @@
             </div>
             
             <div className="max-w-4xl mx-auto h-[600px] bg-white rounded-3xl border border-slate-200 p-4 model-container shadow-xl">
-              {/* ATENCIÓN: Asegúrate de que el archivo mi_dispositivo_color.glb esté en la misma ruta que tu index.html */}
               <model-viewer
                 src="mi_dispositivo_color.glb"
                 alt="Model 3D del dispositiu Pla DRIF"
@@ -642,9 +759,83 @@
       );
     }
 
-    // Renderizamos la aplicación
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
+  </script>
+
+  <!-- SCRIPT DEL MENÚ CARDNAV (GSAP) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const navEl = document.getElementById('card-nav');
+        const hamburger = document.getElementById('card-nav-hamburger');
+        const contentEl = document.getElementById('card-nav-content');
+        const cards = document.querySelectorAll('.nav-card');
+        let isExpanded = false;
+        let navTimeline;
+
+        gsap.set(navEl, { height: 60, overflow: 'hidden' });
+        gsap.set(cards, { y: 50, opacity: 0 });
+        navTimeline = gsap.timeline({ paused: true });
+
+        function calculateHeight() {
+            const isMobile = window.matchMedia('(max-width: 768px)').matches;
+            if (isMobile) {
+                const wasVisibility = contentEl.style.visibility;
+                const wasPosition = contentEl.style.position;
+                contentEl.style.visibility = 'hidden';
+                contentEl.style.position = 'absolute';
+                contentEl.style.display = 'flex';
+                const contentHeight = contentEl.scrollHeight;
+                contentEl.style.visibility = wasVisibility;
+                contentEl.style.position = wasPosition;
+                contentEl.style.display = '';
+
+                const topBar = 60;
+                const padding = 16;
+                return topBar + contentHeight + padding;
+            }
+            return 260; 
+        }
+
+        function createTimeline() {
+            navTimeline.clear();
+            navTimeline.to(navEl, { height: calculateHeight, duration: 0.4, ease: 'power3.out' });
+            navTimeline.to(cards, { y: 0, opacity: 1, duration: 0.4, ease: 'power3.out', stagger: 0.08 }, '-=0.1');
+        }
+
+        createTimeline();
+
+        hamburger.addEventListener('click', () => {
+            isExpanded = !isExpanded;
+            hamburger.classList.toggle('open', isExpanded);
+            navEl.classList.toggle('open', isExpanded);
+            contentEl.setAttribute('aria-hidden', !isExpanded);
+
+            if (isExpanded) {
+                navTimeline.timeScale(1).play(0);
+            } else {
+                navTimeline.timeScale(3).reverse();
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            if (isExpanded) {
+                gsap.set(navEl, { height: calculateHeight() });
+                createTimeline();
+                navTimeline.progress(1);
+            } else {
+                createTimeline();
+            }
+        });
+        
+        document.querySelectorAll('.nav-card-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (isExpanded) {
+                    hamburger.click();
+                }
+            });
+        });
+    });
   </script>
 </body>
 </html>
