@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ca" style="scroll-behavior: smooth;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pla DRIF</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- GSAP CDN per a les animacions del menú -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+    <style>
+        :root {
+            --bg-principal: #f8fafc;
+            --glass-bg: rgba(255, 255, 255, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.7);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07), inset 0 1px 2px rgba(255, 255, 255, 0.8);
+
+            --texto-principal: #0f172a;
+            --texto-mutado: #64748b;
+            --borde-claro: rgba(226, 232, 240, 0.6);
+
+            --accent: #059669;
+            --accent-suave: rgba(5, 150, 105, 0.12);
+
+            --transicion: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-principal);
+            background-image: radial-gradient(at 0% 0%, var(--accent-suave) 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.08) 0px, transparent 50%);
+            color: var(--texto-principal);
+            margin: 0; padding: 0; line-height: 1.5; overflow-x: hidden;
+        }
+
+        @keyframes pageEntrance { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+        .animated-element { opacity: 0; animation: pageEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        /* ========= MENÚ CARDNAV (idèntic a index.html) ========= */
+        .card-nav-container {
+            position: sticky; top: 1rem; margin: 0 auto; width: 90%; max-width: 1200px;
+            z-index: 1000; box-sizing: border-box; margin-bottom: 2rem;
+        }
+        .card-nav {
+            display: block; height: 60px; padding: 0;
+            background-color: var(--glass-bg);
+            backdrop-filter: blur(25px) saturate(120%);
+            -webkit-backdrop-filter: blur(25px) saturate(120%);
+            border: 1px solid var(--glass-border);
+            border-radius: 0.75rem; box-shadow: var(--glass-shadow);
+            position: relative; overflow: hidden; will-change: height;
+        }
+        .card-nav-top {
+            position: absolute; top: 0; left: 0; right: 0; height: 60px;
+            display: flex; align-items: center; justify-content: flex-start;
+            gap: 16px; padding: 0.5rem 1rem; z-index: 2;
+        }
+        .hamburger-menu {
+            height: 100%; display: flex; flex-direction: column; align-items: center;
+            justify-content: center; cursor: pointer; gap: 6px; width: 40px;
+        }
+        .hamburger-menu:hover .hamburger-line { opacity: 0.75; }
+        .hamburger-line {
+            width: 24px; height: 2px; background-color: var(--texto-principal);
+            transition: transform 0.25s ease, opacity 0.2s ease, margin 0.3s ease;
+            transform-origin: 50% 50%;
+        }
+        .hamburger-menu.open .hamburger-line:first-child { transform: translateY(4px) rotate(45deg); }
+        .hamburger-menu.open .hamburger-line:last-child { transform: translateY(-4px) rotate(-45deg); }
+        .navbar-brand {
+            display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.25rem;
+            color: var(--texto-principal); text-decoration: none; transition: var(--transicion);
+        }
+        .navbar-brand img { height: 28px; }
+        .card-nav-content {
+            position: absolute; left: 0; right: 0; top: 60px; bottom: 0; padding: 0.5rem;
+            display: flex; align-items: flex-end; gap: 12px;
+            visibility: hidden; pointer-events: none; z-index: 1;
+        }
+        .card-nav.open .card-nav-content { visibility: visible; pointer-events: auto; }
+        .nav-card {
+            height: 100%; flex: 1 1 0; min-width: 0; border-radius: calc(0.75rem - 0.2rem);
+            position: relative; display: flex; flex-direction: column; padding: 16px 20px; gap: 8px;
+            user-select: none; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .nav-card-label { font-weight: 700; font-size: 1.25rem; letter-spacing: -0.5px; opacity: 0.9; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; margin-bottom: 5px; }
+        .nav-card-links { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+        .nav-card-link { font-size: 0.95rem; font-weight: 500; color: inherit; cursor: pointer; text-decoration: none; transition: opacity 0.3s ease; display: inline-flex; align-items: center; gap: 6px; }
+        .nav-card-link:hover { opacity: 0.6; }
+
+        @media (max-width: 768px) {
+            .card-nav-container { width: 95%; top: 0.5rem; }
+            .card-nav-content {
+                flex-direction: column; align-items: stretch; gap: 8px; padding: 0.5rem;
+                top: 60px; bottom: auto; justify-content: flex-start;
+                overflow-y: auto; max-height: calc(100vh - 80px);
+            }
+            .nav-card { height: auto; min-height: auto; flex: none; padding: 16px; }
+            .nav-card-label { font-size: 1.1rem; }
+            .nav-card-links { gap: 12px; margin-top: 10px; }
+        }
+
+        .contenedor-principal { width: 90%; max-width: 1100px; margin: 0 auto; padding-bottom: 60px; }
+
+        /* ========= HERO ========= */
+        .hero-sobre {
+            text-align: center; padding: 40px 0 60px 0;
+        }
+        .hero-eyebrow {
+            display: inline-block; margin-bottom: 20px; padding: 7px 16px; border-radius: 99px;
+            background: var(--accent-suave); color: var(--accent); font-weight: 700; font-size: 0.8rem;
+            letter-spacing: 0.06em; text-transform: uppercase;
+        }
+        .hero-sobre h1 {
+            font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; margin: 0 0 8px 0; line-height: 1.15;
+        }
+        .rotate-wrap {
+            display: inline-block; position: relative; min-width: 280px; text-align: center;
+        }
+        .rotate-pill {
+            display: inline-block; padding: 6px 20px; border-radius: 14px; background: var(--accent);
+            color: #fff; transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+        .rotate-pill.fade { opacity: 0; transform: translateY(8px); }
+        .hero-sobre p.lead {
+            max-width: 680px; margin: 24px auto 0 auto; font-size: 1.15rem; color: var(--texto-mutado);
+        }
+
+        /* ========= SECCIONS ========= */
+        .seccio { padding: 50px 0; }
+        .seccio-titol { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 800; margin: 0 0 14px 0; }
+        .seccio-sub { color: var(--texto-mutado); font-size: 1.05rem; max-width: 640px; }
+        .seccio-header { text-align: center; margin-bottom: 40px; }
+        .seccio-header .seccio-sub { margin-left: auto; margin-right: auto; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; align-items: center; }
+        @media (max-width: 800px) { .grid-2 { grid-template-columns: 1fr; } }
+        .text-block p { color: var(--texto-mutado); font-size: 1.05rem; line-height: 1.7; margin-bottom: 14px; }
+        .highlight-box {
+            background: var(--accent-suave); border: 1px solid rgba(5,150,105,0.2); border-radius: 24px; padding: 28px;
+        }
+        .highlight-box h3 { margin: 0 0 14px 0; color: #065f46; font-size: 1.15rem; }
+        .highlight-box ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+        .highlight-box li { display: flex; gap: 12px; color: var(--texto-principal); }
+        .highlight-box li b { color: var(--accent); flex-shrink: 0; }
+
+        .sensor-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 36px; }
+        @media (max-width: 800px) { .sensor-grid { grid-template-columns: 1fr 1fr; } }
+        .sensor-card {
+            background: #fff; border: 1px solid var(--borde-claro); border-radius: 18px; padding: 22px;
+            box-shadow: 0 4px 16px rgba(15,23,42,0.04);
+        }
+        .sensor-dot { width: 36px; height: 36px; border-radius: 10px; margin-bottom: 14px; }
+        .sensor-card h4 { margin: 0 0 8px 0; font-size: 1rem; }
+        .sensor-card p { margin: 0; font-size: 0.88rem; color: var(--texto-mutado); line-height: 1.5; }
+
+        .regla-box {
+            max-width: 700px; margin: 0 auto; background: #fff; border: 1px solid var(--borde-claro);
+            border-radius: 22px; padding: 30px; text-align: center; box-shadow: 0 4px 16px rgba(15,23,42,0.04);
+        }
+        .regla-box h4 { margin: 0 0 10px 0; font-size: 1.1rem; }
+        .regla-box p { margin: 0; color: var(--texto-mutado); line-height: 1.7; }
+
+        /* ========= CARRUSEL DE PROFUNDITAT ========= */
+        .depth-carousel { position: relative; width: 100%; height: 100%; perspective: 1400px; perspective-origin: 50% 50%; display: flex; align-items: center; justify-content: center; }
+        .depth-carousel__stage { position: relative; width: 280px; height: 100%; max-height: 420px; transform-style: preserve-3d; }
+        .depth-carousel__card {
+            position: absolute; inset: 0; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 45px -15px rgba(15, 23, 42, 0.35);
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease, filter 0.6s ease;
+            cursor: pointer; border: 1px solid rgba(255,255,255,0.5);
+        }
+        .depth-carousel__card img { width: 100%; height: 100%; object-fit: cover; display: block; user-select: none; -webkit-user-drag: none; }
+        .depth-carousel__caption {
+            position: absolute; left: 0; right: 0; bottom: 0; padding: 16px 18px;
+            background: linear-gradient(0deg, rgba(15,23,42,0.85) 0%, transparent 100%);
+            color: #fff; font-weight: 700; font-size: 0.95rem;
+        }
+        .depth-carousel__nav {
+            position: absolute; top: 50%; transform: translateY(-50%); z-index: 20;
+            width: 42px; height: 42px; border-radius: 50%; background: var(--glass-bg); backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
+            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s ease;
+        }
+        .depth-carousel__nav:hover { transform: translateY(-50%) scale(1.08); }
+        .depth-carousel__nav--prev { left: 0; }
+        .depth-carousel__nav--next { right: 0; }
+        .depth-carousel__dots { display: flex; justify-content: center; gap: 8px; margin-top: 20px; }
+        .depth-carousel__dot { width: 8px; height: 8px; border-radius: 50%; background: #cbd5e1; cursor: pointer; transition: background 0.3s ease, transform 0.3s ease; }
+        .depth-carousel__dot--active { background: var(--accent); transform: scale(1.3); }
+        .carousel-note { text-align: center; color: var(--texto-mutado); font-size: 0.9rem; margin-top: -20px; margin-bottom: 30px; }
+
+        /* ========= TIMELINE ========= */
+        .timeline { position: relative; max-width: 700px; margin: 0 auto; }
+        .timeline::before { content: ''; position: absolute; left: 20px; top: 8px; bottom: 8px; width: 2px; background: linear-gradient(180deg, var(--accent), #cbd5e1); }
+        .timeline-item { position: relative; padding-left: 56px; margin-bottom: 30px; }
+        .timeline-item:last-child { margin-bottom: 0; }
+        .timeline-dot { position: absolute; left: 11px; top: 4px; width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 3px solid var(--accent); box-shadow: 0 0 0 4px var(--accent-suave); }
+        .timeline-item h4 { margin: 0 0 6px 0; font-size: 1.05rem; }
+        .timeline-item p { margin: 0; color: var(--texto-mutado); line-height: 1.6; }
+
+        /* ========= EQUIP ========= */
+        .team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 24px; }
+        @media (max-width: 800px) { .team-grid { grid-template-columns: 1fr 1fr; } }
+        .team-card { background: #fff; border: 1px solid var(--borde-claro); border-radius: 20px; padding: 26px 18px; text-align: center; transition: var(--transicion); box-shadow: 0 4px 16px rgba(15,23,42,0.04); }
+        .team-card:hover { transform: translateY(-6px); box-shadow: 0 16px 32px rgba(15,23,42,0.08); }
+        .team-avatar { width: 76px; height: 76px; border-radius: 50%; margin: 0 auto 14px auto; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; color: #fff; }
+        .team-card h4 { margin: 0; font-size: 1rem; }
+        .team-card .rol { font-size: 0.85rem; color: var(--texto-mutado); margin-top: 4px; }
+        .team-tutor { max-width: 260px; margin: 0 auto; border-color: var(--accent); }
+        .team-tutor .rol { color: var(--accent); font-weight: 700; }
+
+        .footer-disclaimer { text-align: center; padding: 30px 0; color: var(--texto-mutado); font-size: 0.85rem; border-top: 1px solid var(--borde-claro); margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <!-- MENÚ CARDNAV -->
+    <div class="card-nav-container">
+        <nav id="card-nav" class="card-nav">
+            <div class="card-nav-top">
+                <div class="hamburger-menu" id="card-nav-hamburger" role="button" aria-label="Abrir menú" tabindex="0">
+                    <div class="hamburger-line"></div>
+                    <div class="hamburger-line"></div>
+                </div>
+                <div class="logo-container">
+                    <a href="index.html" class="navbar-brand">
+                        <img src="logo-sadrif.svg" alt="" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/a/ab/Icon-mac.svg';">
+                        <span>PLA DRIF</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="card-nav-content" id="card-nav-content" aria-hidden="true">
+                <div class="nav-card" style="background-color: rgba(27, 23, 34, 0.85); color: #fff;">
+                    <div class="nav-card-label">Navegació</div>
+                    <div class="nav-card-links">
+                        <a class="nav-card-link" href="index.html">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                            Inici DRIF
+                        </a>
+                        <a class="nav-card-link" href="producto3d.html">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                            Model 3D Dispositiu
+                        </a>
+                        <a class="nav-card-link" href="sobre-nosotros.html">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                            Sobre el Projecte
+                        </a>
+                    </div>
+                </div>
+                <div class="nav-card" style="background-color: rgba(47, 41, 58, 0.85); color: #fff;">
+                    <div class="nav-card-label">Projectes & Live</div>
+                    <div class="nav-card-links">
+                        <a class="nav-card-link" href="https://www.twitch.tv/pla_drif" target="_blank">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                            Directe Twitch
+                        </a>
+                        <a class="nav-card-link" href="index.html#contenedor-visor">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                            Càmera de Vigilància
+                        </a>
+                    </div>
+                </div>
+                <div class="nav-card" style="background-color: rgba(47, 41, 58, 0.85); color: #fff;">
+                    <div class="nav-card-label">Xarxes Socials</div>
+                    <div class="nav-card-links">
+                        <a class="nav-card-link" href="https://www.youtube.com/@PlaDRIF_Oficial" target="_blank">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                            Canal de YouTube
+                        </a>
+                        <a class="nav-card-link" href="https://www.instagram.com/pladrif_cat" target="_blank">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                            Instagram
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <div class="contenedor-principal">
+
+        <!-- HERO -->
+        <div class="hero-sobre animated-element">
+            <div class="hero-eyebrow">Treball de Recerca · 2n Batxillerat · Institut Sabadell</div>
+            <h1>Pla DRIF és <span class="rotate-wrap"><span class="rotate-pill" id="rotate-text">un Treball de Recerca</span></span></h1>
+            <p class="lead">La història, els objectius i l'equip darrere de l'estació autònoma de detecció de risc d'incendis forestals SADRIF.</p>
+        </div>
+
+        <!-- PER QUÈ SADRIF -->
+        <div class="seccio animated-element" style="animation-delay:0.05s;">
+            <div class="grid-2">
+                <div class="text-block">
+                    <h2 class="seccio-titol">Per què SADRIF?</h2>
+                    <p>Catalunya és un territori amb un risc elevat d'incendis forestals, especialment als mesos d'estiu. Moltes vegades, quan un incendi es detecta visualment, ja s'ha propagat massa ràpid per poder-lo controlar amb facilitat.</p>
+                    <p>Amb aquest Treball de Recerca vam voler anar un pas més enllà: dissenyar i construir un sistema propi, <strong>SADRIF</strong> (Sistema Autònom de Detecció de Risc d'Incendis Forestals), capaç de monitoritzar les condicions ambientals del bosc en temps real i alertar del risc abans que l'incendi arribi a originar-se.</p>
+                </div>
+                <div class="highlight-box">
+                    <h3>Objectiu del projecte</h3>
+                    <ul>
+                        <li><b>01</b> Dissenyar una estació de monitoratge autònoma i de baix cost.</li>
+                        <li><b>02</b> Aplicar un model científic de càlcul de risc (regla del 30-30-30).</li>
+                        <li><b>03</b> Oferir la informació en temps real, de forma oberta i entenedora.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- COM FUNCIONA -->
+        <div class="seccio animated-element" style="animation-delay:0.1s;">
+            <div class="seccio-header">
+                <h2 class="seccio-titol">Com funciona l'estació SADRIF</h2>
+                <p class="seccio-sub">El cor del dispositiu és un microcontrolador ESP32 connectat a quatre sensors ambientals.</p>
+            </div>
+            <div class="sensor-grid">
+                <div class="sensor-card"><div class="sensor-dot" style="background:#ef444420;"></div><h4>Temperatura</h4><p>Mesura en graus Celsius, un dels factors clau de la regla 30-30-30.</p></div>
+                <div class="sensor-card"><div class="sensor-dot" style="background:#0ea5e920;"></div><h4>Humitat</h4><p>Humitat relativa de l'aire: com més baixa, més risc de propagació.</p></div>
+                <div class="sensor-card"><div class="sensor-dot" style="background:#10b98120;"></div><h4>Vent</h4><p>Velocitat del vent en km/h, determinant en la propagació del foc.</p></div>
+                <div class="sensor-card"><div class="sensor-dot" style="background:#f59e0b20;"></div><h4>Pressió</h4><p>Pressió atmosfèrica, utilitzada per contextualitzar el canvi de temps.</p></div>
+            </div>
+            <div class="regla-box">
+                <h4>La regla del 30-30-30</h4>
+                <p>Quan la temperatura supera els 30°C, la humitat relativa baixa del 30% i el vent supera els 30 km/h, les condicions es consideren de <strong>perill extrem d'incendi forestal</strong>. SADRIF calcula aquesta combinació en temps real i mostra l'alerta directament al panell web.</p>
+            </div>
+        </div>
+
+        <!-- PROCÉS DE CONSTRUCCIÓ -->
+        <div class="seccio animated-element" style="animation-delay:0.15s;">
+            <div class="seccio-header">
+                <h2 class="seccio-titol">El procés de construcció</h2>
+                <p class="seccio-sub">Des del disseny 3D fins a la instal·lació final al bosc.</p>
+            </div>
+            <div style="height:460px;">
+                <div class="depth-carousel" id="depth-carousel"></div>
+            </div>
+            <p class="carousel-note">Imatges d'exemple — es substituiran per fotos reals del projecte.</p>
+        </div>
+
+        <!-- LÍNIA DE TEMPS -->
+        <div class="seccio animated-element" style="animation-delay:0.2s;">
+            <div class="seccio-header">
+                <h2 class="seccio-titol">Línia de temps del projecte</h2>
+            </div>
+            <div class="timeline">
+                <div class="timeline-item"><div class="timeline-dot"></div><h4>Investigació i marc teòric</h4><p>Estudi del risc d'incendis forestals a Catalunya, la regla del 30-30-30 i les tecnologies IoT existents per a la detecció precoç.</p></div>
+                <div class="timeline-item"><div class="timeline-dot"></div><h4>Disseny 3D de l'estació</h4><p>Modelatge de la carcassa del dispositiu SADRIF, pensada per protegir l'electrònica a la intempèrie i permetre la ventilació dels sensors.</p></div>
+                <div class="timeline-item"><div class="timeline-dot"></div><h4>Muntatge electrònic</h4><p>Integració del microcontrolador ESP32 amb els sensors de temperatura, humitat, pressió i vent, i les proves de connexió i alimentació.</p></div>
+                <div class="timeline-item"><div class="timeline-dot"></div><h4>Programació i enviament de dades</h4><p>Desenvolupament del firmware i connexió amb ThingSpeak per emmagatzemar i consultar les lectures en temps real.</p></div>
+                <div class="timeline-item"><div class="timeline-dot"></div><h4>Desplegament al bosc de Can Deu</h4><p>Instal·lació de l'estació al Torrent de Colobrers i validació de les lectures en condicions reals.</p></div>
+                <div class="timeline-item"><div class="timeline-dot"></div><h4>Web i divulgació</h4><p>Creació del panell web en temps real, el model 3D interactiu, el canal de YouTube i el directe de Twitch per divulgar el projecte.</p></div>
+            </div>
+        </div>
+
+        <!-- EQUIP -->
+        <div class="seccio animated-element" style="animation-delay:0.25s;">
+            <div class="seccio-header">
+                <h2 class="seccio-titol">L'equip</h2>
+                <p class="seccio-sub">Quatre alumnes de 2n de Batxillerat de l'Institut Sabadell.</p>
+            </div>
+            <div class="team-grid">
+                <div class="team-card"><div class="team-avatar" style="background:#059669;">AA</div><h4>Abraham Ayala</h4><div class="rol">Autor del TdR</div></div>
+                <div class="team-card"><div class="team-avatar" style="background:#0ea5e9;">KJ</div><h4>Kevin Juan</h4><div class="rol">Autor del TdR</div></div>
+                <div class="team-card"><div class="team-avatar" style="background:#f59e0b;">GL</div><h4>Guillem Llamas</h4><div class="rol">Autor del TdR</div></div>
+                <div class="team-card"><div class="team-avatar" style="background:#ef4444;">UC</div><h4>Unai Cañas</h4><div class="rol">Autor del TdR</div></div>
+            </div>
+            <div class="team-card team-tutor"><div class="team-avatar" style="background:#0f172a;">R</div><h4>Roger</h4><div class="rol">Tutor · Professor de Robòtica</div></div>
+        </div>
+
+        <div class="footer-disclaimer">
+            <p>© PLA DRIF Project. Tots els drets reservats.</p>
+        </div>
+    </div>
+
+    <script>
+        /* ========= ROTATING TEXT ========= */
+        (function() {
+            const words = [
+                'un Treball de Recerca',
+                'un projecte de 4 estudiants',
+                'una eina de prevenció real',
+                'tecnologia per al nostre bosc'
+            ];
+            let i = 0;
+            const el = document.getElementById('rotate-text');
+            setInterval(() => {
+                el.classList.add('fade');
+                setTimeout(() => {
+                    i = (i + 1) % words.length;
+                    el.textContent = words[i];
+                    el.classList.remove('fade');
+                }, 350);
+            }, 2800);
+        })();
+
+        /* ========= DEPTH CAROUSEL (vanilla JS) ========= */
+        (function() {
+            // NOTA PER A L'ABRAHAM: substitueix aquestes imatges de mostra
+            // per fotografies reals del procés quan les tinguis.
+            const items = [
+                { image: 'https://placehold.co/800x1000/0f172a/f8fafc?text=Disseny+3D', alt: 'Disseny 3D de la carcassa' },
+                { image: 'https://placehold.co/800x1000/1e293b/f8fafc?text=Impressio+3D', alt: 'Impressió 3D de les peces' },
+                { image: 'https://placehold.co/800x1000/065f46/f8fafc?text=Muntatge+ESP32', alt: 'Muntatge electrònic amb ESP32' },
+                { image: 'https://placehold.co/800x1000/047857/f8fafc?text=Sensors', alt: 'Instal·lació dels sensors' },
+                { image: 'https://placehold.co/800x1000/0f172a/f8fafc?text=Estacio+Final', alt: "Estació SADRIF instal·lada al bosc" }
+            ];
+            const count = items.length;
+            let active = 0;
+            let timer = null;
+
+            const root = document.getElementById('depth-carousel');
+            root.innerHTML = `
+                <button class="depth-carousel__nav depth-carousel__nav--prev" aria-label="Anterior">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2.5"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div class="depth-carousel__stage" id="dc-stage"></div>
+                <button class="depth-carousel__nav depth-carousel__nav--next" aria-label="Següent">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2.5"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+            `;
+            const stage = root.querySelector('#dc-stage');
+            const dotsWrap = document.createElement('div');
+            dotsWrap.className = 'depth-carousel__dots';
+            root.parentElement.appendChild(dotsWrap);
+
+            items.forEach((item, i) => {
+                const card = document.createElement('div');
+                card.className = 'depth-carousel__card';
+                card.innerHTML = `<img src="${item.image}" alt="${item.alt}" draggable="false"><div class="depth-carousel__caption">${item.alt}</div>`;
+                card.addEventListener('click', () => setActive(i));
+                stage.appendChild(card);
+
+                const dot = document.createElement('div');
+                dot.className = 'depth-carousel__dot';
+                dot.addEventListener('click', () => setActive(i));
+                dotsWrap.appendChild(dot);
+            });
+
+            function render() {
+                const cards = stage.querySelectorAll('.depth-carousel__card');
+                const dots = dotsWrap.querySelectorAll('.depth-carousel__dot');
+                cards.forEach((card, i) => {
+                    let offset = i - active;
+                    if (offset > count / 2) offset -= count;
+                    if (offset < -count / 2) offset += count;
+                    const absOff = Math.abs(offset);
+                    const visible = absOff <= 2;
+                    const translateX = offset * 78;
+                    const translateZ = -absOff * 140;
+                    const rotateY = offset === 0 ? 0 : (offset < 0 ? 22 : -22);
+                    const scale = 1 - absOff * 0.14;
+                    const opacity = visible ? 1 - absOff * 0.35 : 0;
+                    const blur = absOff === 0 ? 0 : absOff * 2.5;
+                    card.style.transform = `translateX(${translateX}px) translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`;
+                    card.style.opacity = opacity;
+                    card.style.filter = `blur(${blur}px)`;
+                    card.style.zIndex = count - absOff;
+                    card.style.pointerEvents = visible ? 'auto' : 'none';
+                });
+                dots.forEach((dot, i) => dot.classList.toggle('depth-carousel__dot--active', i === active));
+            }
+
+            function setActive(i) { active = ((i % count) + count) % count; render(); }
+            function next() { setActive(active + 1); }
+            function prev() { setActive(active - 1); }
+
+            root.querySelector('.depth-carousel__nav--next').addEventListener('click', () => { next(); resetAutoplay(); });
+            root.querySelector('.depth-carousel__nav--prev').addEventListener('click', () => { prev(); resetAutoplay(); });
+
+            function resetAutoplay() {
+                clearInterval(timer);
+                timer = setInterval(next, 3500);
+            }
+
+            render();
+            resetAutoplay();
+        })();
+    </script>
+
+    <!-- SCRIPT DEL MENÚ CARDNAV (GSAP) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navEl = document.getElementById('card-nav');
+            const hamburger = document.getElementById('card-nav-hamburger');
+            const contentEl = document.getElementById('card-nav-content');
+            const cards = document.querySelectorAll('.nav-card');
+            let isExpanded = false;
+            let navTimeline;
+
+            gsap.set(navEl, { height: 60, overflow: 'hidden' });
+            gsap.set(cards, { y: 50, opacity: 0 });
+            navTimeline = gsap.timeline({ paused: true });
+
+            function calculateHeight() {
+                const isMobile = window.matchMedia('(max-width: 768px)').matches;
+                if (isMobile) {
+                    const wasVisibility = contentEl.style.visibility;
+                    const wasPosition = contentEl.style.position;
+                    contentEl.style.visibility = 'hidden';
+                    contentEl.style.position = 'absolute';
+                    contentEl.style.display = 'flex';
+                    const contentHeight = contentEl.scrollHeight;
+                    contentEl.style.visibility = wasVisibility;
+                    contentEl.style.position = wasPosition;
+                    contentEl.style.display = '';
+                    return 60 + contentHeight + 16;
+                }
+                return 260;
+            }
+
+            function createTimeline() {
+                navTimeline.clear();
+                navTimeline.to(navEl, { height: calculateHeight, duration: 0.4, ease: 'power3.out' });
+                navTimeline.to(cards, { y: 0, opacity: 1, duration: 0.4, ease: 'power3.out', stagger: 0.08 }, '-=0.1');
+            }
+
+            createTimeline();
+
+            hamburger.addEventListener('click', () => {
+                isExpanded = !isExpanded;
+                hamburger.classList.toggle('open', isExpanded);
+                navEl.classList.toggle('open', isExpanded);
+                contentEl.setAttribute('aria-hidden', !isExpanded);
+                if (isExpanded) { navTimeline.timeScale(1).play(0); }
+                else { navTimeline.timeScale(3).reverse(); }
+            });
+
+            window.addEventListener('resize', () => {
+                if (isExpanded) {
+                    gsap.set(navEl, { height: calculateHeight() });
+                    createTimeline();
+                    navTimeline.progress(1);
+                } else {
+                    createTimeline();
+                }
+            });
+
+            document.querySelectorAll('.nav-card-link').forEach(link => {
+                link.addEventListener('click', () => { if (isExpanded) hamburger.click(); });
+            });
+        });
+    </script>
+</body>
+</html>
