@@ -42,7 +42,7 @@
         @keyframes pageEntrance { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
         .animated-element { opacity: 0; animation: pageEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        /* ========= MENÚ CARDNAV (idèntic a index.html) ========= */
+        /* ========= MENÚ CARDNAV (logo centrat) ========= */
         .card-nav-container {
             position: sticky; top: 1rem; margin: 0 auto; width: 90%; max-width: 1200px;
             z-index: 1000; box-sizing: border-box; margin-bottom: 2rem;
@@ -58,12 +58,11 @@
         }
         .card-nav-top {
             position: absolute; top: 0; left: 0; right: 0; height: 60px;
-            display: flex; align-items: center; justify-content: flex-start;
-            gap: 16px; padding: 0.5rem 1rem; z-index: 2;
+            display: flex; align-items: center; padding: 0.5rem 1rem; z-index: 2;
         }
         .hamburger-menu {
-            height: 100%; display: flex; flex-direction: column; align-items: center;
-            justify-content: center; cursor: pointer; gap: 6px; width: 40px;
+            flex: 0 0 40px; height: 100%; display: flex; flex-direction: column; align-items: center;
+            justify-content: center; cursor: pointer; gap: 6px;
         }
         .hamburger-menu:hover .hamburger-line { opacity: 0.75; }
         .hamburger-line {
@@ -73,6 +72,8 @@
         }
         .hamburger-menu.open .hamburger-line:first-child { transform: translateY(4px) rotate(45deg); }
         .hamburger-menu.open .hamburger-line:last-child { transform: translateY(-4px) rotate(-45deg); }
+        .logo-container { flex: 1; display: flex; justify-content: center; }
+        .nav-spacer { flex: 0 0 40px; }
         .navbar-brand {
             display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.25rem;
             color: var(--texto-principal); text-decoration: none; transition: var(--transicion);
@@ -109,28 +110,33 @@
         .contenedor-principal { width: 90%; max-width: 1100px; margin: 0 auto; padding-bottom: 60px; }
 
         /* ========= HERO ========= */
-        .hero-sobre {
-            text-align: center; padding: 40px 0 60px 0;
-        }
+        .hero-sobre { text-align: center; padding: 40px 0 50px 0; }
         .hero-eyebrow {
             display: inline-block; margin-bottom: 20px; padding: 7px 16px; border-radius: 99px;
             background: var(--accent-suave); color: var(--accent); font-weight: 700; font-size: 0.8rem;
             letter-spacing: 0.06em; text-transform: uppercase;
         }
-        .hero-sobre h1 {
-            font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; margin: 0 0 8px 0; line-height: 1.15;
-        }
-        .rotate-wrap {
-            display: inline-block; position: relative; min-width: 280px; text-align: center;
-        }
+        .hero-sobre h1 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; margin: 0 0 8px 0; line-height: 1.15; }
+        .rotate-wrap { display: inline-block; position: relative; min-width: 280px; text-align: center; }
         .rotate-pill {
             display: inline-block; padding: 6px 20px; border-radius: 14px; background: var(--accent);
             color: #fff; transition: opacity 0.35s ease, transform 0.35s ease;
         }
         .rotate-pill.fade { opacity: 0; transform: translateY(8px); }
-        .hero-sobre p.lead {
-            max-width: 680px; margin: 24px auto 0 auto; font-size: 1.15rem; color: var(--texto-mutado);
+        .hero-sobre p.lead { max-width: 680px; margin: 24px auto 0 auto; font-size: 1.15rem; color: var(--texto-mutado); }
+
+        /* ========= MARQUEE ========= */
+        .marquee-band {
+            background: var(--accent-suave); border-top: 1px solid rgba(5,150,105,0.15); border-bottom: 1px solid rgba(5,150,105,0.15);
+            overflow: hidden; padding: 16px 0; margin-bottom: 10px;
         }
+        .marquee-track { display: flex; width: max-content; animation: marquee-scroll 22s linear infinite; }
+        .marquee-track span {
+            display: inline-flex; align-items: center; white-space: nowrap; font-weight: 800; font-size: 1.1rem;
+            color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em; padding: 0 20px;
+        }
+        .marquee-track span::after { content: '•'; margin-left: 20px; color: #94a3b8; }
+        @keyframes marquee-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
         /* ========= SECCIONS ========= */
         .seccio { padding: 50px 0; }
@@ -142,28 +148,42 @@
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; align-items: center; }
         @media (max-width: 800px) { .grid-2 { grid-template-columns: 1fr; } }
         .text-block p { color: var(--texto-mutado); font-size: 1.05rem; line-height: 1.7; margin-bottom: 14px; }
-        .highlight-box {
-            background: var(--accent-suave); border: 1px solid rgba(5,150,105,0.2); border-radius: 24px; padding: 28px;
-        }
+        .highlight-box { background: var(--accent-suave); border: 1px solid rgba(5,150,105,0.2); border-radius: 24px; padding: 28px; }
         .highlight-box h3 { margin: 0 0 14px 0; color: #065f46; font-size: 1.15rem; }
         .highlight-box ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
         .highlight-box li { display: flex; gap: 12px; color: var(--texto-principal); }
         .highlight-box li b { color: var(--accent); flex-shrink: 0; }
 
+        /* ========= INTERACTIVE CARDS (spotlight + tilt) ========= */
+        .spot-card {
+            position: relative; overflow: hidden; transform-style: preserve-3d; will-change: transform;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+        }
+        .spot-card::before {
+            content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0; z-index: 0;
+            background: radial-gradient(280px circle at var(--sx,50%) var(--sy,50%), rgba(5,150,105,0.16), transparent 60%);
+            transition: opacity 0.3s ease;
+        }
+        @media (hover: hover) { .spot-card:hover::before { opacity: 1; } }
+        .spot-card > * { position: relative; z-index: 1; }
+
+        /* ========= STATS ========= */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+        @media (max-width: 700px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
+        .stat-card { background: #fff; border: 1px solid var(--borde-claro); border-radius: 20px; padding: 26px 18px; text-align: center; box-shadow: 0 4px 16px rgba(15,23,42,0.04); }
+        .stat-number, .stat-number-static { font-size: 2.2rem; font-weight: 800; color: var(--accent); line-height: 1; }
+        .stat-number-static { font-size: 1.6rem; }
+        .stat-label { margin-top: 8px; color: var(--texto-mutado); font-size: 0.88rem; }
+
+        /* ========= SENSORS ========= */
         .sensor-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 36px; }
         @media (max-width: 800px) { .sensor-grid { grid-template-columns: 1fr 1fr; } }
-        .sensor-card {
-            background: #fff; border: 1px solid var(--borde-claro); border-radius: 18px; padding: 22px;
-            box-shadow: 0 4px 16px rgba(15,23,42,0.04);
-        }
+        .sensor-card { background: #fff; border: 1px solid var(--borde-claro); border-radius: 18px; padding: 22px; box-shadow: 0 4px 16px rgba(15,23,42,0.04); }
         .sensor-dot { width: 36px; height: 36px; border-radius: 10px; margin-bottom: 14px; }
         .sensor-card h4 { margin: 0 0 8px 0; font-size: 1rem; }
         .sensor-card p { margin: 0; font-size: 0.88rem; color: var(--texto-mutado); line-height: 1.5; }
 
-        .regla-box {
-            max-width: 700px; margin: 0 auto; background: #fff; border: 1px solid var(--borde-claro);
-            border-radius: 22px; padding: 30px; text-align: center; box-shadow: 0 4px 16px rgba(15,23,42,0.04);
-        }
+        .regla-box { max-width: 700px; margin: 0 auto; background: #fff; border: 1px solid var(--borde-claro); border-radius: 22px; padding: 30px; text-align: center; box-shadow: 0 4px 16px rgba(15,23,42,0.04); }
         .regla-box h4 { margin: 0 0 10px 0; font-size: 1.1rem; }
         .regla-box p { margin: 0; color: var(--texto-mutado); line-height: 1.7; }
 
@@ -196,25 +216,63 @@
         .depth-carousel__dot--active { background: var(--accent); transform: scale(1.3); }
         .carousel-note { text-align: center; color: var(--texto-mutado); font-size: 0.9rem; margin-top: -20px; margin-bottom: 30px; }
 
-        /* ========= TIMELINE ========= */
-        .timeline { position: relative; max-width: 700px; margin: 0 auto; }
-        .timeline::before { content: ''; position: absolute; left: 20px; top: 8px; bottom: 8px; width: 2px; background: linear-gradient(180deg, var(--accent), #cbd5e1); }
-        .timeline-item { position: relative; padding-left: 56px; margin-bottom: 30px; }
-        .timeline-item:last-child { margin-bottom: 0; }
-        .timeline-dot { position: absolute; left: 11px; top: 4px; width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 3px solid var(--accent); box-shadow: 0 0 0 4px var(--accent-suave); }
-        .timeline-item h4 { margin: 0 0 6px 0; font-size: 1.05rem; }
-        .timeline-item p { margin: 0; color: var(--texto-mutado); line-height: 1.6; }
+        /* ========= REPTES (spotlight cards) ========= */
+        .reptes-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+        @media (max-width: 700px) { .reptes-grid { grid-template-columns: 1fr; } }
+        .repte-card { background: #fff; border: 1px solid var(--borde-claro); border-radius: 20px; padding: 26px; box-shadow: 0 4px 16px rgba(15,23,42,0.04); }
+        .repte-card .repte-icon { width: 42px; height: 42px; border-radius: 12px; background: var(--accent-suave); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; color: var(--accent); font-weight: 800; }
+        .repte-card h4 { margin: 0 0 8px 0; font-size: 1.05rem; }
+        .repte-card p { margin: 0; color: var(--texto-mutado); line-height: 1.6; font-size: 0.95rem; }
+
+        /* ========= STEPPER / TIMELINE INTERACTIVA ========= */
+        .stepper { position: relative; max-width: 760px; margin: 0 auto; }
+        .stepper-track { position: absolute; left: 19px; top: 6px; bottom: 6px; width: 3px; background: #e2e8f0; border-radius: 3px; overflow: hidden; }
+        .stepper-progress { position: absolute; left: 0; top: 0; width: 100%; background: linear-gradient(180deg, var(--accent), #10b981); border-radius: 3px; transition: height 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .step-item { position: relative; padding-left: 56px; margin-bottom: 10px; }
+        .step-head {
+            display: flex; align-items: center; gap: 14px; cursor: pointer; padding: 10px 14px 10px 0;
+            border-radius: 14px; transition: background 0.25s ease;
+            -webkit-tap-highlight-color: transparent; user-select: none;
+        }
+        .step-head:hover { background: rgba(5,150,105,0.06); }
+        .step-dot {
+            position: absolute; left: 11px; width: 18px; height: 18px; border-radius: 50%; background: #fff;
+            border: 3px solid #cbd5e1; transition: var(--transicion); flex-shrink: 0; z-index: 2;
+        }
+        .step-item.open .step-dot, .step-item.visited .step-dot { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-suave); }
+        .step-item.open .step-dot { background: var(--accent); }
+        .step-title { font-weight: 700; font-size: 1rem; flex: 1; }
+        .step-item.open .step-title { color: var(--accent); }
+        .step-chevron { color: #94a3b8; transition: transform 0.3s ease; flex-shrink: 0; }
+        .step-item.open .step-chevron { transform: rotate(180deg); color: var(--accent); }
+        .step-body-wrap { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .step-item.open .step-body-wrap { grid-template-rows: 1fr; }
+        .step-body-inner { overflow: hidden; }
+        .step-body { color: var(--texto-mutado); line-height: 1.65; padding: 0 14px 14px 0; font-size: 0.96rem; }
 
         /* ========= EQUIP ========= */
         .team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 24px; }
         @media (max-width: 800px) { .team-grid { grid-template-columns: 1fr 1fr; } }
-        .team-card { background: #fff; border: 1px solid var(--borde-claro); border-radius: 20px; padding: 26px 18px; text-align: center; transition: var(--transicion); box-shadow: 0 4px 16px rgba(15,23,42,0.04); }
-        .team-card:hover { transform: translateY(-6px); box-shadow: 0 16px 32px rgba(15,23,42,0.08); }
+        .team-card { background: #fff; border: 1px solid var(--borde-claro); border-radius: 20px; padding: 26px 18px; text-align: center; box-shadow: 0 4px 16px rgba(15,23,42,0.04); }
         .team-avatar { width: 76px; height: 76px; border-radius: 50%; margin: 0 auto 14px auto; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; color: #fff; }
         .team-card h4 { margin: 0; font-size: 1rem; }
         .team-card .rol { font-size: 0.85rem; color: var(--texto-mutado); margin-top: 4px; }
         .team-tutor { max-width: 260px; margin: 0 auto; border-color: var(--accent); }
         .team-tutor .rol { color: var(--accent); font-weight: 700; }
+
+        /* ========= FAQ ========= */
+        .faq-list { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+        .faq-item { background: #fff; border: 1px solid var(--borde-claro); border-radius: 16px; overflow: hidden; box-shadow: 0 4px 16px rgba(15,23,42,0.03); }
+        .faq-q {
+            display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 18px 20px;
+            cursor: pointer; font-weight: 700; user-select: none;
+        }
+        .faq-q .faq-plus { flex-shrink: 0; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; color: var(--accent); transition: transform 0.3s ease; }
+        .faq-item.open .faq-plus { transform: rotate(45deg); }
+        .faq-a-wrap { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+        .faq-item.open .faq-a-wrap { grid-template-rows: 1fr; }
+        .faq-a-inner { overflow: hidden; }
+        .faq-a { padding: 0 20px 18px 20px; color: var(--texto-mutado); line-height: 1.65; }
 
         .footer-disclaimer { text-align: center; padding: 30px 0; color: var(--texto-mutado); font-size: 0.85rem; border-top: 1px solid var(--borde-claro); margin-top: 20px; }
     </style>
@@ -235,6 +293,7 @@
                         <span>PLA DRIF</span>
                     </a>
                 </div>
+                <div class="nav-spacer" aria-hidden="true"></div>
             </div>
 
             <div class="card-nav-content" id="card-nav-content" aria-hidden="true">
@@ -285,14 +344,21 @@
         </nav>
     </div>
 
+    <!-- HERO -->
     <div class="contenedor-principal">
-
-        <!-- HERO -->
         <div class="hero-sobre animated-element">
             <div class="hero-eyebrow">Treball de Recerca · 2n Batxillerat · Institut Sabadell</div>
             <h1>Pla DRIF és <span class="rotate-wrap"><span class="rotate-pill" id="rotate-text">un Treball de Recerca</span></span></h1>
             <p class="lead">La història, els objectius i l'equip darrere de l'estació autònoma de detecció de risc d'incendis forestals SADRIF.</p>
         </div>
+    </div>
+
+    <!-- MARQUEE -->
+    <div class="marquee-band">
+        <div class="marquee-track" id="marquee-track"></div>
+    </div>
+
+    <div class="contenedor-principal">
 
         <!-- PER QUÈ SADRIF -->
         <div class="seccio animated-element" style="animation-delay:0.05s;">
@@ -313,6 +379,16 @@
             </div>
         </div>
 
+        <!-- STATS -->
+        <div class="seccio animated-element" style="animation-delay:0.08s; padding-top:0;">
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-number" data-count="4">0</div><div class="stat-label">Alumnes autors del TdR</div></div>
+                <div class="stat-card"><div class="stat-number" data-count="4">0</div><div class="stat-label">Sensors ambientals</div></div>
+                <div class="stat-card"><div class="stat-number" data-count="15">0</div><div class="stat-label">Segons entre lectures</div></div>
+                <div class="stat-card"><div class="stat-number-static">30-30-30</div><div class="stat-label">Regla de risc extrem</div></div>
+            </div>
+        </div>
+
         <!-- COM FUNCIONA -->
         <div class="seccio animated-element" style="animation-delay:0.1s;">
             <div class="seccio-header">
@@ -320,10 +396,10 @@
                 <p class="seccio-sub">El cor del dispositiu és un microcontrolador ESP32 connectat a quatre sensors ambientals.</p>
             </div>
             <div class="sensor-grid">
-                <div class="sensor-card"><div class="sensor-dot" style="background:#ef444420;"></div><h4>Temperatura</h4><p>Mesura en graus Celsius, un dels factors clau de la regla 30-30-30.</p></div>
-                <div class="sensor-card"><div class="sensor-dot" style="background:#0ea5e920;"></div><h4>Humitat</h4><p>Humitat relativa de l'aire: com més baixa, més risc de propagació.</p></div>
-                <div class="sensor-card"><div class="sensor-dot" style="background:#10b98120;"></div><h4>Vent</h4><p>Velocitat del vent en km/h, determinant en la propagació del foc.</p></div>
-                <div class="sensor-card"><div class="sensor-dot" style="background:#f59e0b20;"></div><h4>Pressió</h4><p>Pressió atmosfèrica, utilitzada per contextualitzar el canvi de temps.</p></div>
+                <div class="sensor-card spot-card"><div class="sensor-dot" style="background:#ef444420;"></div><h4>Temperatura</h4><p>Mesura en graus Celsius, un dels factors clau de la regla 30-30-30.</p></div>
+                <div class="sensor-card spot-card"><div class="sensor-dot" style="background:#0ea5e920;"></div><h4>Humitat</h4><p>Humitat relativa de l'aire: com més baixa, més risc de propagació.</p></div>
+                <div class="sensor-card spot-card"><div class="sensor-dot" style="background:#10b98120;"></div><h4>Vent</h4><p>Velocitat del vent en km/h, determinant en la propagació del foc.</p></div>
+                <div class="sensor-card spot-card"><div class="sensor-dot" style="background:#f59e0b20;"></div><h4>Pressió</h4><p>Pressió atmosfèrica, utilitzada per contextualitzar el canvi de temps.</p></div>
             </div>
             <div class="regla-box">
                 <h4>La regla del 30-30-30</h4>
@@ -343,18 +419,29 @@
             <p class="carousel-note">Imatges d'exemple — es substituiran per fotos reals del projecte.</p>
         </div>
 
-        <!-- LÍNIA DE TEMPS -->
+        <!-- REPTES TÈCNICS -->
+        <div class="seccio animated-element" style="animation-delay:0.18s;">
+            <div class="seccio-header">
+                <h2 class="seccio-titol">Reptes tècnics</h2>
+                <p class="seccio-sub">Construir un dispositiu que funcioni sol, al bosc, durant mesos, no va ser senzill.</p>
+            </div>
+            <div class="reptes-grid">
+                <div class="repte-card spot-card"><div class="repte-icon">01</div><h4>Alimentació autònoma</h4><p>L'estació havia de funcionar sense connexió elèctrica, per la qual cosa vam optar per un sistema de panell solar i bateria per garantir-ne el funcionament continu.</p></div>
+                <div class="repte-card spot-card"><div class="repte-icon">02</div><h4>Resistència a la intempèrie</h4><p>La carcassa dissenyada en 3D havia de protegir l'electrònica de la pluja i la humitat sense impedir que els sensors llegissin correctament l'ambient.</p></div>
+                <div class="repte-card spot-card"><div class="repte-icon">03</div><h4>Precisió dels sensors</h4><p>Vam haver de calibrar i contrastar les lectures dels sensors amb dades meteorològiques oficials per assegurar-ne la fiabilitat.</p></div>
+                <div class="repte-card spot-card"><div class="repte-icon">04</div><h4>Enviament de dades</h4><p>Al bosc no sempre hi ha cobertura estable, així que vam haver de dissenyar l'enviament de dades a ThingSpeak perquè fos robust davant de talls de connexió.</p></div>
+            </div>
+        </div>
+
+        <!-- LÍNIA DE TEMPS INTERACTIVA -->
         <div class="seccio animated-element" style="animation-delay:0.2s;">
             <div class="seccio-header">
                 <h2 class="seccio-titol">Línia de temps del projecte</h2>
+                <p class="seccio-sub">Toca cada fase per veure'n els detalls.</p>
             </div>
-            <div class="timeline">
-                <div class="timeline-item"><div class="timeline-dot"></div><h4>Investigació i marc teòric</h4><p>Estudi del risc d'incendis forestals a Catalunya, la regla del 30-30-30 i les tecnologies IoT existents per a la detecció precoç.</p></div>
-                <div class="timeline-item"><div class="timeline-dot"></div><h4>Disseny 3D de l'estació</h4><p>Modelatge de la carcassa del dispositiu SADRIF, pensada per protegir l'electrònica a la intempèrie i permetre la ventilació dels sensors.</p></div>
-                <div class="timeline-item"><div class="timeline-dot"></div><h4>Muntatge electrònic</h4><p>Integració del microcontrolador ESP32 amb els sensors de temperatura, humitat, pressió i vent, i les proves de connexió i alimentació.</p></div>
-                <div class="timeline-item"><div class="timeline-dot"></div><h4>Programació i enviament de dades</h4><p>Desenvolupament del firmware i connexió amb ThingSpeak per emmagatzemar i consultar les lectures en temps real.</p></div>
-                <div class="timeline-item"><div class="timeline-dot"></div><h4>Desplegament al bosc de Can Deu</h4><p>Instal·lació de l'estació al Torrent de Colobrers i validació de les lectures en condicions reals.</p></div>
-                <div class="timeline-item"><div class="timeline-dot"></div><h4>Web i divulgació</h4><p>Creació del panell web en temps real, el model 3D interactiu, el canal de YouTube i el directe de Twitch per divulgar el projecte.</p></div>
+            <div class="stepper" id="stepper">
+                <div class="stepper-track"><div class="stepper-progress" id="stepper-progress" style="height:0%;"></div></div>
+                <!-- Els passos es generen per JS -->
             </div>
         </div>
 
@@ -365,12 +452,20 @@
                 <p class="seccio-sub">Quatre alumnes de 2n de Batxillerat de l'Institut Sabadell.</p>
             </div>
             <div class="team-grid">
-                <div class="team-card"><div class="team-avatar" style="background:#059669;">AA</div><h4>Abraham Ayala</h4><div class="rol">Autor del TdR</div></div>
-                <div class="team-card"><div class="team-avatar" style="background:#0ea5e9;">KJ</div><h4>Kevin Juan</h4><div class="rol">Autor del TdR</div></div>
-                <div class="team-card"><div class="team-avatar" style="background:#f59e0b;">GL</div><h4>Guillem Llamas</h4><div class="rol">Autor del TdR</div></div>
-                <div class="team-card"><div class="team-avatar" style="background:#ef4444;">UC</div><h4>Unai Cañas</h4><div class="rol">Autor del TdR</div></div>
+                <div class="team-card spot-card"><div class="team-avatar" style="background:#059669;">AA</div><h4>Abraham Ayala</h4><div class="rol">Autor del TdR</div></div>
+                <div class="team-card spot-card"><div class="team-avatar" style="background:#0ea5e9;">KJ</div><h4>Kevin Juan</h4><div class="rol">Autor del TdR</div></div>
+                <div class="team-card spot-card"><div class="team-avatar" style="background:#f59e0b;">GL</div><h4>Guillem Llamas</h4><div class="rol">Autor del TdR</div></div>
+                <div class="team-card spot-card"><div class="team-avatar" style="background:#ef4444;">UC</div><h4>Unai Cañas</h4><div class="rol">Autor del TdR</div></div>
             </div>
-            <div class="team-card team-tutor"><div class="team-avatar" style="background:#0f172a;">R</div><h4>Roger</h4><div class="rol">Tutor · Professor de Robòtica</div></div>
+            <div class="team-card team-tutor spot-card"><div class="team-avatar" style="background:#0f172a;">R</div><h4>Roger</h4><div class="rol">Tutor · Professor de Robòtica</div></div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="seccio animated-element" style="animation-delay:0.3s;">
+            <div class="seccio-header">
+                <h2 class="seccio-titol">Preguntes freqüents</h2>
+            </div>
+            <div class="faq-list" id="faq-list"></div>
         </div>
 
         <div class="footer-disclaimer">
@@ -381,28 +476,48 @@
     <script>
         /* ========= ROTATING TEXT ========= */
         (function() {
-            const words = [
-                'un Treball de Recerca',
-                'un projecte de 4 estudiants',
-                'una eina de prevenció real',
-                'tecnologia per al nostre bosc'
-            ];
+            const words = ['un Treball de Recerca', 'un projecte de 4 estudiants', 'una eina de prevenció real', 'tecnologia per al nostre bosc'];
             let i = 0;
             const el = document.getElementById('rotate-text');
             setInterval(() => {
                 el.classList.add('fade');
-                setTimeout(() => {
-                    i = (i + 1) % words.length;
-                    el.textContent = words[i];
-                    el.classList.remove('fade');
-                }, 350);
+                setTimeout(() => { i = (i + 1) % words.length; el.textContent = words[i]; el.classList.remove('fade'); }, 350);
             }, 2800);
         })();
 
-        /* ========= DEPTH CAROUSEL (vanilla JS) ========= */
+        /* ========= MARQUEE ========= */
         (function() {
-            // NOTA PER A L'ABRAHAM: substitueix aquestes imatges de mostra
-            // per fotografies reals del procés quan les tinguis.
+            const phrases = ["PLA DRIF", "TREBALL DE RECERCA", "DETECCIÓ PRECOÇ D'INCENDIS", "TECNOLOGIA I NATURA", "SISTEMA SADRIF"];
+            const track = document.getElementById('marquee-track');
+            const html = phrases.map(p => `<span>${p}</span>`).join('');
+            track.innerHTML = html + html; // duplicat per bucle continu
+        })();
+
+        /* ========= COUNT UP (stats) ========= */
+        (function() {
+            const counters = document.querySelectorAll('.stat-number');
+            const obs = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) return;
+                    const el = entry.target;
+                    const target = parseInt(el.dataset.count, 10);
+                    const duration = 1200;
+                    const start = performance.now();
+                    function tick(now) {
+                        const progress = Math.min((now - start) / duration, 1);
+                        el.textContent = Math.round(progress * target);
+                        if (progress < 1) requestAnimationFrame(tick);
+                        else el.textContent = target;
+                    }
+                    requestAnimationFrame(tick);
+                    obs.unobserve(el);
+                });
+            }, { threshold: 0.5 });
+            counters.forEach(el => obs.observe(el));
+        })();
+
+        /* ========= DEPTH CAROUSEL ========= */
+        (function() {
             const items = [
                 { image: 'https://placehold.co/800x1000/0f172a/f8fafc?text=Disseny+3D', alt: 'Disseny 3D de la carcassa' },
                 { image: 'https://placehold.co/800x1000/1e293b/f8fafc?text=Impressio+3D', alt: 'Impressió 3D de les peces' },
@@ -411,37 +526,28 @@
                 { image: 'https://placehold.co/800x1000/0f172a/f8fafc?text=Estacio+Final', alt: "Estació SADRIF instal·lada al bosc" }
             ];
             const count = items.length;
-            let active = 0;
-            let timer = null;
-
+            let active = 0, timer = null;
             const root = document.getElementById('depth-carousel');
             root.innerHTML = `
-                <button class="depth-carousel__nav depth-carousel__nav--prev" aria-label="Anterior">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2.5"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
+                <button class="depth-carousel__nav depth-carousel__nav--prev" aria-label="Anterior"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2.5"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
                 <div class="depth-carousel__stage" id="dc-stage"></div>
-                <button class="depth-carousel__nav depth-carousel__nav--next" aria-label="Següent">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2.5"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
+                <button class="depth-carousel__nav depth-carousel__nav--next" aria-label="Següent"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2.5"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
             `;
             const stage = root.querySelector('#dc-stage');
             const dotsWrap = document.createElement('div');
             dotsWrap.className = 'depth-carousel__dots';
             root.parentElement.appendChild(dotsWrap);
-
             items.forEach((item, i) => {
                 const card = document.createElement('div');
                 card.className = 'depth-carousel__card';
                 card.innerHTML = `<img src="${item.image}" alt="${item.alt}" draggable="false"><div class="depth-carousel__caption">${item.alt}</div>`;
                 card.addEventListener('click', () => setActive(i));
                 stage.appendChild(card);
-
                 const dot = document.createElement('div');
                 dot.className = 'depth-carousel__dot';
                 dot.addEventListener('click', () => setActive(i));
                 dotsWrap.appendChild(dot);
             });
-
             function render() {
                 const cards = stage.querySelectorAll('.depth-carousel__card');
                 const dots = dotsWrap.querySelectorAll('.depth-carousel__dot');
@@ -451,35 +557,103 @@
                     if (offset < -count / 2) offset += count;
                     const absOff = Math.abs(offset);
                     const visible = absOff <= 2;
-                    const translateX = offset * 78;
-                    const translateZ = -absOff * 140;
-                    const rotateY = offset === 0 ? 0 : (offset < 0 ? 22 : -22);
-                    const scale = 1 - absOff * 0.14;
-                    const opacity = visible ? 1 - absOff * 0.35 : 0;
-                    const blur = absOff === 0 ? 0 : absOff * 2.5;
-                    card.style.transform = `translateX(${translateX}px) translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`;
-                    card.style.opacity = opacity;
-                    card.style.filter = `blur(${blur}px)`;
+                    card.style.transform = `translateX(${offset * 78}px) translateZ(${-absOff * 140}px) rotateY(${offset === 0 ? 0 : (offset < 0 ? 22 : -22)}deg) scale(${1 - absOff * 0.14})`;
+                    card.style.opacity = visible ? 1 - absOff * 0.35 : 0;
+                    card.style.filter = `blur(${absOff === 0 ? 0 : absOff * 2.5}px)`;
                     card.style.zIndex = count - absOff;
                     card.style.pointerEvents = visible ? 'auto' : 'none';
                 });
                 dots.forEach((dot, i) => dot.classList.toggle('depth-carousel__dot--active', i === active));
             }
-
             function setActive(i) { active = ((i % count) + count) % count; render(); }
-            function next() { setActive(active + 1); }
-            function prev() { setActive(active - 1); }
+            root.querySelector('.depth-carousel__nav--next').addEventListener('click', () => { setActive(active + 1); resetAutoplay(); });
+            root.querySelector('.depth-carousel__nav--prev').addEventListener('click', () => { setActive(active - 1); resetAutoplay(); });
+            function resetAutoplay() { clearInterval(timer); timer = setInterval(() => setActive(active + 1), 3500); }
+            render(); resetAutoplay();
+        })();
 
-            root.querySelector('.depth-carousel__nav--next').addEventListener('click', () => { next(); resetAutoplay(); });
-            root.querySelector('.depth-carousel__nav--prev').addEventListener('click', () => { prev(); resetAutoplay(); });
+        /* ========= STEPPER INTERACTIU ========= */
+        (function() {
+            const steps = [
+                { title: 'Investigació i marc teòric', text: "Estudi del risc d'incendis forestals a Catalunya, la regla del 30-30-30 i les tecnologies IoT existents per a la detecció precoç." },
+                { title: "Disseny 3D de l'estació", text: "Modelatge de la carcassa del dispositiu SADRIF, pensada per protegir l'electrònica a la intempèrie i permetre la ventilació dels sensors." },
+                { title: 'Muntatge electrònic', text: 'Integració del microcontrolador ESP32 amb els sensors de temperatura, humitat, pressió i vent, i les proves de connexió i alimentació.' },
+                { title: 'Programació i enviament de dades', text: "Desenvolupament del firmware i connexió amb ThingSpeak per emmagatzemar i consultar les lectures en temps real." },
+                { title: 'Proves de camp i calibratge', text: "Contrast de les lectures dels sensors amb dades meteorològiques oficials i ajust dels llindars de risc." },
+                { title: 'Desplegament al bosc de Can Deu', text: "Instal·lació de l'estació al Torrent de Colobrers i validació de les lectures en condicions reals." },
+                { title: 'Web i divulgació', text: 'Creació del panell web en temps real, el model 3D interactiu, el canal de YouTube i el directe de Twitch per divulgar el projecte.' },
+                { title: 'Presentació del TdR', text: "Defensa del Treball de Recerca davant del tribunal de l'Institut Sabadell, amb el dispositiu i la web com a evidència pràctica del projecte." }
+            ];
+            const stepper = document.getElementById('stepper');
+            const progressBar = document.getElementById('stepper-progress');
 
-            function resetAutoplay() {
-                clearInterval(timer);
-                timer = setInterval(next, 3500);
-            }
+            steps.forEach((s, i) => {
+                const item = document.createElement('div');
+                item.className = 'step-item';
+                item.innerHTML = `
+                    <div class="step-dot"></div>
+                    <div class="step-head">
+                        <div class="step-title">${s.title}</div>
+                        <div class="step-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    </div>
+                    <div class="step-body-wrap"><div class="step-body-inner"><div class="step-body">${s.text}</div></div></div>
+                `;
+                stepper.appendChild(item);
 
-            render();
-            resetAutoplay();
+                item.querySelector('.step-head').addEventListener('click', () => {
+                    const isOpen = item.classList.contains('open');
+                    stepper.querySelectorAll('.step-item').forEach(other => other.classList.remove('open'));
+                    if (!isOpen) {
+                        item.classList.add('open');
+                        item.classList.add('visited');
+                        const allItems = Array.from(stepper.querySelectorAll('.step-item'));
+                        allItems.slice(0, i + 1).forEach(el => el.classList.add('visited'));
+                        const pct = ((i + 1) / steps.length) * 100;
+                        progressBar.style.height = pct + '%';
+                    }
+                });
+            });
+        })();
+
+        /* ========= FAQ ========= */
+        (function() {
+            const faqs = [
+                { q: 'Què significa la regla del 30-30-30?', a: "És un criteri utilitzat en la prevenció d'incendis forestals: quan la temperatura supera els 30°C, la humitat relativa baixa del 30% i el vent supera els 30 km/h, es considera que hi ha condicions de perill extrem d'incendi." },
+                { q: "Cada quant s'actualitzen les dades?", a: "L'estació SADRIF envia noves lectures cada pocs segons, i el panell web les actualitza automàticament sense necessitat de recarregar la pàgina." },
+                { q: "On està instal·lada l'estació SADRIF?", a: "El dispositiu físic està ubicat al bosc de Can Deu, prop del Torrent de Colobrers, a Sabadell." },
+                { q: 'Es podria replicar aquest sistema a altres boscos?', a: "Sí. El disseny s'ha pensat perquè sigui de baix cost i fàcil de replicar amb components accessibles (ESP32 i sensors ambientals estàndard), de manera que es podria instal·lar a altres zones forestals amb risc." }
+            ];
+            const list = document.getElementById('faq-list');
+            faqs.forEach(f => {
+                const item = document.createElement('div');
+                item.className = 'faq-item';
+                item.innerHTML = `
+                    <div class="faq-q">
+                        <span>${f.q}</span>
+                        <span class="faq-plus"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+                    </div>
+                    <div class="faq-a-wrap"><div class="faq-a-inner"><div class="faq-a">${f.a}</div></div></div>
+                `;
+                item.querySelector('.faq-q').addEventListener('click', () => item.classList.toggle('open'));
+                list.appendChild(item);
+            });
+        })();
+
+        /* ========= SPOTLIGHT + TILT (només amb ratolí) ========= */
+        (function() {
+            if (!window.matchMedia('(hover: hover)').matches) return;
+            document.querySelectorAll('.spot-card').forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left, y = e.clientY - rect.top;
+                    card.style.setProperty('--sx', (x / rect.width) * 100 + '%');
+                    card.style.setProperty('--sy', (y / rect.height) * 100 + '%');
+                    const rx = ((y / rect.height) - 0.5) * -6;
+                    const ry = ((x / rect.width) - 0.5) * 6;
+                    card.style.transform = `perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-2px)`;
+                });
+                card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+            });
         })();
     </script>
 
@@ -519,7 +693,6 @@
                 navTimeline.to(navEl, { height: calculateHeight, duration: 0.4, ease: 'power3.out' });
                 navTimeline.to(cards, { y: 0, opacity: 1, duration: 0.4, ease: 'power3.out', stagger: 0.08 }, '-=0.1');
             }
-
             createTimeline();
 
             hamburger.addEventListener('click', () => {
@@ -532,13 +705,8 @@
             });
 
             window.addEventListener('resize', () => {
-                if (isExpanded) {
-                    gsap.set(navEl, { height: calculateHeight() });
-                    createTimeline();
-                    navTimeline.progress(1);
-                } else {
-                    createTimeline();
-                }
+                if (isExpanded) { gsap.set(navEl, { height: calculateHeight() }); createTimeline(); navTimeline.progress(1); }
+                else { createTimeline(); }
             });
 
             document.querySelectorAll('.nav-card-link').forEach(link => {
