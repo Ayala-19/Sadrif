@@ -31,6 +31,8 @@
   <!-- Fuentes para el menú CardNav -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Miniatura del vídeo de YouTube (el reproductor no es carrega fins que es fa clic) -->
+  <link rel="preconnect" href="https://i.ytimg.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <!-- Tailwind CSS -->
@@ -304,6 +306,7 @@
       cursor: pointer; display: block; text-decoration: none; outline: none; transform-style: preserve-3d;
       transform-origin: center center; background: #e2e8f0; box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.2);
       will-change: flex-grow, transform; -webkit-tap-highlight-color: transparent;
+      padding: 0; border: 0; font: inherit; color: inherit; appearance: none;
     }
     .ag-panel:focus-visible { box-shadow: 0 0 0 2px var(--ag-accent), 0 10px 30px -18px rgba(0, 0, 0, 0.3); }
     .ag-panel__frame { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; }
@@ -324,13 +327,30 @@
       color: var(--ag-text); font-family: inherit; font-weight: 700; font-size: clamp(1rem, 1.4vw, 1.4rem);
       letter-spacing: 0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0;
     }
+    /* Al mòbil l'acordió no es desactiva: només canvia d'orientació.
+       El JS afegeix .accordion-gallery--vertical i el gir passa a l'eix X. */
     @media (max-width: 680px) {
-      .accordion-gallery { flex-direction: column; perspective: none; height: auto !important; }
-      .ag-panel { min-height: 170px; transform: none !important; }
-      .accordion-gallery .ag-panel__media { width: 100%; height: var(--ag-media-size); --ag-gray: 0 !important; --ag-dim: 0 !important; }
-      .accordion-gallery .ag-panel__bar, .accordion-gallery .ag-panel__text { opacity: 1 !important; transform: none !important; }
+      .accordion-gallery { --ag-radius: 16px; --ag-gap: 10px; perspective: 900px; }
+      .ag-panel__label { left: 14px; right: 14px; bottom: 14px; }
+      .ag-panel__text { font-size: 0.92rem; white-space: normal; line-height: 1.3; }
     }
     @media (prefers-reduced-motion: reduce) { .ag-panel, .ag-panel__media { will-change: auto; } }
+
+    /* Descripció del panell seleccionat de la galeria */
+    .ag-detail {
+      margin-top: 22px; padding: 22px 24px; border-radius: 18px;
+      background: rgba(255, 255, 255, 0.6); border: 1px solid var(--borde-claro);
+      animation: agDetailIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .ag-detail-index {
+      display: block; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.12em;
+      color: var(--riesgo-color-dinamico); margin-bottom: 8px; font-variant-numeric: tabular-nums;
+    }
+    .ag-detail strong { display: block; font-size: 1.05rem; font-weight: 800; color: var(--texto-principal); line-height: 1.35; }
+    .ag-detail p { margin: 8px 0 0; font-size: 0.92rem; color: var(--texto-mutado); line-height: 1.7; max-width: 78ch; }
+    @keyframes agDetailIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .ag-detail { animation: none; } }
+    @media (max-width: 680px) { .ag-detail { padding: 18px; margin-top: 16px; } }
 
     .model-container {
       background: radial-gradient(circle at center, rgba(16, 185, 129, 0.05) 0%, rgba(255, 255, 255, 1) 70%);
@@ -353,27 +373,43 @@
       box-shadow: var(--glass-shadow); transition: var(--transicion);
     }
     .quick-spec-card:hover { transform: translateY(-4px); background: rgba(255, 255, 255, 0.7); }
-    .quick-spec-icon { font-size: 1.5rem; }
+    .quick-spec-icon {
+      width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center;
+      background: rgba(5,150,105,0.10); border: 1px solid rgba(5,150,105,0.18); color: var(--riesgo-color-dinamico);
+    }
     .quick-spec-label { font-weight: 700; font-size: 0.78rem; color: var(--texto-principal); line-height: 1.3; }
+
+    /* Icones SVG: mida uniforme a tota la pàgina */
+    .ico { display: inline-block; flex: none; vertical-align: middle; }
 
     .header-sadrif-seccion { max-width: 1000px; margin: 0 auto 32px; text-align: center; }
     .header-sadrif-seccion h3 { margin: 0 0 10px; }
     .header-sadrif-seccion p { margin: 0; }
 
-    .model-grid { max-width: 1150px; margin: 0 auto; display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 28px; align-items: stretch; }
-    .device-photo-frame {
-      position: relative; background: var(--glass-bg); backdrop-filter: blur(25px) saturate(120%); -webkit-backdrop-filter: blur(25px) saturate(120%);
-      border: 1px solid var(--glass-border); border-radius: 26px; box-shadow: var(--glass-shadow);
-      display: flex; align-items: center; justify-content: center; padding: 28px; min-height: 340px; transition: var(--transicion);
+    /* Visor 3D a tota amplada */
+    .viewer-shell {
+      max-width: 1150px; margin: 0 auto; position: relative;
+      background: var(--glass-bg); backdrop-filter: blur(24px) saturate(120%); -webkit-backdrop-filter: blur(24px) saturate(120%);
+      border: 1px solid var(--glass-border); border-radius: 28px; box-shadow: var(--glass-shadow);
+      padding: 14px; overflow: hidden;
     }
-    .device-photo-frame:hover { transform: translateY(-4px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); }
-    .device-photo-frame img { width: 100%; max-width: 300px; filter: drop-shadow(0 18px 26px rgba(15,23,42,0.18)); }
-    .device-photo-badge {
-      position: absolute; top: 18px; left: 18px; background: rgba(15,23,42,0.9); color: #fff; font-weight: 800;
-      font-size: 0.7rem; letter-spacing: 0.04em; text-transform: uppercase; padding: 6px 12px; border-radius: 99px;
-      backdrop-filter: blur(6px);
+    .viewer-shell::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+      background: radial-gradient(ellipse 70% 50% at 50% 100%, rgba(16,185,129,0.10), transparent 70%);
     }
-    @media (max-width: 900px) { .model-grid { grid-template-columns: 1fr; } .device-photo-frame { max-width: 340px; margin: 0 auto; } }
+    .viewer-stage { position: relative; height: 62vh; min-height: 380px; max-height: 660px; border-radius: 18px; overflow: hidden; }
+    .viewer-hint {
+      position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 2;
+      display: inline-flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 99px;
+      padding: 6px 14px; font-size: 0.75rem; font-weight: 600; color: var(--texto-mutado);
+      pointer-events: none; white-space: nowrap;
+      animation: viewerHintOut 0.6s ease 7s forwards;
+    }
+    @keyframes viewerHintOut { to { opacity: 0; transform: translate(-50%, 8px); } }
+    @media (max-width: 640px) { .viewer-stage { height: 52vh; min-height: 320px; } .viewer-shell { padding: 10px; border-radius: 22px; } }
+    @media (max-width: 400px) { .viewer-hint { display: none; } }
+    @media (prefers-reduced-motion: reduce) { .viewer-hint { animation: none; } }
 
     .model-toolbar { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 22px; }
     .toolbar-group { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
@@ -402,47 +438,163 @@
     .spec-sheet-toggle-btn:hover { background: var(--riesgo-color-dinamico); }
     .spec-sheet-toggle-btn svg { transition: transform 0.3s ease; }
     .spec-sheet-toggle-btn.obert svg { transform: rotate(180deg); }
-    .spec-sheet-body { max-height: 0; overflow: hidden; opacity: 0; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
-    .spec-sheet-body.obert { max-height: 1100px; opacity: 1; margin-top: 24px; }
-    .spec-table-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 36px; }
-    @media (max-width: 640px) { .spec-table-grid { grid-template-columns: 1fr; } }
-    .spec-row { display: flex; justify-content: space-between; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--borde-claro); font-size: 0.92rem; }
-    .spec-row span:first-child { color: var(--texto-mutado); font-weight: 600; }
-    .spec-row span:last-child { font-weight: 700; color: var(--texto-principal); text-align: right; }
+    .spec-sheet-body { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease, margin-top 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+    .spec-sheet-body > .spec-sheet-inner { overflow: hidden; min-height: 0; }
+    .spec-sheet-body.obert { grid-template-rows: 1fr; opacity: 1; margin-top: 24px; }
 
-    /* ===== MATERIAL I CIRCUIT (llista real de components del dispositiu) ===== */
-    .bom-grid { max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 22px; align-items: start; }
-    @media (max-width: 900px) { .bom-grid { grid-template-columns: 1fr; } }
-    .bom-card {
-      background: var(--glass-bg); backdrop-filter: blur(20px) saturate(120%);
+    /* ===== FITXA TÈCNICA: components desplegables ===== */
+    .spec-groups { display: grid; gap: 24px; }
+    .spec-group-title {
+      display: flex; align-items: center; gap: 12px; margin: 0 0 10px;
+      font-size: 0.71rem; font-weight: 800; letter-spacing: 0.11em; text-transform: uppercase; color: var(--texto-mutado);
+    }
+    .spec-group-title::after { content: ''; flex: 1; height: 1px; background: var(--borde-claro); }
+    .spec-list {
+      list-style: none; margin: 0; padding: 0; border: 1px solid var(--borde-claro);
+      border-radius: 16px; overflow: hidden; background: rgba(255, 255, 255, 0.55);
+    }
+    .spec-item + .spec-item { border-top: 1px solid var(--borde-claro); }
+    .spec-item-head {
+      width: 100%; display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+      background: none; border: 0; text-align: left; cursor: pointer; font: inherit; color: inherit;
+      transition: background 0.25s ease;
+    }
+    .spec-item-head:hover { background: rgba(5, 150, 105, 0.06); }
+    .spec-item-head:focus-visible { outline: 2px solid var(--riesgo-color-dinamico); outline-offset: -2px; }
+    .spec-item-ico {
+      flex: none; width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center;
+      background: rgba(5, 150, 105, 0.10); border: 1px solid rgba(5, 150, 105, 0.18); color: var(--riesgo-color-dinamico);
+    }
+    .spec-item--power .spec-item-ico { background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.24); color: #d97706; }
+    .spec-item-txt { flex: 1; min-width: 0; }
+    .spec-item-txt strong { display: block; font-size: 0.94rem; font-weight: 700; line-height: 1.35; color: var(--texto-principal); }
+    .spec-item-txt span { display: block; margin-top: 2px; font-size: 0.8rem; color: var(--texto-mutado); }
+    .spec-item-chev { flex: none; color: var(--texto-mutado); transition: transform 0.3s ease; }
+    .spec-item.obert .spec-item-chev { transform: rotate(180deg); }
+    .spec-item-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.38s cubic-bezier(0.16, 1, 0.3, 1); }
+    .spec-item.obert .spec-item-body { grid-template-rows: 1fr; }
+    .spec-item-body > div { overflow: hidden; min-height: 0; }
+    .spec-item-detail { padding: 0 18px 18px 68px; font-size: 0.87rem; color: var(--texto-mutado); line-height: 1.65; }
+    .spec-item-detail p { margin: 0 0 12px; }
+    .spec-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+    .spec-meta span {
+      background: rgba(15, 23, 42, 0.05); border: 1px solid var(--borde-claro); border-radius: 8px;
+      padding: 4px 10px; font-size: 0.73rem; font-weight: 700; color: var(--texto-principal);
+    }
+    @media (max-width: 520px) { .spec-item-detail { padding-left: 18px; } .spec-sheet-card { padding: 24px 18px; } }
+
+    /* ===== SECCIÓ DE VÍDEO ===== */
+    .video-section { position: relative; overflow: hidden; background: #0b1220; }
+    .video-section::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse 90% 60% at 50% 0%, rgba(16, 185, 129, 0.18), transparent 65%);
+    }
+    .video-wrap { position: relative; max-width: 1150px; margin: 0 auto; }
+    .video-head { text-align: center; max-width: 760px; margin: 0 auto 34px; }
+    .video-head h3 { color: #fff; margin: 0 0 12px; }
+    .video-head p { color: #94a3b8; margin: 0; font-size: 1.05rem; line-height: 1.6; }
+    .yt-facade {
+      position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 26px; overflow: hidden;
+      background: #000; border: 1px solid rgba(255, 255, 255, 0.10); cursor: pointer; display: block; padding: 0;
+      box-shadow: 0 45px 90px -35px rgba(0, 0, 0, 0.9); -webkit-tap-highlight-color: transparent;
+    }
+    .yt-facade img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease; }
+    .yt-facade:hover img { transform: scale(1.045); filter: brightness(0.75); }
+    .yt-facade iframe { width: 100%; height: 100%; border: 0; display: block; }
+    .yt-veil { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, transparent 40%, rgba(0,0,0,0.55) 100%); }
+    .yt-play {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;
+      width: 92px; height: 92px; border-radius: 50%; display: grid; place-items: center; color: #fff;
+      background: rgba(5, 150, 105, 0.92); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.55);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease;
+      animation: ytPulse 2.6s ease-out infinite;
+    }
+    .yt-facade:hover .yt-play { transform: translate(-50%, -50%) scale(1.1); background: #059669; }
+    @keyframes ytPulse { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.5); } 70% { box-shadow: 0 0 0 26px rgba(16,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } }
+    .yt-caption {
+      position: absolute; left: 24px; bottom: 22px; right: 24px; pointer-events: none; color: #fff;
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .yt-caption strong { font-size: 1.05rem; font-weight: 800; text-shadow: 0 2px 12px rgba(0,0,0,0.6); }
+    .yt-badge {
+      display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.22); backdrop-filter: blur(10px); border-radius: 99px;
+      padding: 4px 12px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    @media (max-width: 640px) { .yt-play { width: 64px; height: 64px; } .yt-facade { border-radius: 18px; } .yt-caption { left: 16px; right: 16px; bottom: 14px; } .yt-caption strong { font-size: 0.9rem; } }
+    @media (prefers-reduced-motion: reduce) { .yt-play { animation: none; } }
+
+    /* ===== COM FUNCIONA (flux en 4 passos) ===== */
+    .flow-grid { max-width: 1150px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+    .flow-step {
+      position: relative; background: var(--glass-bg); backdrop-filter: blur(20px) saturate(120%);
       -webkit-backdrop-filter: blur(20px) saturate(120%); border: 1px solid var(--glass-border);
-      border-radius: 22px; box-shadow: var(--glass-shadow); padding: 26px 26px 20px; overflow: hidden;
+      border-radius: 20px; box-shadow: var(--glass-shadow); padding: 26px 22px; transition: var(--transicion);
     }
-    .bom-card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
-    .bom-card-head .bom-chip {
-      font-size: 0.7rem; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase;
-      padding: 6px 12px; border-radius: 999px; color: #fff; background: rgba(15,23,42,0.9);
+    .flow-step:hover { transform: translateY(-6px); box-shadow: 0 22px 45px -20px rgba(15,23,42,0.28); }
+    .flow-step-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .flow-ico { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: rgba(5,150,105,0.10); border: 1px solid rgba(5,150,105,0.18); color: var(--riesgo-color-dinamico); }
+    .flow-n { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; color: var(--texto-mutado); }
+    .flow-step h4 { margin: 0 0 8px; font-size: 1.05rem; font-weight: 800; color: var(--texto-principal); }
+    .flow-step p { margin: 0; font-size: 0.87rem; color: var(--texto-mutado); line-height: 1.6; }
+    .flow-step:not(:last-child)::after {
+      content: ''; position: absolute; top: 46px; right: -13px; width: 8px; height: 8px; z-index: 2;
+      border-top: 2px solid var(--riesgo-color-dinamico); border-right: 2px solid var(--riesgo-color-dinamico);
+      transform: rotate(45deg); opacity: 0.5;
     }
-    .bom-card--circuit .bom-card-head .bom-chip { background: var(--riesgo-color-dinamico, #059669); }
-    .bom-card h4 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--texto-principal); }
-    .bom-card > p { margin: 8px 0 18px; color: var(--texto-mutado); font-size: 0.9rem; line-height: 1.6; }
-    .bom-list { list-style: none; margin: 0; padding: 0; }
-    .bom-item {
-      display: flex; align-items: flex-start; gap: 14px; padding: 13px 0;
-      border-bottom: 1px solid var(--borde-claro);
+    @media (max-width: 980px) { .flow-grid { grid-template-columns: repeat(2, 1fr); } .flow-step:not(:last-child)::after { display: none; } }
+    @media (max-width: 560px) { .flow-grid { grid-template-columns: 1fr; } }
+
+    /* ===== CADENA D'ALIMENTACIÓ ===== */
+    .power-card {
+      max-width: 1150px; margin: 28px auto 0; background: linear-gradient(135deg, rgba(15,23,42,0.96) 0%, rgba(30,41,59,0.96) 100%);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 32px 28px; color: #fff;
     }
-    .bom-item:last-child { border-bottom: none; }
-    .bom-ico {
-      flex: 0 0 38px; height: 38px; border-radius: 11px; display: grid; place-items: center;
-      font-size: 1.05rem; background: rgba(5,150,105,0.10); border: 1px solid rgba(5,150,105,0.18);
+    .power-card h4 { margin: 0 0 6px; font-size: 1.15rem; font-weight: 800; }
+    .power-card > p { margin: 0 0 24px; color: #94a3b8; font-size: 0.92rem; line-height: 1.6; max-width: 70ch; }
+    .power-chain { display: flex; align-items: stretch; gap: 8px; flex-wrap: wrap; }
+    .power-node {
+      flex: 1 1 140px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 16px; padding: 16px 14px; display: flex; flex-direction: column; gap: 8px; min-width: 0;
     }
-    .bom-card--circuit .bom-ico { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.22); }
-    .bom-text strong { display: block; font-size: 0.95rem; font-weight: 700; color: var(--texto-principal); line-height: 1.35; }
-    .bom-text span { display: block; margin-top: 3px; font-size: 0.83rem; color: var(--texto-mutado); line-height: 1.5; }
-    .bom-note {
-      max-width: 1080px; margin: 20px auto 0; font-size: 0.85rem; color: var(--texto-mutado);
-      text-align: center; line-height: 1.6;
+    .power-node .power-ico { color: #6ee7b7; }
+    .power-node strong { font-size: 0.86rem; font-weight: 700; line-height: 1.3; }
+    .power-node span { font-size: 0.75rem; color: #94a3b8; line-height: 1.45; }
+    .power-link { display: grid; place-items: center; color: #475569; flex: none; }
+    @media (max-width: 760px) {
+      .power-link { width: 100%; transform: rotate(90deg); padding: 4px 0; }
+      .power-node { flex: 1 1 100%; }
     }
+
+    /* ===== XIFRES ===== */
+    .stats-band { max-width: 1150px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .stat-card {
+      background: var(--glass-bg); backdrop-filter: blur(20px) saturate(120%); -webkit-backdrop-filter: blur(20px) saturate(120%);
+      border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: var(--glass-shadow);
+      padding: 26px 20px; text-align: center; transition: var(--transicion);
+    }
+    .stat-card:hover { transform: translateY(-5px); }
+    .stat-num { font-size: clamp(2rem, 4vw, 2.6rem); font-weight: 800; color: var(--riesgo-color-dinamico); line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+    .stat-num small { font-size: 0.45em; font-weight: 700; margin-left: 2px; }
+    .stat-label { margin-top: 10px; font-size: 0.8rem; font-weight: 700; color: var(--texto-principal); }
+    .stat-sub { margin-top: 4px; font-size: 0.74rem; color: var(--texto-mutado); }
+    @media (max-width: 860px) { .stats-band { grid-template-columns: repeat(2, 1fr); } }
+
+    /* ===== PREGUNTES FREQÜENTS ===== */
+    .faq-list { max-width: 860px; margin: 0 auto; }
+    .faq-item { border-bottom: 1px solid var(--borde-claro); }
+    .faq-q {
+      width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 18px;
+      padding: 21px 4px; background: none; border: 0; cursor: pointer; font: inherit; text-align: left;
+      font-weight: 700; font-size: 1rem; color: var(--texto-principal); transition: color 0.25s ease;
+    }
+    .faq-q:hover { color: var(--riesgo-color-dinamico); }
+    .faq-q svg { flex: none; color: var(--texto-mutado); transition: transform 0.3s ease; }
+    .faq-item.obert .faq-q svg { transform: rotate(180deg); color: var(--riesgo-color-dinamico); }
+    .faq-a { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.38s cubic-bezier(0.16, 1, 0.3, 1); }
+    .faq-item.obert .faq-a { grid-template-rows: 1fr; }
+    .faq-a > div { overflow: hidden; min-height: 0; }
+    .faq-a p { margin: 0 0 22px; padding-right: 30px; color: var(--texto-mutado); font-size: 0.92rem; line-height: 1.75; }
 
     .gallery-wrap-card {
       max-width: 1150px; margin: 0 auto; background: var(--glass-bg); backdrop-filter: blur(20px) saturate(120%);
@@ -464,19 +616,55 @@
     @media (max-width: 560px) { .explore-cta-grid { grid-template-columns: 1fr; } }
 
     /* ========= FOOTER COMPARTIT (igual a totes les pàgines) ========= */
-    .footer-logos-contenedor {
-      max-width: 1150px; margin: 0 auto 24px; background: var(--glass-bg);
-      backdrop-filter: blur(15px) saturate(120%); -webkit-backdrop-filter: blur(15px) saturate(120%);
-      border: 1px solid var(--glass-border); border-radius: 20px; padding: 35px 50px;
-      display: flex; justify-content: center; gap: 70px; align-items: center; flex-wrap: wrap;
+    .site-footer {
+      position: relative; background: #0b1220; color: #cbd5e1; padding: 64px 20px 26px;
+      font-size: 0.9rem; overflow: hidden;
     }
-    .footer-logos-contenedor img { height: 85px; filter: grayscale(10%); transition: var(--transicion); }
-    .footer-logos-contenedor img:hover { filter: grayscale(0%); transform: scale(1.1) rotate(-2deg); }
-    .footer-disclaimer { text-align: center; font-size: 0.78rem; color: var(--texto-mutado); max-width: 720px; margin: 0 auto; padding: 0 20px 30px; }
-    .footer-disclaimer p { margin: 0 0 8px; line-height: 1.6; }
-    @media (max-width: 600px) {
-      .footer-logos-contenedor { gap: 30px; padding: 24px; }
-      .footer-logos-contenedor img { height: 58px; }
+    .site-footer::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(16,185,129,0.13), transparent 62%);
+    }
+    .footer-inner {
+      position: relative; max-width: 1150px; margin: 0 auto; display: grid;
+      grid-template-columns: 1.6fr 1fr 1fr 1.2fr; gap: 44px 32px;
+    }
+    .footer-brand-logo { display: inline-flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.2rem; color: #fff; text-decoration: none; }
+    .footer-brand-logo img { height: 30px; filter: brightness(0) invert(1); }
+    .footer-brand p { margin: 16px 0 20px; color: #94a3b8; line-height: 1.7; max-width: 38ch; font-size: 0.86rem; }
+    .footer-social { display: flex; gap: 10px; }
+    .footer-social a {
+      width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); color: #cbd5e1;
+      transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+    }
+    .footer-social a:hover { background: rgba(16,185,129,0.18); border-color: rgba(16,185,129,0.45); color: #6ee7b7; transform: translateY(-3px); }
+    .footer-col h5 {
+      margin: 0 0 16px; font-size: 0.71rem; font-weight: 800; letter-spacing: 0.12em;
+      text-transform: uppercase; color: #64748b;
+    }
+    .footer-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 11px; }
+    .footer-col a { color: #cbd5e1; text-decoration: none; font-size: 0.87rem; transition: color 0.22s ease; display: inline-flex; align-items: center; gap: 7px; }
+    .footer-col a:hover { color: #6ee7b7; }
+    .footer-partners { display: flex; flex-direction: column; gap: 12px; }
+    .footer-partner-chip {
+      display: flex; align-items: center; gap: 12px; background: #fff; border-radius: 12px;
+      padding: 10px 14px; transition: transform 0.25s ease;
+    }
+    .footer-partner-chip:hover { transform: translateY(-2px); }
+    .footer-partner-chip img { height: 34px; width: auto; }
+    .footer-partner-chip span { font-size: 0.71rem; font-weight: 700; color: #334155; line-height: 1.35; white-space: nowrap; }
+    .footer-bottom {
+      position: relative; max-width: 1150px; margin: 44px auto 0; padding-top: 22px;
+      border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-wrap: wrap; gap: 12px;
+      align-items: center; justify-content: space-between; color: #64748b; font-size: 0.76rem;
+    }
+    .footer-bottom p { margin: 0; line-height: 1.6; }
+    .footer-bottom .footer-legal { max-width: 62ch; }
+    @media (max-width: 900px) { .footer-inner { grid-template-columns: 1fr 1fr; gap: 36px 24px; } }
+    @media (max-width: 560px) {
+      .site-footer { padding: 46px 18px 22px; }
+      .footer-inner { grid-template-columns: 1fr; gap: 32px; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; margin-top: 32px; }
     }
   </style>
 </head>
@@ -572,6 +760,60 @@
     function cn(...classes) {
       return classes.filter(Boolean).join(' ');
     }
+
+    /* =========================================================
+       SISTEMA D'ICONES SVG (substitueix qualsevol emoji)
+       Traç uniforme de 1.75, quadrícula de 24x24 i currentColor,
+       perquè totes les icones tinguin exactament el mateix pes visual.
+       ========================================================= */
+    const ICON_PATHS = {
+      sun: <React.Fragment><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></React.Fragment>,
+      solar: <React.Fragment><rect x="2.5" y="4" width="19" height="11" rx="1.5"/><path d="M2.5 8.7h19M2.5 11.9h19M9 4v11M15 4v11M12 15v5M8.5 20h7"/></React.Fragment>,
+      thermometer: <path d="M14 14.76V4.5a2.5 2.5 0 0 0-5 0v10.26a4.5 4.5 0 1 0 5 0z"/>,
+      wifi: <React.Fragment><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0"/><path d="M12 20h.01"/></React.Fragment>,
+      layers: <React.Fragment><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></React.Fragment>,
+      chip: <React.Fragment><rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9.5" y="9.5" width="5" height="5"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M19 9h3M19 15h3M2 9h3M2 15h3"/></React.Fragment>,
+      camera: <React.Fragment><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3l1.5-2.5h7L17 7h3a2 2 0 0 1 2 2z"/><circle cx="12" cy="13.5" r="3.5"/></React.Fragment>,
+      air: <React.Fragment><path d="M17.5 17.5a4.5 4.5 0 0 0 0-9 6.5 6.5 0 0 0-12.3-1.2"/><path d="M2.5 10.5h6M2.5 14h9M2.5 17.5h6"/></React.Fragment>,
+      gauge: <React.Fragment><circle cx="12" cy="12" r="9"/><path d="M12 12l4.2-3.2"/><circle cx="12" cy="12" r="1.4"/><path d="M12 3v1.6M21 12h-1.6M3 12h1.6"/></React.Fragment>,
+      wind: <path d="M9.6 4.6A2 2 0 1 1 11 8H2M12.6 19.4A2 2 0 1 0 14 16H2M17.7 7.7A2.5 2.5 0 1 1 19.5 12H2"/>,
+      display: <React.Fragment><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M9 21h6M12 17v4"/></React.Fragment>,
+      cable: <path d="M9 2v6M15 2v6M7 8h10v3.5a5 5 0 0 1-10 0zM12 16.5V22"/>,
+      batteryCharging: <React.Fragment><path d="M6.5 6H4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2M15 6h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-3"/><path d="M22 10.5v3"/><path d="M12.5 6l-3.5 5.5h4.5L10 18"/></React.Fragment>,
+      battery: <React.Fragment><rect x="2" y="7" width="17" height="10" rx="2.5"/><path d="M22 10.5v3"/><rect x="5" y="10" width="6" height="4" rx="1" fill="currentColor" stroke="none"/></React.Fragment>,
+      bolt: <polygon points="13 2 4 13.5 11 13.5 10 22 20 10 13 10 13 2"/>,
+      cube: <React.Fragment><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.3 7 12 12 20.7 7"/><line x1="12" y1="22" x2="12" y2="12"/></React.Fragment>,
+      wrench: <path d="M14.5 6.5a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.5-3.5a6 6 0 0 1-7.9 7.9l-6.7 6.7a2.1 2.1 0 0 1-3-3l6.7-6.7a6 6 0 0 1 7.9-7.9z"/>,
+      ar: <React.Fragment><rect x="5" y="2" width="14" height="20" rx="2.5"/><path d="M12 6.6l3 1.6v3.4l-3 1.6-3-1.6V8.2z"/><path d="M12 9.9v3.3M9 8.2l3 1.7 3-1.7"/></React.Fragment>,
+      play: <polygon points="6 3.5 20.5 12 6 20.5 6 3.5" fill="currentColor" stroke="none"/>,
+      pause: <React.Fragment><rect x="6" y="4" width="4" height="16" rx="1.2"/><rect x="14" y="4" width="4" height="16" rx="1.2"/></React.Fragment>,
+      rotate: <React.Fragment><path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1"/><polyline points="20.5 4 20.5 9 15.5 9"/></React.Fragment>,
+      arrowRight: <React.Fragment><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></React.Fragment>,
+      chevronDown: <path d="M6 9.5l6 6 6-6"/>,
+      cloud: <path d="M18 19H7a5 5 0 1 1 1-9.9A6.5 6.5 0 0 1 20.4 11 4 4 0 0 1 18 19z"/>,
+      shield: <React.Fragment><path d="M12 22s8-3.5 8-10V5.5l-8-3-8 3V12c0 6.5 8 10 8 10z"/><polyline points="9 12 11 14 15 9.5"/></React.Fragment>,
+      clock: <React.Fragment><circle cx="12" cy="12" r="9"/><polyline points="12 6.5 12 12 15.8 14.2"/></React.Fragment>,
+      mapPin: <React.Fragment><path d="M20 10.5c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10.3" r="2.8"/></React.Fragment>,
+      ruler: <React.Fragment><rect x="2.5" y="8" width="19" height="8" rx="1.5"/><path d="M7 8v3M11 8v4.5M15 8v3M19 8v4.5"/></React.Fragment>,
+      youtube: <React.Fragment><path d="M22.2 7.4a2.7 2.7 0 0 0-1.9-1.9C18.6 5 12 5 12 5s-6.6 0-8.3.5A2.7 2.7 0 0 0 1.8 7.4 28 28 0 0 0 1.3 12a28 28 0 0 0 .5 4.6 2.7 2.7 0 0 0 1.9 1.9C5.4 19 12 19 12 19s6.6 0 8.3-.5a2.7 2.7 0 0 0 1.9-1.9 28 28 0 0 0 .5-4.6 28 28 0 0 0-.5-4.6z"/><polygon points="9.9 15.1 15.4 12 9.9 8.9 9.9 15.1" fill="currentColor" stroke="none"/></React.Fragment>,
+      instagram: <React.Fragment><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.8"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></React.Fragment>,
+      twitch: <React.Fragment><path d="M4 3h16v10.5L15.5 18H12l-3 3H7v-3H4z"/><path d="M11 7.5v4M15.5 7.5v4"/></React.Fragment>,
+      github: <path d="M9 19c-4.3 1.3-4.3-2.2-6-2.6m12 5v-3.4c0-1 .1-1.4-.5-2 2.7-.3 5.5-1.3 5.5-6a4.7 4.7 0 0 0-1.3-3.2 4.3 4.3 0 0 0-.1-3.3s-1-.3-3.5 1.3a12 12 0 0 0-6.2 0C6.4 3.2 5.4 3.5 5.4 3.5a4.3 4.3 0 0 0-.1 3.3A4.7 4.7 0 0 0 4 10c0 4.7 2.8 5.7 5.5 6-.4.4-.5.9-.5 1.5V21"/>
+    };
+
+    const Icon = ({ name, size = 20, stroke = 1.75, className = '', style }) => {
+      const content = ICON_PATHS[name];
+      if (!content) return null;
+      return (
+        <svg
+          className={cn('ico', className)} style={style}
+          width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"
+        >
+          {content}
+        </svg>
+      );
+    };
 
     const RotatingText = forwardRef((props, ref) => {
       const {
@@ -741,6 +983,71 @@
       );
     };
 
+    /* ===== CountUp (inspirat en el component de React Bits) =====
+       Compta des de 0 fins al valor final la primera vegada que la xifra
+       entra a la pantalla. Fa servir un IntersectionObserver i un sol
+       requestAnimationFrame que s'atura tot sol quan acaba. */
+    const CountUp = ({ to, duration = 1500, className = '' }) => {
+      const ref = useRef(null);
+      const [value, setValue] = useState(0);
+      const doneRef = useRef(false);
+
+      useEffect(() => {
+        const el = ref.current;
+        if (!el) return;
+
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          setValue(to);
+          return;
+        }
+
+        let rafId = null;
+        const run = () => {
+          const start = performance.now();
+          const tick = now => {
+            const p = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - p, 3); // ease-out cubic
+            setValue(Math.round(to * eased));
+            if (p < 1) rafId = requestAnimationFrame(tick);
+          };
+          rafId = requestAnimationFrame(tick);
+        };
+
+        const io = new IntersectionObserver(entries => {
+          if (entries[0].isIntersecting && !doneRef.current) {
+            doneRef.current = true;
+            run();
+            io.disconnect();
+          }
+        }, { threshold: 0.4 });
+
+        io.observe(el);
+        return () => { io.disconnect(); if (rafId) cancelAnimationFrame(rafId); };
+      }, [to, duration]);
+
+      return <span ref={ref} className={className}>{value}</span>;
+    };
+
+    /* Marcador de posició mentre no hi hagi les fotografies reals dels components.
+       És un SVG inline (no fa cap petició a la xarxa) amb l'estètica de la web. */
+    const PHOTO_PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000">
+        <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#0f172a"/><stop offset="1" stop-color="#065f46"/>
+        </linearGradient></defs>
+        <rect width="800" height="1000" fill="url(#g)"/>
+        <g fill="none" stroke="rgba(255,255,255,0.26)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"
+           transform="translate(340,440) scale(5)">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          <path d="M3.3 7 12 12l8.7-5"/><path d="M12 22V12"/>
+        </g>
+      </svg>`
+    );
+
+    /* Galeria acordió.
+       Funciona en dues orientacions: en horitzontal a l'escriptori i en
+       vertical al mòbil, amb la mateixa animació. Abans, per sota de 680 px,
+       el CSS anul·lava l'efecte i quedava una simple llista d'imatges. */
     const AccordionGallery = ({ items }) => {
       const rootRef = useRef(null);
       const panelRefs = useRef([]);
@@ -748,15 +1055,25 @@
       const barRefs = useRef([]);
       const textRefs = useRef([]);
       const tlRef = useRef(null);
-      const mediaSizeRef = useRef(320);
-      const [active, setActive] = useState(2);
-      
+      const [active, setActive] = useState(0);
+      const [vertical, setVertical] = useState(false);
+
       const count = items.length;
+
+      /* Una sola font de veritat per a l'orientació: la mateixa consulta
+         de mitjans que fa servir el CSS, escoltada des de JS. */
+      useEffect(() => {
+        const mq = window.matchMedia('(max-width: 680px)');
+        const sync = () => setVertical(mq.matches);
+        sync();
+        mq.addEventListener('change', sync);
+        return () => mq.removeEventListener('change', sync);
+      }, []);
 
       const applyLayout = useCallback(() => {
         const panels = panelRefs.current;
         if (!panels.length || !window.gsap) return;
-        
+
         tlRef.current?.kill();
         const tl = window.gsap.timeline();
 
@@ -768,16 +1085,23 @@
           const text = textRefs.current[i];
 
           const grow = count > 1 ? (0.48 * (count - 1)) / (1 - 0.48) : 1;
-          const rot = isActive ? 0 : i < active ? 6 : -6;
+          const tilt = isActive ? 0 : i < active ? 6 : -6;
 
-          tl.to(panel, { flexGrow: isActive ? grow : 1, rotateY: rot, duration: 0.6, ease: 'power3.out' }, 0);
+          tl.to(panel, {
+            flexGrow: isActive ? grow : 1,
+            /* En vertical el gir ha de ser sobre l'eix X: amb rotateY
+               la perspectiva aniria en contra del sentit de l'apilament. */
+            rotateY: vertical ? 0 : tilt,
+            rotateX: vertical ? -tilt : 0,
+            duration: 0.6, ease: 'power3.out'
+          }, 0);
 
           if (media) {
-            tl.to(media, { 
-              xPercent: -50, yPercent: -50, 
-              '--ag-gray': isActive ? 0 : 1, 
-              '--ag-dim': isActive ? 0 : 0.15, 
-              duration: 0.6, ease: 'power3.out' 
+            tl.to(media, {
+              xPercent: -50, yPercent: -50,
+              '--ag-gray': isActive ? 0 : 1,
+              '--ag-dim': isActive ? 0 : 0.15,
+              duration: 0.6, ease: 'power3.out'
             }, 0);
           }
           if (bar && text) {
@@ -789,16 +1113,17 @@
           }
         });
         tlRef.current = tl;
-      }, [active, count]);
+      }, [active, count, vertical]);
 
       useEffect(() => {
         const el = rootRef.current;
         if (!el) return;
         const measure = () => {
           const rect = el.getBoundingClientRect();
-          const usable = Math.max(rect.width - 12 * (count - 1), 120);
+          // En vertical el que creix és l'alçada, no l'amplada.
+          const along = vertical ? rect.height : rect.width;
+          const usable = Math.max(along - 12 * (count - 1), 120);
           const size = Math.max(140, usable * 0.48 * 1.22);
-          mediaSizeRef.current = size;
           el.style.setProperty('--ag-media-size', `${size}px`);
           applyLayout();
         };
@@ -806,37 +1131,60 @@
         const ro = new ResizeObserver(measure);
         ro.observe(el);
         return () => ro.disconnect();
-      }, [applyLayout, count]);
+      }, [applyLayout, count, vertical]);
 
       useEffect(() => { applyLayout(); }, [applyLayout]);
 
+      const item = items[active];
+
       return (
-        <div ref={rootRef} className="accordion-gallery" style={{ height: '480px' }} role="list">
-          {items.map((item, i) => {
-            const isActive = i === active;
-            return (
-              <div
-                key={i}
-                ref={el => (panelRefs.current[i] = el)}
-                className={`ag-panel${isActive ? ' ag-panel--active' : ''}`}
-                onClick={() => setActive(i)}
-                onMouseEnter={() => setActive(i)}
-                role="listitem"
-                tabIndex={0}
-              >
-                <span className="ag-panel__frame">
-                  <span className="ag-panel__media" ref={el => (mediaRefs.current[i] = el)}>
-                    <img src={item.image} alt={item.label} draggable="false" />
+        <div>
+          <div
+            ref={rootRef}
+            className={cn('accordion-gallery', vertical && 'accordion-gallery--vertical')}
+            style={{ height: vertical ? '520px' : '480px' }}
+            role="tablist"
+          >
+            {items.map((it, i) => {
+              const isActive = i === active;
+              return (
+                <button
+                  key={i}
+                  type="button"
+                  ref={el => (panelRefs.current[i] = el)}
+                  className={`ag-panel${isActive ? ' ag-panel--active' : ''}`}
+                  onClick={() => setActive(i)}
+                  /* Al mòbil no hi ha hover; el clic ja cobreix el cas. */
+                  onMouseEnter={() => { if (!vertical) setActive(i); }}
+                  role="tab"
+                  aria-selected={isActive}
+                  aria-label={it.label}
+                >
+                  <span className="ag-panel__frame">
+                    <span className="ag-panel__media" ref={el => (mediaRefs.current[i] = el)}>
+                      <img
+                        src={it.image} alt="" draggable="false" loading="lazy"
+                        onError={e => { e.target.onerror = null; e.target.src = PHOTO_PLACEHOLDER; }}
+                      />
+                    </span>
+                    <span className="ag-panel__overlay" aria-hidden="true" />
                   </span>
-                  <span className="ag-panel__overlay" aria-hidden="true" />
-                </span>
-                <span className="ag-panel__label" aria-hidden="true">
-                  <span className="ag-panel__bar" ref={el => (barRefs.current[i] = el)} />
-                  <span className="ag-panel__text" ref={el => (textRefs.current[i] = el)}>{item.label}</span>
-                </span>
-              </div>
-            );
-          })}
+                  <span className="ag-panel__label" aria-hidden="true">
+                    <span className="ag-panel__bar" ref={el => (barRefs.current[i] = el)} />
+                    <span className="ag-panel__text" ref={el => (textRefs.current[i] = el)}>{it.label}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Descripció del panell seleccionat. El `key` fa que React remunti
+              el bloc, de manera que l'animació d'entrada es torna a reproduir. */}
+          <div className="ag-detail" key={active} role="tabpanel">
+            <span className="ag-detail-index">{String(active + 1).padStart(2, '0')} / {String(count).padStart(2, '0')}</span>
+            <strong>{item.label}</strong>
+            <p>{item.desc}</p>
+          </div>
         </div>
       );
     };
@@ -847,6 +1195,9 @@
       const [autoRotate, setAutoRotate] = useState(true);
       const [activeView, setActiveView] = useState('frontal');
       const [specOpen, setSpecOpen] = useState(false);
+      const [openSpecItem, setOpenSpecItem] = useState(null);
+      const [openFaq, setOpenFaq] = useState(0);
+      const [videoOn, setVideoOn] = useState(false);
       const modelRef = useRef(null);
 
       const heroWords = [
@@ -863,28 +1214,153 @@
       ];
 
       const quickSpecs = [
-        { icon: '🔆', label: 'Alimentació solar autònoma' },
-        { icon: '🌡️', label: '4 sensors ambientals' },
-        { icon: '📡', label: 'Enviament de dades per Wi-Fi' },
-        { icon: '🖨️', label: 'Carcassa impresa en 3D' }
+        { icon: 'solar', label: 'Alimentació solar autònoma' },
+        { icon: 'thermometer', label: '4 sensors ambientals' },
+        { icon: 'wifi', label: 'Enviament de dades per Wi-Fi' },
+        { icon: 'layers', label: 'Carcassa impresa en 3D' }
       ];
 
-      const specRows = [
-        ['Microcontrolador', 'ESP32 STEAMakers'],
-        ['Mòdul de càmera', 'ESP32-CAM'],
-        ['Temperatura i humitat', 'DHT11'],
-        ['Pressió atmosfèrica', 'BMP280'],
-        ['Vent', 'Anemòmetre'],
-        ['Qualitat de l’aire', 'Sensor de CO₂ SEN-CCS811B'],
-        ['Pantalla', 'OLED 0,96"'],
-        ['Alimentació', 'Mini plaques solars + bateria de liti'],
-        ['Gestió de càrrega', 'Mòdul TP4056'],
-        ['Conversió de tensió', 'Step-Up MT3608 (3,7 V → 5 V)'],
-        ['Comunicació', 'Wi-Fi (enviament a ThingSpeak)'],
-        ['Emmagatzematge de dades', 'Núvol (ThingSpeak), en temps real'],
-        ['Carcassa', 'Impresa en 3D, resistent a la intempèrie'],
-        ['Model de risc', "Puntuació de 0 a 100 + regla del 30-30-30"],
-        ['Ubicació actual', 'Bosc de Can Deu, Torrent de Colobrers (Sabadell)']
+      /* ===== FITXA TÈCNICA =====
+         Cada component és desplegable: capçalera curta i, en obrir-lo,
+         l'explicació completa i les seves dades clau. */
+      const specGroups = [
+        {
+          group: 'Cervell i comunicacions',
+          items: [
+            {
+              ico: 'chip', name: 'ESP32 STEAMakers', sub: 'Microcontrolador principal',
+              detail: "És el cervell del dispositiu. Llegeix els quatre sensors ambientals cada pocs segons, aplica el model de risc del 30-30-30 i envia el resultat al núvol per Wi-Fi. També és qui refresca la pantalla OLED perquè les dades es puguin consultar directament al bosc, sense connexió.",
+              meta: ['Doble nucli a 240 MHz', 'Wi-Fi 2,4 GHz', 'Programat en C++ (Arduino)']
+            },
+            {
+              ico: 'camera', name: 'ESP32-CAM', sub: 'Mòdul de vigilància visual',
+              detail: "Mòdul independent amb càmera integrada que permet veure l'entorn real de l'estació. Serveix per confirmar visualment què està passant quan les lectures dels sensors disparen el nivell de risc: no és el mateix una pujada de temperatura per una onada de calor que una columna de fum.",
+              meta: ['Sensor OV2640', 'Captura sota demanda', 'Visor integrat al panell web']
+            },
+            {
+              ico: 'cloud', name: 'Connexió al núvol (ThingSpeak)', sub: 'Enviament i historial de dades',
+              detail: "Cada lectura viatja per Wi-Fi fins a ThingSpeak, una plataforma d'IoT que guarda l'històric complet. D'allà les llegeix el panell web en temps real. Això vol dir que les dades no es perden si algú tanca la pàgina i que es pot consultar l'evolució de setmanes anteriors.",
+              meta: ['Enviament periòdic', 'Historial permanent', 'Accés obert des del web']
+            }
+          ]
+        },
+        {
+          group: 'Sensors ambientals',
+          items: [
+            {
+              ico: 'thermometer', name: 'DHT11', sub: 'Temperatura i humitat relativa',
+              detail: "Mesura dos dels tres factors de la regla del 30-30-30. Com més alta és la temperatura i més baixa la humitat, més sec està el combustible vegetal i més fàcil és que una espurna acabi en incendi. És el sensor que més pes té en el càlcul del risc.",
+              meta: ['Temperatura: 0–50 °C', 'Humitat: 20–90 %', 'Llindars crítics: 30 °C / 30 %']
+            },
+            {
+              ico: 'gauge', name: 'BMP280', sub: 'Pressió baromètrica',
+              detail: "Registra la pressió atmosfèrica. No forma part de la regla del 30-30-30, però contextualitza la resta de lectures: una baixada brusca de pressió acostuma a anunciar un canvi de temps que pot alterar completament les condicions del bosc en poques hores.",
+              meta: ['Rang: 300–1100 hPa', 'Bus I²C', 'Indicador complementari']
+            },
+            {
+              ico: 'wind', name: 'Anemòmetre', sub: 'Velocitat del vent',
+              detail: "El vent és el factor que més accelera la propagació del foc: aporta oxigen a les flames i transporta espurnes que obren nous focus lluny del punt inicial. Per sobre de 30 km/h, un incendi pot avançar més ràpid del que els equips terrestres poden reaccionar.",
+              meta: ['Lectura en km/h', 'Llindar crític: 30 km/h', 'Tercer factor del 30-30-30']
+            },
+            {
+              ico: 'air', name: 'SEN-CCS811B', sub: "Qualitat de l'aire i CO₂",
+              detail: "Detecta la concentració de CO₂ equivalent i de compostos orgànics volàtils. És l'indici més primerenc de combustió: quan alguna cosa comença a cremar-se, aquests valors pugen abans que el fum sigui visible a simple vista.",
+              meta: ['eCO₂ i TVOC', 'Detecció precoç de combustió', 'Bus I²C']
+            }
+          ]
+        },
+        {
+          group: 'Interfície local',
+          items: [
+            {
+              ico: 'display', name: 'Pantalla OLED 0,96"', sub: 'Lectures visibles al mateix dispositiu',
+              detail: "Mostra les mesures i el nivell de risc directament sobre la caixa. És clau perquè el dispositiu segueixi sent útil encara que la cobertura Wi-Fi falli: qui s'acosti a l'estació pot veure l'estat del bosc en aquell moment sense necessitat de cap pantalla externa.",
+              meta: ['128 × 64 píxels', 'Funciona sense connexió', 'Consum molt baix']
+            }
+          ]
+        },
+        {
+          group: 'Alimentació autònoma', power: true,
+          items: [
+            {
+              ico: 'solar', name: 'Mini plaques solars', sub: 'Font d\'energia principal',
+              detail: "Alimenten el dispositiu durant el dia i, alhora, recarreguen la bateria per a la nit. Són el motiu pel qual l'estació pot estar instal·lada enmig del bosc, lluny de qualsevol endoll, i seguir funcionant indefinidament.",
+              meta: ['Orientació al sol', 'Recàrrega diürna', 'Sense manteniment']
+            },
+            {
+              ico: 'batteryCharging', name: 'Mòdul de càrrega TP4056', sub: 'Gestió segura de la bateria',
+              detail: "Controla com es carrega la bateria de liti i la protegeix de sobrecàrregues i descàrregues profundes, els dos motius que més escurcen la vida d'aquest tipus de bateries. Sense aquest mòdul, l'estació duraria unes poques setmanes.",
+              meta: ['Protecció de sobrecàrrega', 'Tall per descàrrega profunda', 'Càrrega per USB']
+            },
+            {
+              ico: 'battery', name: 'Bateria de liti', sub: 'Autonomia nocturna i dies ennuvolats',
+              detail: "Guarda l'energia sobrant del dia per mantenir el dispositiu actiu quan no hi ha sol. La versió compacta munta entre 3.000 i 3.500 mAh; la versió d'autonomia estesa, entre 4.000 i 5.000 mAh, pensada per a èpoques de menys hores de llum.",
+              meta: ['3,7 V nominals', '3.000–3.500 mAh (compacta)', '4.000–5.000 mAh (estesa)']
+            },
+            {
+              ico: 'bolt', name: 'Convertidor Step-Up MT3608', sub: 'Elevador de tensió',
+              detail: "La bateria dona 3,7 V, però l'ESP32 i els sensors en necessiten 5. Aquest convertidor eleva la tensió i la manté estable encara que la bateria es vagi descarregant, de manera que les lectures no es distorsionen quan queda poca càrrega.",
+              meta: ['3,7 V → 5 V', 'Sortida estabilitzada', 'Alt rendiment']
+            },
+            {
+              ico: 'cable', name: 'Cablejat i protoboard', sub: 'Connexionat del conjunt',
+              detail: "Uneix tots els mòduls dins de la carcassa. El muntatge està pensat perquè qualsevol component es pugui substituir per separat sense desmuntar la resta de l'estació, cosa important per al manteniment al bosc.",
+              meta: ['Muntatge modular', 'Components substituïbles', 'Cablejat protegit']
+            }
+          ]
+        },
+        {
+          group: 'Estructura i desplegament',
+          items: [
+            {
+              ico: 'layers', name: 'Carcassa impresa en 3D', sub: 'Disseny propi, resistent a la intempèrie',
+              detail: "Dissenyada i impresa per nosaltres. Protegeix l'electrònica de la pluja i del sol directe, però deixa passar l'aire cap als sensors: si la caixa fos completament tancada, les lectures de temperatura i humitat serien les de dins de la caixa, no les del bosc.",
+              meta: ['Disseny propi', 'Ventilació dirigida als sensors', 'Peces reimprimibles']
+            },
+            {
+              ico: 'shield', name: 'Model de risc 30-30-30', sub: 'Puntuació de 0 a 100',
+              detail: "Les lectures no es mostren en cru: es converteixen en una puntuació de risc de 0 a 100. La regla del 30-30-30 marca l'escenari crític — 30 °C o més, 30 % d'humitat o menys i 30 km/h de vent o més alhora — i el sistema avisa quan s'hi acosta.",
+              meta: ['Puntuació 0–100', 'Regla del 30-30-30', 'Avís automàtic al panell']
+            },
+            {
+              ico: 'mapPin', name: 'Ubicació actual', sub: 'Bosc de Can Deu (Sabadell)',
+              detail: "L'estació està instal·lada al Torrent de Colobrers, dins del bosc de Can Deu. És una zona de vegetació mediterrània amb risc real d'incendi durant l'estiu, cosa que permet validar el sistema amb dades autèntiques i no simulades.",
+              meta: ['Torrent de Colobrers', 'Vegetació mediterrània', 'Dades reals, no simulades']
+            }
+          ]
+        }
+      ];
+
+      /* Com funciona: el recorregut de la dada, de l'aire fins al teu mòbil */
+      const flowSteps = [
+        { ico: 'thermometer', n: 'PAS 01', title: 'Mesura', text: "Els quatre sensors prenen lectures de temperatura, humitat, vent i qualitat de l'aire de manera contínua, dia i nit." },
+        { ico: 'chip', n: 'PAS 02', title: 'Calcula', text: "L'ESP32 creua les quatre variables amb el model del 30-30-30 i les converteix en una puntuació de risc de 0 a 100." },
+        { ico: 'wifi', n: 'PAS 03', title: 'Envia', text: 'El resultat viatja per Wi-Fi fins a ThingSpeak, que guarda cada lectura i en manté tot l\'històric.' },
+        { ico: 'shield', n: 'PAS 04', title: 'Avisa', text: "El panell web es refresca en temps real i dispara una alerta visible quan els tres llindars crítics es compleixen alhora." }
+      ];
+
+      const powerChain = [
+        { ico: 'solar', name: 'Plaques solars', desc: "Capten l'energia del sol" },
+        { ico: 'batteryCharging', name: 'TP4056', desc: 'Regula i protegeix la càrrega' },
+        { ico: 'battery', name: 'Bateria de liti', desc: '3,7 V per a la nit' },
+        { ico: 'bolt', name: 'Step-Up MT3608', desc: 'Eleva 3,7 V fins a 5 V' },
+        { ico: 'chip', name: 'ESP32 i sensors', desc: 'Alimentats a 5 V estables' }
+      ];
+
+      const stats = [
+        { num: 24, unit: 'h', label: 'Vigilància contínua', sub: 'Cada dia de l\'any, sense pauses' },
+        { num: 4, unit: '', label: 'Sensors ambientals', sub: 'Temperatura, humitat, vent i aire' },
+        { num: 0, unit: 'W', label: 'Consum de xarxa', sub: 'Funciona només amb energia solar' },
+        { num: 100, unit: '%', label: 'Dades obertes', sub: 'Consultables per qualsevol persona' }
+      ];
+
+      const faqs = [
+        { q: 'Què passa de nit o els dies ennuvolats?', a: "La bateria de liti acumula durant el dia l'energia sobrant de les plaques solars. De nit, o quan hi ha poca llum, el dispositiu es continua alimentant d'aquesta reserva, de manera que la vigilància no s'interromp en cap moment." },
+        { q: 'Detecta el foc o el risc que es produeixi?', a: "Detecta el risc, que és precisament la diferència. Quan un incendi ja és visible, sovint ja s'ha propagat massa. SADRIF vigila les condicions ambientals que fan possible que el foc s'origini i avisa abans, no després." },
+        { q: 'Per què la carcassa és impresa en 3D?', a: "Perquè ens permet dissenyar-la exactament a mida dels components i reimprimir qualsevol peça si es fa malbé. També abarateix moltíssim el cost: replicar l'estació en una altra zona del bosc només requereix el material d'impressió i l'electrònica." },
+        { q: 'Les dades són reals o simulades?', a: "Les de l'estació de Sabadell són reals i venen directament del dispositiu instal·lat al Torrent de Colobrers. Al mapa del panell, les altres províncies catalanes es mostren amb valors de referència per poder comparar, i estan identificades com a tals." },
+        { q: "Es pot veure l'estació en realitat augmentada?", a: "Sí. Des d'un mòbil o una tauleta compatible, el botó de realitat augmentada del visor 3D projecta el dispositiu a mida real a l'espai que tinguis al davant, de manera que en pots comprovar les dimensions autèntiques." },
+        { q: "Qui hi ha darrere del projecte?", a: "Quatre alumnes de 2n de Batxillerat de l'Institut Sabadell. SADRIF és el nostre Treball de Recerca: el disseny 3D, el muntatge electrònic, la programació i aquesta mateixa web els hem fet nosaltres." }
       ];
 
       const setView = (name, orbit) => {
@@ -901,31 +1377,39 @@
         }
       };
 
+      /* Galeria de components.
+         SUBSTITUIR per fotografies reals: veure ASSETS-NECESSARIS.md */
       const componentsItems = [
-        { image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80', label: 'ESP32 STEAMakers — Placa principal' },
-        { image: 'https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?auto=format&fit=crop&w=900&q=80', label: 'DHT11 i BMP280 — Temperatura, humitat i pressió' },
-        { image: 'https://images.unsplash.com/photo-1621570075668-7ed4e4ec1a0e?auto=format&fit=crop&w=900&q=80', label: 'Anemòmetre — Velocitat del vent' },
-        { image: 'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&w=900&q=80', label: 'ESP32-CAM — Vigilància visual del bosc' },
-        { image: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&w=900&q=80', label: 'Plaques solars, TP4056 i bateria — Energia autònoma' }
-      ];
-
-      /* Llistat real de material del dispositiu SADRIF */
-      const bomMaterial = [
-        { ico: '🧠', name: 'ESP32 STEAMakers', desc: 'Microcontrolador principal: llegeix els sensors, calcula i envia les dades al núvol per Wi-Fi.' },
-        { ico: '📷', name: 'ESP32-CAM', desc: "Mòdul amb càmera integrada per a la vigilància visual de l'entorn de l'estació." },
-        { ico: '🫁', name: 'Sensor de CO₂ (SEN-CCS811B)', desc: "Detecta la concentració de CO₂ i compostos volàtils, un indici primerenc de combustió." },
-        { ico: '🌡️', name: 'Sensor de temperatura i humitat (DHT11)', desc: "Mesura la temperatura de l'aire i la humitat relativa, dos dels tres factors de la regla del 30-30-30." },
-        { ico: '🧭', name: 'Sensor de pressió baromètrica (BMP280)', desc: "Registra la pressió atmosfèrica com a indicador complementari de l'estat de l'atmosfera." },
-        { ico: '💨', name: 'Anemòmetre', desc: 'Mesura la velocitat del vent, el factor determinant en la propagació del foc.' },
-        { ico: '🖥️', name: 'Pantalla OLED 0,96"', desc: 'Mostra les lectures i el nivell de risc directament al dispositiu, sense necessitat de connexió.' },
-        { ico: '🔌', name: 'Cables i protoboard', desc: "Connexionat i muntatge de tot el conjunt electrònic dins de la carcassa impresa en 3D." }
-      ];
-
-      const bomCircuit = [
-        { ico: '🔆', name: 'Mini plaques solars', desc: "Obtenció d'energia: alimenten el dispositiu i recarreguen la bateria durant el dia." },
-        { ico: '🔋', name: 'Mòdul TP4056', desc: 'Carrega la bateria de forma segura i evita sobrecàrregues i descàrregues profundes.' },
-        { ico: '🪫', name: 'Bateria de liti', desc: '3.000–3.500 mAh (versió compacta) o 4.000–5.000 mAh (versió d’autonomia estesa).' },
-        { ico: '⚡', name: 'Convertidor Step-Up MT3608', desc: 'Eleva la tensió de la bateria de 3,7 V als 5 V que necessita l’electrònica.' }
+        {
+          image: 'foto-caja-sadrif.jpeg',
+          label: 'Dispositiu SADRIF — Muntatge complet',
+          desc: "El conjunt acabat: la carcassa impresa en 3D amb les tres mini plaques solars al frontal, l'anemòmetre de cassoletes a la part superior i les reixes laterals que deixen circular l'aire fins als sensors. Tot el que hi ha a la resta de la galeria viu aquí dins."
+        },
+        {
+          image: 'foto-component-esp32.jpeg',
+          label: 'ESP32 STEAMakers — Placa principal',
+          desc: "La placa que ho controla tot, amb el mòdul ESP32-WROOM-32 al centre. Els connectors grocs i vermells són els ports on s'endollen directament els sensors, sense haver de soldar-los: per això vam triar aquesta placa i no una ESP32 pelada."
+        },
+        {
+          image: 'foto-component-sensors.jpeg',
+          label: 'DHT11 i BMP280 — Temperatura, humitat i pressió',
+          desc: "Els dos sensors que donen dos dels tres factors del 30-30-30. A dalt, el BMP280 (pressió atmosfèrica); a baix, el DHT11, el mòdul blau amb la reixeta, que mesura temperatura i humitat relativa de l'aire."
+        },
+        {
+          image: 'foto-component-anemometre.jpeg',
+          label: 'Anemòmetre — Velocitat del vent',
+          desc: "Les tres cassoletes giren amb el vent i el sensor compta les voltes per segon per traduir-les a km/h. És el tercer factor de la regla i el més determinant: el vent és el que fa que un foc petit es converteixi en un incendi."
+        },
+        {
+          image: 'foto-component-cam.jpeg',
+          label: 'ESP32-CAM — Vigilància visual del bosc',
+          desc: "Mòdul amb càmera OV2640 i el seu propi microcontrolador. Serveix per confirmar amb els ulls què està passant quan les dades disparen el risc: distingir una onada de calor d'una columna de fum."
+        },
+        {
+          image: 'foto-component-energia.jpeg',
+          label: 'Plaques solars, TP4056 i bateria — Energia autònoma',
+          desc: "A dalt, una de les mini plaques solars de 80 × 45 mm vista pel davant i pel darrere. A baix, el mòdul de càrrega TP4056, que és qui regula l'energia que entra a la bateria i evita sobrecàrregues."
+        }
       ];
 
       return (
@@ -957,7 +1441,7 @@
             <div className="quick-specs-grid mt-10 max-w-2xl w-full">
               {quickSpecs.map((spec, i) => (
                 <div className="quick-spec-card" key={i}>
-                  <span className="quick-spec-icon">{spec.icon}</span>
+                  <span className="quick-spec-icon"><Icon name={spec.icon} size={22} /></span>
                   <span className="quick-spec-label">{spec.label}</span>
                 </div>
               ))}
@@ -969,22 +1453,17 @@
             <ScrollVelocity texts={marqueeTexts} velocity={30} className="custom-scroll-text" numCopies={4} />
           </div>
 
-          {/* 3D MODEL + FOTO REAL */}
+          {/* MODEL 3D INTERACTIU */}
           <section className="py-20 px-4 bg-white">
             <div className="header-sadrif-seccion">
               <h3 className="text-3xl sm:text-5xl font-bold text-slate-900">El Dispositiu al Detall</h3>
               <p className="text-slate-600 text-lg">
-                Compara la fotografia real amb el model 3D interactiu. Gira'l, fes zoom, canvia de vista o veu-lo a mida real amb Realitat Augmentada.
+                Gira'l, fes zoom, obre'l per veure'n l'interior o projecta'l a mida real amb Realitat Augmentada.
               </p>
             </div>
 
-            <div className="model-grid">
-              <div className="device-photo-frame">
-                <span className="device-photo-badge">Foto real</span>
-                <img src="foto-caja-sadrif.png" alt="Fotografia real del dispositiu SADRIF" />
-              </div>
-
-              <div className="h-[420px] md:h-[600px] bg-white rounded-3xl border border-slate-200 p-4 model-container shadow-xl">
+            <div className="viewer-shell">
+              <div className="viewer-stage model-container">
                 <model-viewer
                   ref={modelRef}
                   src={modelSrc}
@@ -997,9 +1476,13 @@
                   shadow-intensity="1"
                   environment-image="neutral"
                   exposure="1"
-                  style={{ width: '100%', height: '100%', borderRadius: '1rem', outline: 'none' }}
+                  loading="lazy"
+                  style={{ width: '100%', height: '100%', borderRadius: '18px', outline: 'none' }}
                 >
                 </model-viewer>
+                <span className="viewer-hint">
+                  <Icon name="rotate" size={14} /> Arrossega per girar · pessiga per fer zoom
+                </span>
               </div>
             </div>
 
@@ -1010,13 +1493,13 @@
                   onClick={() => setModelSrc('sadrif_3d.glb')}
                   className={`toolbar-btn ${modelSrc === 'sadrif_3d.glb' ? 'actiu' : ''}`}
                 >
-                  📦 Dispositiu Tancat
+                  <Icon name="cube" size={16} /> Dispositiu Tancat
                 </button>
                 <button
                   onClick={() => setModelSrc('sadrif_inside.glb')}
                   className={`toolbar-btn ${modelSrc === 'sadrif_inside.glb' ? 'actiu' : ''}`}
                 >
-                  🔧 Dispositiu Obert (Interior)
+                  <Icon name="wrench" size={16} /> Dispositiu Obert (Interior)
                 </button>
               </div>
 
@@ -1032,94 +1515,183 @@
 
               <div className="toolbar-group">
                 <button onClick={() => setAutoRotate(v => !v)} className={`toolbar-btn ${autoRotate ? 'actiu' : ''}`}>
-                  {autoRotate ? '⏸ Aturar rotació' : '▶ Rotació automàtica'}
+                  <Icon name={autoRotate ? 'pause' : 'play'} size={15} />
+                  {autoRotate ? 'Aturar rotació' : 'Rotació automàtica'}
                 </button>
-                <button onClick={handleAR} className="toolbar-btn ar-btn">📱 Veure en Realitat Augmentada</button>
+                <button onClick={handleAR} className="toolbar-btn ar-btn">
+                  <Icon name="ar" size={16} /> Veure en Realitat Augmentada
+                </button>
               </div>
             </div>
           </section>
 
-          {/* FITXA TÈCNICA */}
+          {/* VÍDEO DEL PROJECTE
+              Càrrega diferida: fins que no es fa clic només hi ha una imatge,
+              cap script de YouTube. Així la pàgina segueix carregant ràpid. */}
+          <section className="video-section py-20 px-4">
+            <div className="video-wrap">
+              <div className="video-head">
+                <span className="hero-eyebrow-chip"><Icon name="youtube" size={14} /> Vídeo</span>
+                <h3 className="text-3xl sm:text-5xl font-bold">SADRIF en moviment</h3>
+                <p>Del disseny 3D fins a l'estació instal·lada al bosc de Can Deu, explicat en vídeo.</p>
+              </div>
+
+              {videoOn ? (
+                <div className="yt-facade">
+                  <iframe
+                    src="https://www.youtube-nocookie.com/embed/5t9_Szm1RwA?autoplay=1&rel=0&modestbranding=1"
+                    title="Vídeo del projecte SADRIF"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className="yt-facade"
+                  onClick={() => setVideoOn(true)}
+                  aria-label="Reproduir el vídeo del projecte SADRIF"
+                >
+                  <img
+                    src="https://i.ytimg.com/vi/5t9_Szm1RwA/maxresdefault.jpg"
+                    alt="Miniatura del vídeo del projecte SADRIF"
+                    loading="lazy"
+                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://i.ytimg.com/vi/5t9_Szm1RwA/hqdefault.jpg'; }}
+                  />
+                  <span className="yt-veil"></span>
+                  <span className="yt-play"><Icon name="play" size={34} /></span>
+                  <span className="yt-caption">
+                    <span className="yt-badge"><Icon name="youtube" size={13} /> YouTube</span>
+                    <strong>Pla DRIF — El projecte SADRIF</strong>
+                  </span>
+                </button>
+              )}
+            </div>
+          </section>
+
+          {/* COM FUNCIONA */}
+          <section className="py-20 px-4 bg-white">
+            <div className="header-sadrif-seccion">
+              <h3 className="text-3xl sm:text-5xl font-bold text-slate-900">Com funciona</h3>
+              <p className="text-slate-600 text-lg">
+                El recorregut complet d'una dada: des de l'aire del bosc fins a l'alerta de la teva pantalla.
+              </p>
+            </div>
+
+            <div className="flow-grid">
+              {flowSteps.map((s, i) => (
+                <div className="flow-step" key={i}>
+                  <div className="flow-step-top">
+                    <span className="flow-ico"><Icon name={s.ico} size={22} /></span>
+                    <span className="flow-n">{s.n}</span>
+                  </div>
+                  <h4>{s.title}</h4>
+                  <p>{s.text}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="power-card">
+              <h4>I tot això, sense endoll</h4>
+              <p>
+                L'estació és al mig del bosc, així que ha de generar-se la seva pròpia energia. Aquesta és la cadena
+                que la manté funcionant les 24 hores.
+              </p>
+              <div className="power-chain">
+                {powerChain.map((n, i) => (
+                  <React.Fragment key={i}>
+                    <div className="power-node">
+                      <span className="power-ico"><Icon name={n.ico} size={22} /></span>
+                      <strong>{n.name}</strong>
+                      <span>{n.desc}</span>
+                    </div>
+                    {i < powerChain.length - 1 && (
+                      <span className="power-link"><Icon name="arrowRight" size={18} /></span>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* XIFRES */}
           <section className="py-16 px-4 bg-slate-50">
+            <div className="stats-band">
+              {stats.map((s, i) => (
+                <div className="stat-card" key={i}>
+                  <div className="stat-num"><CountUp to={s.num} duration={1400 + i * 120} /><small>{s.unit}</small></div>
+                  <div className="stat-label">{s.label}</div>
+                  <div className="stat-sub">{s.sub}</div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* FITXA TÈCNICA — desplegable amb tots els components */}
+          <section className="py-20 px-4 bg-white">
             <div className="spec-sheet-card">
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                   <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 m-0">Fitxa Tècnica</h3>
-                  <p className="text-slate-500 text-sm mt-1">Tots els components i característiques del dispositiu.</p>
+                  <p className="text-slate-500 text-sm mt-1">
+                    Tots els components del dispositiu. Obre'n qualsevol per veure'n l'explicació completa.
+                  </p>
                 </div>
                 <button
                   className={`spec-sheet-toggle-btn ${specOpen ? 'obert' : ''}`}
                   onClick={() => setSpecOpen(v => !v)}
+                  aria-expanded={specOpen}
                 >
-                  {specOpen ? 'Amagar detalls' : 'Veure fitxa completa'}
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                  {specOpen ? 'Amagar fitxa' : 'Veure fitxa completa'}
+                  <Icon name="chevronDown" size={16} stroke={2} />
                 </button>
               </div>
+
               <div className={`spec-sheet-body ${specOpen ? 'obert' : ''}`}>
-                <div className="spec-table-grid">
-                  {specRows.map(([label, value], i) => (
-                    <div className="spec-row" key={i}>
-                      <span>{label}</span>
-                      <span>{value}</span>
-                    </div>
-                  ))}
+                <div className="spec-sheet-inner">
+                  <div className="spec-groups">
+                    {specGroups.map((g, gi) => (
+                      <div key={gi}>
+                        <div className="spec-group-title">{g.group}</div>
+                        <ul className="spec-list">
+                          {g.items.map((it, ii) => {
+                            const id = `${gi}-${ii}`;
+                            const obert = openSpecItem === id;
+                            return (
+                              <li className={cn('spec-item', g.power && 'spec-item--power', obert && 'obert')} key={ii}>
+                                <button
+                                  className="spec-item-head"
+                                  onClick={() => setOpenSpecItem(obert ? null : id)}
+                                  aria-expanded={obert}
+                                >
+                                  <span className="spec-item-ico"><Icon name={it.ico} size={19} /></span>
+                                  <span className="spec-item-txt">
+                                    <strong>{it.name}</strong>
+                                    <span>{it.sub}</span>
+                                  </span>
+                                  <Icon name="chevronDown" size={18} className="spec-item-chev" />
+                                </button>
+                                <div className="spec-item-body">
+                                  <div>
+                                    <div className="spec-item-detail">
+                                      <p>{it.detail}</p>
+                                      <div className="spec-meta">
+                                        {it.meta.map((m, mi) => <span key={mi}>{m}</span>)}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
-          </section>
-
-          {/* MATERIAL I CIRCUIT — LLISTA REAL DE COMPONENTS */}
-          <section className="py-20 px-4 bg-white">
-            <div className="header-sadrif-seccion">
-              <h3 className="text-3xl sm:text-5xl font-bold text-slate-900">Material i circuit</h3>
-              <p className="text-slate-600 text-lg">
-                Tot el que hi ha dins de la caixa: l'electrònica que pren les mesures i el circuit que manté el dispositiu alimentat sense endoll.
-              </p>
-            </div>
-
-            <div className="bom-grid">
-              <div className="bom-card">
-                <div className="bom-card-head">
-                  <span className="bom-chip">Material</span>
-                </div>
-                <h4>Electrònica i sensors</h4>
-                <p>Els components que llegeixen l'entorn i processen la informació.</p>
-                <ul className="bom-list">
-                  {bomMaterial.map((it, i) => (
-                    <li className="bom-item" key={i}>
-                      <span className="bom-ico">{it.ico}</span>
-                      <span className="bom-text">
-                        <strong>{it.name}</strong>
-                        <span>{it.desc}</span>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="bom-card bom-card--circuit">
-                <div className="bom-card-head">
-                  <span className="bom-chip">Circuit</span>
-                </div>
-                <h4>Alimentació autònoma</h4>
-                <p>El circuit solar que fa que l'estació funcioni sola al bosc.</p>
-                <ul className="bom-list">
-                  {bomCircuit.map((it, i) => (
-                    <li className="bom-item" key={i}>
-                      <span className="bom-ico">{it.ico}</span>
-                      <span className="bom-text">
-                        <strong>{it.name}</strong>
-                        <span>{it.desc}</span>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            <p className="bom-note">
-              Cadena d'alimentació: mini plaques solars → mòdul de càrrega TP4056 → bateria de liti (3,7 V) → convertidor Step-Up MT3608 → 5 V per a l'ESP32 i els sensors.
-            </p>
           </section>
 
           {/* ACCORDION GALLERY SECTION */}
@@ -1135,8 +1707,29 @@
             </div>
           </section>
 
-          {/* SEGUEIX EXPLORANT */}
+          {/* PREGUNTES FREQÜENTS */}
           <section className="py-20 px-4 bg-white">
+            <div className="header-sadrif-seccion">
+              <h3 className="text-3xl sm:text-5xl font-bold text-slate-900">Preguntes freqüents</h3>
+              <p className="text-slate-600 text-lg">Els dubtes que ens plantegen més sovint sobre el dispositiu.</p>
+            </div>
+            <div className="faq-list">
+              {faqs.map((f, i) => (
+                <div className={cn('faq-item', openFaq === i && 'obert')} key={i}>
+                  <button className="faq-q" onClick={() => setOpenFaq(openFaq === i ? null : i)} aria-expanded={openFaq === i}>
+                    {f.q}
+                    <Icon name="chevronDown" size={19} />
+                  </button>
+                  <div className="faq-a">
+                    <div><p>{f.a}</p></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* SEGUEIX EXPLORANT */}
+          <section className="py-20 px-4 bg-slate-50">
             <div className="header-sadrif-seccion">
               <h3 className="text-3xl sm:text-4xl font-bold text-slate-900">Segueix explorant</h3>
               <p className="text-slate-600 text-lg">El dispositiu és només una part del projecte.</p>
@@ -1145,25 +1738,76 @@
               <a href="index.html" className="explore-cta-card">
                 <strong>Panell en Directe</strong>
                 <span className="sub">Consulta les dades en temps real de temperatura, humitat, vent i risc d'incendi de l'estació.</span>
-                <span className="explore-cta-arrow">Veure el panell →</span>
+                <span className="explore-cta-arrow">Veure el panell <Icon name="arrowRight" size={15} /></span>
               </a>
               <a href="sobre-nosotros.html" className="explore-cta-card">
                 <strong>La Història del Projecte</strong>
                 <span className="sub">Descobreix per què vam crear SADRIF, com l'hem construït i qui hi ha darrere.</span>
-                <span className="explore-cta-arrow">Descobrir el projecte →</span>
+                <span className="explore-cta-arrow">Descobrir el projecte <Icon name="arrowRight" size={15} /></span>
               </a>
             </div>
           </section>
 
           {/* FOOTER */}
-          <footer className="pt-12 border-t border-slate-200 bg-white mt-4 px-4">
-            <div className="footer-logos-contenedor">
-              <img src="logo-sabadell.png" alt="Ajuntament de Sabadell" onError={(e) => { e.target.onerror = null; e.target.src = 'logo-sabadell.png.png'; }} />
-              <img src="logo-generalitat.png" alt="Generalitat de Catalunya" onError={(e) => { e.target.onerror = null; e.target.src = 'logo-generalitat.png.png'; }} />
+          <footer className="site-footer">
+            <div className="footer-inner">
+              <div className="footer-brand">
+                <a href="index.html" className="footer-brand-logo">
+                  <img src="logo-sadrif.svg" alt="" onError={(e) => { e.target.onerror = null; e.target.src = 'logo-sadrif.svg.svg'; }} />
+                  <span>PLA DRIF</span>
+                </a>
+                <p>
+                  Estació autònoma de detecció de risc d'incendis forestals, instal·lada al bosc de Can Deu (Sabadell).
+                  Treball de Recerca de 2n de Batxillerat.
+                </p>
+                <div className="footer-social">
+                  <a href="https://www.youtube.com/@PlaDRIF_Oficial" target="_blank" rel="noopener" aria-label="Canal de YouTube"><Icon name="youtube" size={19} /></a>
+                  <a href="https://www.instagram.com/pladrif_cat" target="_blank" rel="noopener" aria-label="Instagram"><Icon name="instagram" size={19} /></a>
+                  <a href="https://www.twitch.tv/pla_drif" target="_blank" rel="noopener" aria-label="Directe a Twitch"><Icon name="twitch" size={19} /></a>
+                </div>
+              </div>
+
+              <div className="footer-col">
+                <h5>El projecte</h5>
+                <ul>
+                  <li><a href="index.html">Panell en directe</a></li>
+                  <li><a href="producto3d.html">Dispositiu en 3D</a></li>
+                  <li><a href="sobre-nosotros.html">Sobre el projecte</a></li>
+                  <li><a href="index.html#contenedor-visor">Càmera de vigilància</a></li>
+                </ul>
+              </div>
+
+              <div className="footer-col">
+                <h5>El dispositiu</h5>
+                <ul>
+                  <li><a href="producto3d.html">Fitxa tècnica</a></li>
+                  <li><a href="producto3d.html">Com funciona</a></li>
+                  <li><a href="producto3d.html">Preguntes freqüents</a></li>
+                  <li><a href="https://www.youtube.com/watch?v=5t9_Szm1RwA" target="_blank" rel="noopener">Vídeo del projecte</a></li>
+                </ul>
+              </div>
+
+              <div className="footer-col">
+                <h5>Amb el suport de</h5>
+                <div className="footer-partners">
+                  <div className="footer-partner-chip">
+                    <img src="logo-sabadell.png" alt="Ajuntament de Sabadell" onError={(e) => { e.target.onerror = null; e.target.src = 'logo-sabadell.png.png'; }} />
+                    <span>Ajuntament<br />de Sabadell</span>
+                  </div>
+                  <div className="footer-partner-chip">
+                    <img src="logo-generalitat.png" alt="Generalitat de Catalunya" onError={(e) => { e.target.onerror = null; e.target.src = 'logo-generalitat.png.png'; }} />
+                    <span>Generalitat<br />de Catalunya</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="footer-disclaimer">
-              <p><strong>Pla DRIF</strong> és un Treball de Recerca de 2n de Batxillerat. No tenim cap vinculació oficial amb les entitats mostrades ni en representem cap.</p>
-              <p>© 2026 PLA DRIF Project. Tots els drets reservats.</p>
+
+            <div className="footer-bottom">
+              <p className="footer-legal">
+                <strong>Pla DRIF</strong> és un Treball de Recerca de 2n de Batxillerat. No tenim cap vinculació oficial
+                amb les entitats mostrades ni en representem cap.
+              </p>
+              <p>© 2026 Pla DRIF. Tots els drets reservats.</p>
             </div>
           </footer>
 
