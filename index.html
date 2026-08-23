@@ -5,6 +5,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pla DRIF - Sistema de Monitoratge de Risc d'Incendis Forestals</title>
+
+    <!-- Favicon i icones de l'aplicació -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="shortcut icon" href="favicon.svg">
+    <link rel="apple-touch-icon" href="apple-touch-icon.svg">
+    <link rel="mask-icon" href="favicon.svg" color="#059669">
+    <meta name="theme-color" content="#059669">
+
+    <!-- SEO i previsualització a xarxes socials -->
+    <meta name="description" content="Panell en temps real del risc d'incendi forestal calculat per l'estació SADRIF al Bosc de Can Deu (Sabadell): temperatura, humitat, vent i pressió atmosfèrica.">
+    <link rel="canonical" href="http://pladrif.online/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Pla DRIF">
+    <meta property="og:locale" content="ca_ES">
+    <meta property="og:title" content="Pla DRIF - Sistema de Monitoratge de Risc d'Incendis Forestals">
+    <meta property="og:description" content="Panell en temps real del risc d'incendi forestal calculat per l'estació SADRIF al Bosc de Can Deu (Sabadell): temperatura, humitat, vent i pressió atmosfèrica.">
+    <meta property="og:url" content="http://pladrif.online/">
+    <meta property="og:image" content="og-preview.svg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Pla DRIF - Sistema de Monitoratge de Risc d'Incendis Forestals">
+    <meta name="twitter:description" content="Panell en temps real del risc d'incendi forestal calculat per l'estació SADRIF al Bosc de Can Deu (Sabadell): temperatura, humitat, vent i pressió atmosfèrica.">
+    <meta name="twitter:image" content="og-preview.svg">
+
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -312,9 +335,10 @@
         }
         .leyenda-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 16px;
         }
+        @media (max-width: 1000px) { .leyenda-grid { grid-template-columns: repeat(3, 1fr); } }
         .leyenda-item {
             display: flex;
             align-items: center;
@@ -423,7 +447,19 @@
         .btn-saber-mes svg { width: 16px; height: 16px; transition: transform 0.3s ease; }
         .btn-saber-mes.actiu svg { transform: rotate(180deg); }
         .contingut-extra { max-height: 0; overflow: hidden; opacity: 0; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); font-size: 0.9rem; margin-top: 0; color: var(--texto-principal); background: rgba(255,255,255,0.4); border-radius: 12px; }
-        .contingut-extra.obert { max-height: 400px; opacity: 1; padding: 15px; margin-top: 15px; border: 1px solid rgba(255,255,255,0.6); box-shadow: inset 0 2px 10px rgba(0,0,0,0.02); }
+        .contingut-extra.obert { max-height: 1500px; opacity: 1; padding: 15px; margin-top: 15px; border: 1px solid rgba(255,255,255,0.6); box-shadow: inset 0 2px 10px rgba(0,0,0,0.02); }
+        /* Llista de mesures preventives / restriccions del nivell de risc actiu */
+        .llista-mesures { list-style: none; margin: 0; padding: 0; }
+        .llista-mesures li {
+            position: relative; padding: 7px 0 7px 22px; line-height: 1.55;
+            color: var(--texto-principal); border-bottom: 1px solid rgba(15,23,42,0.06);
+        }
+        .llista-mesures li:last-child { border-bottom: none; }
+        .llista-mesures li::before {
+            content: ''; position: absolute; left: 4px; top: 15px;
+            width: 7px; height: 7px; border-radius: 50%;
+            background: var(--riesgo-color-dinamico);
+        }
 
         .header-sadrif-seccion { border-bottom: 2px solid var(--borde-claro); padding-bottom: 10px; margin-bottom: 20px; }
         .header-sadrif-seccion h2 { margin: 0; font-size: 1.4rem; font-weight: 800; }
@@ -486,11 +522,11 @@
         
         @media (max-width: 768px) {
             .leyenda-grid { grid-template-columns: repeat(2, 1fr); }
-            .leyenda-content.obert { max-height: 350px; }
+            .leyenda-content.obert { max-height: 420px; }
         }
         @media (max-width: 480px) {
             .leyenda-grid { grid-template-columns: 1fr; }
-            .leyenda-content.obert { max-height: 450px; }
+            .leyenda-content.obert { max-height: 560px; }
         }
     </style>
 </head>
@@ -615,19 +651,23 @@
                 <div class="leyenda-grid">
                     <div class="leyenda-item">
                         <div class="leyenda-color" style="background: #10b981; border: 2px solid rgba(16, 185, 129, 0.4);"></div>
-                        <span>Baix (Pla Alfa 0)</span>
+                        <span>Nivell 0 · Perill Molt Baix</span>
+                    </div>
+                    <div class="leyenda-item">
+                        <div class="leyenda-color" style="background: #84cc16; border: 2px solid rgba(132, 204, 22, 0.4);"></div>
+                        <span>Nivell 1 · Perill Baix</span>
                     </div>
                     <div class="leyenda-item">
                         <div class="leyenda-color" style="background: #f59e0b; border: 2px solid rgba(245, 158, 11, 0.4);"></div>
-                        <span>Moderat (Pla Alfa 1)</span>
+                        <span>Nivell 2 · Perill Moderat</span>
                     </div>
                     <div class="leyenda-item">
                         <div class="leyenda-color" style="background: #f97316; border: 2px solid rgba(249, 115, 22, 0.4);"></div>
-                        <span>Alt (Pla Alfa 2)</span>
+                        <span>Nivell 3 · Perill Alt</span>
                     </div>
                     <div class="leyenda-item">
                         <div class="leyenda-color" style="background: #ef4444; border: 2px solid rgba(239, 68, 68, 0.4);"></div>
-                        <span>Extrem (Pla Alfa 3)</span>
+                        <span>Nivell 4 · Perill Extrem</span>
                     </div>
                 </div>
             </div>
@@ -681,7 +721,7 @@
         <div class="grid-consejos animated-element" style="animation-delay: 0.2s;">
             <div class="card-destacada-dinamica">
                 <h3>Estat de la Vegetació <span class="badge-subestat" id="badge-veg-estat">Analitzant...</span></h3>
-                <p id="txt-consejo-sucediendo">Carregant avaluació científica del combustible vegetal i l'entorn...</p>
+                <p id="txt-consejo-sucediendo">Avaluant l'estat del combustible vegetal a partir de la temperatura, la humitat, el vent i la pressió atmosfèrica...</p>
                 <button class="btn-saber-mes" onclick="toggleSaberMes('extra-veg', this)">
                     Saber-ne més detalls 
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
@@ -693,15 +733,15 @@
             </div>
             
             <div class="card-destacada-dinamica">
-                <h3>Pla d'Acció i Restriccions <span class="badge-subestat" id="badge-alfa-estat">Pla Alfa</span></h3>
-                <p id="txt-consejo-accion">Calculant protocols operatius d'emergència i normatives vigents...</p>
+                <h3>Pla d'Acció i Prevenció <span class="badge-subestat" id="badge-alfa-estat">Calculant nivell...</span></h3>
+                <p id="txt-consejo-accion">Calculant el pla d'acció i les mesures de prevenció corresponents al nivell de risc...</p>
                 <button class="btn-saber-mes" onclick="toggleSaberMes('extra-pla', this)">
-                    Normativa i prevenció 
+                    Mesures i restriccions
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
                 </button>
                 <div class="contingut-extra" id="extra-pla">
-                    <strong style="display:block; margin-bottom:8px; color:var(--riesgo-color-dinamico);">Restriccions dels Agents Rurals:</strong>
-                    <span id="extra-pla-text">Sincronitzant amb el departament d'Interior...</span>
+                    <strong id="extra-pla-titol" style="display:block; margin-bottom:8px; color:var(--riesgo-color-dinamico);">Mesures preventives:</strong>
+                    <span id="extra-pla-text">Determinant les mesures preventives aplicables...</span>
                 </div>
             </div>
         </div>
@@ -744,7 +784,11 @@
             </div>
             <div>
                 <h2 style="margin-top:0; font-weight:800;">Què és el Pla DRIF?</h2>
-                <p style="color:var(--texto-mutado);">El <strong>Pla DRIF (Detecció de Risc d'Incendis Forestals)</strong> és una iniciativa tecnològica de prevenció. L'estació meteorològica física SADRIF (ubicada a Can Deu) mesura paràmetres crítics en temps real. Mitjançant algorismes basats en la regla del 30-30-30, podem anticipar condicions de perill abans que l'incendi s'origini, aplicant models de propagació tèrmica per alertar la població.</p>
+                <p style="color:var(--texto-mutado);">El <strong>Pla DRIF</strong> és un pla d'acció amb una iniciativa de prevenció i conscienciació sorgida del projecte <strong>SADRIF</strong> (Sistema Autònom de Detecció de Risc d'Incendis Forestals).</p>
+                <p style="color:var(--texto-mutado);">El SADRIF analitza les condicions ambientals i calcula el nivell de risc d'incendi. El Pla DRIF utilitza aquesta informació per informar, divulgar el risc i fomentar la prevenció.</p>
+
+                <h3 style="font-weight:800; margin-bottom:8px;">Com es calcula el risc?</h3>
+                <p style="color:var(--texto-mutado); margin-bottom:0;">El SADRIF analitza <strong>temperatura</strong>, <strong>humitat relativa</strong>, <strong>velocitat del vent</strong> i <strong>pressió atmosfèrica</strong> mitjançant un sistema de puntuació de 0 a 100 punts. També incorpora la <strong>Regla 30-30-30</strong> com a criteri d'alerta extrema.</p>
             </div>
         </section>
 
@@ -907,25 +951,25 @@
         };
 
         const diccionariImpacte = {
-            temp: { 
-                titul: "🌡️ Impacte Tèrmic i Dessecació Atmosfèrica", 
-                text: `<p><strong>L'evaporació exponencial:</strong> Les temperatures per sobre dels 30°C provoquen una pèrdua d'aigua fulminant a la vegetació. La radiació solar preescalfa els combustibles fins (fulles, branques petites), apropant-los dràsticament al seu punt d'ignició natural.</p>
-                       <p><strong>Comportament del foc:</strong> Amb temperatures extremes, l'aire calent ascendeix ràpidament. Això crea corrents convectius que xuclen l'oxigen cap a la base de les flames, generant columnes de fum inestables i comportaments explosius impossibles de predir amb exactitud.</p>`
+            temp: {
+                titul: "🌡️ Temperatura i assecat de la vegetació",
+                text: `<p><strong>Importància de la temperatura:</strong> La temperatura és un dels principals factors que condicionen l'estat de la vegetació. Els valors elevats acceleren la pèrdua d'humitat i afavoreixen l'assecat del combustible forestal.</p>
+                       <p><strong>Influència en el risc:</strong> Una temperatura elevada pot augmentar la facilitat d'ignició i afavorir la propagació del foc, especialment quan coincideix amb una humitat relativa baixa.</p>`
             },
-            hum: { 
-                titul: "💧 Estrès Hídric i Inflamabilitat del Combustible", 
-                text: `<p><strong>El llindar crític del 30%:</strong> La Humitat Relativa (HR) determina l'intercanvi d'aigua entre l'aire i la vegetació morta. Un aire molt sec actua com una esponja, extreient la humitat de la fusta i la fullaraca en qüestió d'hores.</p>
-                       <p><strong>Efecte 'Pólvora':</strong> Quan la humitat ambiental baixa dràsticament, los combustibles prims assoleixen nivells d'humitat interns inferiors al 10%. En aquest estat, qualsevol espurna, burilla o reflex solar pot iniciar una combustió pràcticament instantània.</p>`
+            hum: {
+                titul: "💧 Humitat relativa i estat del combustible",
+                text: `<p><strong>Importància de la humitat:</strong> La humitat relativa és un factor clau per determinar el grau de sequedat de la vegetació. Quan disminueix, el combustible forestal perd humitat i es torna més susceptible d'inflamar-se.</p>
+                       <p><strong>Influència en el risc:</strong> Els valors baixos d'humitat augmenten la disponibilitat de la vegetació per a la combustió i, combinats amb temperatures elevades, poden generar unes condicions especialment favorables per a l'inici i la propagació d'un incendi.</p>`
             },
-            vent: { 
-                titul: "💨 Propagació i Aportació d'Oxigen", 
-                text: `<p><strong>El motor de l'incendi:</strong> El vent és el factor dominant en la velocitat i direcció de les flames. Un vent sostingut inclina la columna convectiva, irradiant calor directament cap a la vegetació intacta (preescalfament).</p>
-                       <p><strong>Focus secundaris (Purnes):</strong> A partir de 30 km/h, el vent aixeca brases enceses i les transporta a desenes o centenars de metres (Spotting). Això permet a l'incendi saltar tallafocs naturals, rius o carreteres, multiplicant els fronts actius.</p>`
+            vent: {
+                titul: "💨 Vent i propagació del foc",
+                text: `<p><strong>Importància del vent:</strong> La velocitat del vent és un factor determinant en el comportament d'un incendi. El vent pot afavorir l'aportació d'oxigen, inclinar les flames i transportar calor i partícules incandescents.</p>
+                       <p><strong>Influència en el risc:</strong> A mesura que augmenta la velocitat del vent, també pot augmentar la capacitat de propagació del foc i la possibilitat que apareguin nous focus a partir de partícules transportades pel vent.</p>`
             },
-            pres: { 
-                titul: "🌪️ Estabilitat Atmosfèrica i Inversions Tèrmiques", 
-                text: `<p><strong>Indicador de masses d'aire:</strong> Les altes pressions (Anticiclons) solen portar aire sec descendent que atrapa la calor a prop de terra i redueix la humitat durant la nit, evitant que la vegetació es recuperi tèrmicament.</p>
-                       <p><strong>Inestabilitat:</strong> D'altra banda, descensos sobtats de pressió indiquen l'arribada d'inestabilitat, la qual pot generar vents erràtics, tempestes seques (llamps sense pluja) i canvis bruscos de direcció que posen en extrem perill els equips d'extinció.</p>`
+            pres: {
+                titul: "🌪️ Pressió atmosfèrica i condicions meteorològiques",
+                text: `<p><strong>Importància de la pressió:</strong> La pressió atmosfèrica actua com un indicador complementari de l'estat de l'atmosfera. Els seus canvis poden estar relacionats amb variacions en les condicions meteorològiques.</p>
+                       <p><strong>Influència en el risc:</strong> En el sistema SADRIF, una pressió baixa contribueix lleugerament a l'increment de la puntuació de risc i complementa la informació aportada per la temperatura, la humitat i el vent.</p>`
             }
         };
 
@@ -978,7 +1022,7 @@
                                     let layer = e.target;
                                     let d = (feature.properties.name === "Barcelona") ? dadesGlobalsESP32 : simulacioComunitats[feature.properties.name];
                                     let r = calcularRiesgoCriterio(d.temp, d.hum, d.pres, d.viento);
-                                    let popContent = `<div style="font-size: 14px;"><strong style="color:${r.color}; font-size:16px;">${feature.properties.name}</strong><hr style="margin:5px 0;">🌡️ <b>${d.temp.toFixed(1)} °C</b><br>💧 <b>${d.hum.toFixed(0)} %</b><br>💨 <b>${d.viento.toFixed(1)} km/h</b><br>🚨 Risc: <b>${r.nivel}</b></div>`;
+                                    let popContent = `<div style="font-size: 14px;"><strong style="color:${r.color}; font-size:16px;">${feature.properties.name}</strong><hr style="margin:5px 0;">🌡️ <b>${d.temp.toFixed(1)} °C</b><br>💧 <b>${d.hum.toFixed(0)} %</b><br>💨 <b>${d.viento.toFixed(1)} km/h</b><br>🚨 Risc: <b>Nivell ${r.nivelNum} · ${r.nivel}</b></div>`;
                                     layer.bindTooltip(popContent, {sticky: true, className: 'leaflet-tooltip'}).openTooltip();
                                     layer.setStyle({ weight: 4, fillOpacity: 0.5 });
                                 },
@@ -1018,46 +1062,154 @@
             window.requestAnimationFrame(step);
         }
 
-        function calcularRiesgoCriterio(temp, hum, pres, viento) {
-            let ptsT = temp > 35 ? 40 : temp > 30 ? 30 : temp > 25 ? 20 : 10;
-            let ptsH = hum < 15 ? 38 : hum < 25 ? 29 : hum < 40 ? 19 : 10;
-            let ptsV = viento > 60 ? 20 : viento > 40 ? 15 : viento > 20 ? 10 : 5;
-            
-            let totalPuntos = Math.min(ptsT + ptsH + ptsV, 100);
-            let regla30 = (temp >= 30 && hum <= 30 && viento >= 30);
-            
-            let color, bg, border, nivel, txtV, txtA, alfa, vegBadge, extraVeg, extraAccion;
-
-            if (totalPuntos <= 25) {
-                color = "#10b981"; bg = "rgba(16, 185, 129, 0.08)"; border = "rgba(16, 185, 129, 0.4)"; nivel = "Baix";
-                vegBadge = "Fàcil ignició: Molt Baixa"; alfa = "Nivell 0 (Verd)";
-                txtV = "La vegetació manté la turgència cel·lular i l'activitat fotosintètica es desenvolupa amb total normalitat. El risc de propagació per contacte és pràcticament nul.";
-                txtA = "S'autoritza el desenvolupament normal d’activitats al medi natural. Es permet feina forestal rutinària.";
-                extraVeg = "L'alt contingut d'aigua a les fulles i el sotabosc (generalment per sobre del 60% d'humitat interna) actua com a retardant natural excel·lent.";
-                extraAccion = "En el <b>Pla Alfa 0 (Verd)</b>, els Agents Rurals permeten fogueres i cremes agrícoles exclusivament amb permís municipal i comunicació prèvia. No obstant això, es recomana precaució bàsica.";
-            } else if (totalPuntos <= 50) {
-                color = "#f59e0b"; bg = "rgba(245, 158, 11, 0.08)"; border = "rgba(245, 158, 11, 0.4)"; nivel = "Moderat";
-                vegBadge = "Assecament Inicial"; alfa = "Nivell 1 (Groc)";
-                txtV = "Es registra un assecament progressiu del sotabosc herbaci. Les espècies resinoses (pins) comencen les primeres emissions de terpens volàtils per estrès.";
-                txtA = "Precaució moderada i vigilància activa. Prohibides les cremes de restes vegetals a menys de 500m d'àrees boscoses.";
-                extraVeg = "La capa morta (fullaraca, pinassa) ja ha perdut gran part de l'aigua lliure, fent-la susceptible d'encendre's si rep una guspira o burilla mal apagada.";
-                extraAccion = "L'activació del <b>Pla Alfa 1</b> implica que les unitats dels Agents Rurals incrementen les rutes de patrullatge per dissuadir imprudències. Està strictly prohibit llançar coets, petards o fanalets voladors prop d'àrees forestals o camps secs.";
-            } else if (totalPuntos <= 75) {
-                color = "#f97316"; bg = "rgba(249, 115, 22, 0.08)"; border = "rgba(249, 115, 22, 0.4)"; nivel = "Alt";
-                vegBadge = "Estrès Hídric Sever"; alfa = "Nivell 2 (Taronja)";
-                txtV = "L'estrès hídric és generalitzat. La humitat del combustible viu es troba compromesa, mentre que la vegetació morta actua com a material altament inflamable.";
-                txtA = "Suspensió immediata de treballs de desbroçament mecànic, obres i soldadures. Es tanquen algunes àrees d'esbarjo.";
-                extraVeg = "Aquest nivell de sequedat fa que els arbustos (bruc, romaní) estiguin tèrmicament preparats per a una combustió ràpida. La velocitat de propagació en cas d'ignició seria notablement alta, especialment en pendents.";
-                extraAccion = "Durant el <b>Pla Alfa 2</b>, es prohibeixen absolutament les barbacoes (fins i tot en recintes recreatius tancats) i es cancel·len els permisos prèviament atorgats per a focs agrícoles i pirotècnia. Alt risc de restricció d'accessos motoritzats.";
-            } else {
-                color = "#ef4444"; bg = "rgba(239, 68, 68, 0.08)"; border = "rgba(239, 68, 68, 0.4)"; 
-                nivel = regla30 ? "Extrem (30-30-30)" : "Molt Alt"; totalPuntos = 100; vegBadge = "Alta Volatilitat"; alfa = "Nivell 3 (Vermell)";
-                txtV = "CRÍTIC: La massa vegetal és altament inflamable i despren gasos volàtils a gran escala. Potent comportament explosiu davant qualsevol focus.";
-                txtA = "TANCAMENT D'ACCESSORES ALS MASSISSOS FORESTALS. Prohibició absoluta de maquinària, caça i activitats esportives al medi natural.";
-                extraVeg = "El combustible fi mort està a menys d'un 5% d'humitat, equivalent a cartró sec o benzina gasificada. En aquestes condicions, un foc generaria una intensitat tèrmica tan severa que el control directe inicial seria pràcticament impossible.";
-                extraAccion = "<b>ALERTA MÀXIMA (Pla Alfa 3):</b> Es mobilitzen tots els mitjans aeris i terrestres en punts estratègics. Es precinta l'accés a massissos naturals vulnerables. Qualsevol emissió de fum ha de ser comunicada a l'instant al 112. Màxim risc ciutadà.";
+        /* =========================================================
+           MODEL DE RISC — 5 NIVELLS (textos oficials del Pla DRIF)
+           Nivell 0 · Molt Baix | 1 · Baix | 2 · Moderat | 3 · Alt | 4 · Extrem
+           ========================================================= */
+        const NIVELLS_RISC = [
+            {
+                nivell: 0,
+                nom: "Molt Baix",
+                alfa: "Nivell 0 · Perill Molt Baix",
+                color: "#10b981", bg: "rgba(16, 185, 129, 0.08)", border: "rgba(16, 185, 129, 0.4)",
+                vegBadge: "Condicions Favorables",
+                txtV: "La vegetació presenta un nivell d'humitat favorable i les condicions ambientals dificulten l'inici i la propagació d'un incendi forestal.",
+                extraVeg: "Les condicions de temperatura, humitat, vent i pressió atmosfèrica indiquen un escenari de baixa probabilitat de propagació del foc. La vegetació conserva un nivell d'humitat favorable i presenta una menor facilitat d'ignició.",
+                txtA: "Es mantenen les mesures bàsiques de prevenció i es recomana actuar de manera responsable en qualsevol activitat desenvolupada al medi natural.",
+                mesuresTitol: "Mesures preventives:",
+                mesures: [
+                    "No llençar burilles, llumins ni altres materials encesos.",
+                    "No abandonar residus ni materials combustibles al medi natural.",
+                    "Respectar les zones habilitades per a l'ús del foc.",
+                    "Mantenir lliures els camins i accessos per als vehicles d'emergència.",
+                    "Evitar qualsevol actuació negligent que pugui provocar una ignició."
+                ]
+            },
+            {
+                nivell: 1,
+                nom: "Baix",
+                alfa: "Nivell 1 · Perill Baix",
+                color: "#84cc16", bg: "rgba(132, 204, 22, 0.08)", border: "rgba(132, 204, 22, 0.4)",
+                vegBadge: "Estrès Hídric Lleu",
+                txtV: "La vegetació comença a presentar signes lleus de sequedat, tot i que les condicions generals encara mantenen un risc reduït d'incendi.",
+                extraVeg: "L'augment de la temperatura i la disminució de la humitat poden començar a afectar l'estat del combustible vegetal. Tot i això, les condicions actuals encara limiten la propagació ràpida del foc.",
+                txtA: "Es recomana augmentar la precaució en zones forestals i evitar qualsevol activitat que pugui generar una font d'ignició.",
+                mesuresTitol: "Mesures preventives:",
+                mesures: [
+                    "No llençar burilles ni llumins.",
+                    "No deixar residus o materials combustibles al bosc.",
+                    "Evitar qualsevol activitat que pugui generar flames o espurnes.",
+                    "No utilitzar barbacoes que no estiguin autoritzades.",
+                    "Respectar les zones i condicions establertes per a les activitats amb risc d'incendi.",
+                    "Mantenir lliures els accessos per als vehicles d'emergència."
+                ]
+            },
+            {
+                nivell: 2,
+                nom: "Moderat",
+                alfa: "Nivell 2 · Perill Moderat",
+                color: "#f59e0b", bg: "rgba(245, 158, 11, 0.08)", border: "rgba(245, 158, 11, 0.4)",
+                vegBadge: "Estrès Hídric Moderat",
+                txtV: "La vegetació presenta un augment de la sequedat. La combinació de temperatures elevades i una menor humitat pot afavorir l'inici i la propagació d'un incendi.",
+                extraVeg: "Les condicions ambientals comencen a ser favorables per a la ignició del combustible vegetal. La reducció de la humitat i l'augment de la temperatura incrementen la vulnerabilitat de la vegetació davant d'una possible font d'ignició.",
+                txtA: "Es recomana extremar les mesures de prevenció i evitar qualsevol activitat que pugui generar flames, espurnes o altres fonts d'ignició.",
+                mesuresTitol: "Mesures preventives i restriccions:",
+                mesures: [
+                    "Evitar encendre foc en espais oberts.",
+                    "No realitzar cremes de restes vegetals sense l'autorització o comunicació corresponent.",
+                    "Evitar l'ús de maquinària que pugui generar espurnes en zones forestals.",
+                    "No utilitzar pirotècnia en zones on existeixi risc d'incendi.",
+                    "No llençar burilles, llumins ni altres materials encesos.",
+                    "No utilitzar barbacoes fora dels espais i condicions autoritzats.",
+                    "Mantenir una vigilància activa de l'entorn.",
+                    "Comunicar immediatament qualsevol indici de fum o incendi."
+                ]
+            },
+            {
+                nivell: 3,
+                nom: "Alt",
+                alfa: "Nivell 3 · Perill Alt",
+                color: "#f97316", bg: "rgba(249, 115, 22, 0.08)", border: "rgba(249, 115, 22, 0.4)",
+                vegBadge: "Estrès Hídric Elevat",
+                txtV: "La vegetació presenta un nivell elevat de sequedat i inflamabilitat. Qualsevol font d'ignició pot afavorir l'inici i la ràpida propagació d'un incendi.",
+                extraVeg: "La combinació dels paràmetres ambientals indica unes condicions especialment favorables per a la propagació del foc. La baixa humitat del combustible vegetal, juntament amb temperatures elevades i altres factors meteorològics adversos, incrementa considerablement el risc d'incendi.",
+                txtA: "S'han d'extremar les mesures de prevenció i evitar les activitats que puguin generar una ignició, especialment en terrenys forestals i en el seu entorn immediat.",
+                mesuresTitol: "Restriccions i mesures preventives:",
+                mesures: [
+                    "No encendre foc en espais oberts.",
+                    "No realitzar cremes de rostolls, pastures, restes de poda o restes silvícoles.",
+                    "No encendre foc en àrees recreatives, zones d'acampada ni àrees de descans de carreteres.",
+                    "No utilitzar maquinària o equips que puguin generar deflagracions, espurnes o descàrregues elèctriques en terrenys forestals i zones rurals properes, excepte en els casos expressament autoritzats o necessaris per a l'extinció.",
+                    "No llençar burilles ni altres materials encesos.",
+                    "Evitar qualsevol activitat que pugui generar una font d'ignició."
+                ]
+            },
+            {
+                nivell: 4,
+                nom: "Extrem",
+                alfa: "Nivell 4 · Perill Extrem",
+                color: "#ef4444", bg: "rgba(239, 68, 68, 0.08)", border: "rgba(239, 68, 68, 0.4)",
+                vegBadge: "Estrès Hídric Crític",
+                txtV: "La vegetació presenta unes condicions d'inflamabilitat molt elevades. La combinació de factors ambientals pot afavorir una ignició ràpida i una propagació molt intensa del foc.",
+                extraVeg: "Les condicions meteorològiques i l'estat del combustible vegetal configuren un escenari de perill extrem. La coincidència de temperatures elevades, baixa humitat i vent pot incrementar considerablement la capacitat de propagació d'un incendi forestal.",
+                txtA: "Es requereix el màxim nivell de prevenció. S'han de limitar les activitats al medi natural i evitar qualsevol actuació que pugui generar una font d'ignició.",
+                mesuresTitol: "Restriccions i mesures especials:",
+                mesures: [
+                    "Prohibició d'encendre foc en espais oberts.",
+                    "Suspensió de les activitats amb risc d'incendi forestal.",
+                    "Prohibició de realitzar cremes de restes vegetals, rostolls o restes forestals.",
+                    "Prohibició de l'ús de maquinària o equips que puguin generar espurnes, deflagracions o descàrregues elèctriques en les zones afectades, excepte les actuacions autoritzades o necessàries per a l'extinció.",
+                    "Prohibició de l'ús de material pirotècnic quan s'estableixin les restriccions corresponents.",
+                    "Restricció de l'accés a determinats espais naturals forestals quan així ho determinin les autoritats competents.",
+                    "Limitació o suspensió d'activitats esportives, d'acampada, rutes o altres activitats en espais forestals quan sigui establert.",
+                    "Mantenir lliures els accessos per als serveis d'emergència.",
+                    "Reforçar la vigilància i comunicar immediatament qualsevol columna de fum o indici d'incendi."
+                ]
             }
-            return { puntos: totalPuntos, color, bg, border, nivel, txtV, txtA, alfa, vegBadge, extraVeg, extraAccion, regla30 };
+        ];
+
+        function llistaMesuresHTML(nivell) {
+            return '<ul class="llista-mesures">' + nivell.mesures.map(m => '<li>' + m + '</li>').join('') + '</ul>';
+        }
+
+        function calcularRiesgoCriterio(temp, hum, pres, viento) {
+            // Puntuació de 0 a 100 a partir dels quatre paràmetres ambientals
+            let ptsT = temp > 35 ? 40 : temp > 30 ? 30 : temp > 25 ? 20 : temp > 20 ? 12 : 5;
+            let ptsH = hum < 15 ? 38 : hum < 25 ? 29 : hum < 40 ? 19 : hum < 55 ? 11 : 5;
+            let ptsV = viento > 60 ? 20 : viento > 40 ? 15 : viento > 20 ? 10 : viento > 10 ? 6 : 3;
+            // La pressió baixa aporta un lleuger increment de risc (inestabilitat atmosfèrica)
+            let ptsP = pres < 1005 ? 4 : pres < 1013 ? 2 : 0;
+
+            let totalPuntos = Math.min(ptsT + ptsH + ptsV + ptsP, 100);
+
+            // Regla del 30-30-30: escenari d'alerta extrema
+            let regla30 = (temp >= 30 && hum <= 30 && viento >= 30);
+
+            let idx;
+            if (totalPuntos <= 25) idx = 0;
+            else if (totalPuntos <= 42) idx = 1;
+            else if (totalPuntos <= 62) idx = 2;
+            else if (totalPuntos <= 80) idx = 3;
+            else idx = 4;
+
+            if (regla30) { idx = 4; totalPuntos = 100; }
+
+            const n = NIVELLS_RISC[idx];
+
+            return {
+                puntos: totalPuntos,
+                color: n.color, bg: n.bg, border: n.border,
+                nivel: regla30 ? "Extrem (30-30-30)" : n.nom,
+                nivelNum: n.nivell,
+                txtV: n.txtV,
+                txtA: n.txtA,
+                alfa: n.alfa,
+                vegBadge: n.vegBadge,
+                extraVeg: n.extraVeg,
+                mesuresTitol: n.mesuresTitol,
+                extraAccion: llistaMesuresHTML(n),
+                regla30
+            };
         }
 
         function obtenirEstatImpacte(tipus, valor) {
@@ -1150,6 +1302,7 @@
                     document.getElementById('badge-alfa-estat').style.borderColor = conf.color;
 
                     document.getElementById('extra-veg-text').innerHTML = conf.extraVeg;
+                    document.getElementById('extra-pla-titol').innerText = conf.mesuresTitol;
                     document.getElementById('extra-pla-text').innerHTML = conf.extraAccion;
                     
                     document.getElementById('banner-urgente-30-30-30').style.display = conf.regla30 ? 'block' : 'none';
@@ -1226,7 +1379,7 @@
                                 <td>${mitjanaH.toFixed(0)} %</td>
                                 <td>${mitjanaV.toFixed(1)} km/h</td>
                                 <td>${mitjanaP.toFixed(0)} hPa</td>
-                                <td><span class="badge-risc" style="background:${rPts.color}; box-shadow: 0 4px 10px ${rPts.color}40;">${rPts.nivel} (${rPts.puntos}%)</span></td>
+                                <td><span class="badge-risc" style="background:${rPts.color}; box-shadow: 0 4px 10px ${rPts.color}40;">N${rPts.nivelNum} · ${rPts.nivel} (${rPts.puntos}%)</span></td>
                             </tr>`;
                         }).join('');
                     
