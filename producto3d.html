@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pla DRIF | Prevenció d'Incendis Forestals</title>
+  <title>Dispositiu SADRIF en 3D | Pla DRIF</title>
   
   <!-- Fuentes para el menú CardNav -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -55,15 +55,30 @@
 
     body {
       background-color: var(--bg-principal);
-      /* Se ha eliminado el background-image para quitar el degradado cortado */
       color: var(--texto-principal);
       font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-      margin: 0; 
-      padding: 0; 
-      line-height: 1.5; 
+      margin: 0;
+      padding: 0;
+      line-height: 1.5;
       overflow-x: hidden;
       min-height: 100vh;
+      position: relative;
     }
+
+    /* Degradat verd de fons: viu al body i s'esvaeix suaument,
+       així no queda tallat en sec en acabar la capçalera. */
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 900px;
+      background:
+        radial-gradient(ellipse 120% 70% at 50% 0%, rgba(16, 185, 129, 0.16) 0%, rgba(16, 185, 129, 0.06) 40%, transparent 72%),
+        linear-gradient(180deg, rgba(248, 250, 252, 0) 65%, var(--bg-principal) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    body > * { position: relative; z-index: 1; }
 
     /* ========= NUEVOS ESTILOS CARDNAV ========= */
     .card-nav-container {
@@ -286,15 +301,125 @@
       color: var(--ag-text); font-family: inherit; font-weight: 700; font-size: clamp(1rem, 1.4vw, 1.4rem);
       letter-spacing: 0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0;
     }
-    @media (max-width: 520px) {
+    @media (max-width: 680px) {
       .accordion-gallery { flex-direction: column; perspective: none; height: auto !important; }
-      .ag-panel { min-height: 100px; transform: none !important; }
-      .accordion-gallery .ag-panel__media { width: 100%; height: var(--ag-media-size); }
+      .ag-panel { min-height: 170px; transform: none !important; }
+      .accordion-gallery .ag-panel__media { width: 100%; height: var(--ag-media-size); --ag-gray: 0 !important; --ag-dim: 0 !important; }
+      .accordion-gallery .ag-panel__bar, .accordion-gallery .ag-panel__text { opacity: 1 !important; transform: none !important; }
     }
     @media (prefers-reduced-motion: reduce) { .ag-panel, .ag-panel__media { will-change: auto; } }
-    
+
     .model-container {
       background: radial-gradient(circle at center, rgba(16, 185, 129, 0.05) 0%, rgba(255, 255, 255, 1) 70%);
+    }
+
+    /* =========================================
+       ESTILS NOUS: PÀGINA CENTRADA EN EL DISPOSITIU
+       ========================================= */
+    .hero-eyebrow-chip {
+      display: inline-flex; align-items: center; gap: 8px; background: var(--riesgo-bg-suave);
+      color: var(--riesgo-color-dinamico); padding: 6px 16px; border-radius: 99px; font-weight: 800;
+      font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; border: 1px solid var(--riesgo-borde);
+      margin-bottom: 22px;
+    }
+    .quick-specs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .quick-spec-card {
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+      background: var(--glass-bg); backdrop-filter: blur(20px) saturate(120%); -webkit-backdrop-filter: blur(20px) saturate(120%);
+      border: 1px solid var(--glass-border); border-radius: 16px; padding: 16px 10px; text-align: center;
+      box-shadow: var(--glass-shadow); transition: var(--transicion);
+    }
+    .quick-spec-card:hover { transform: translateY(-4px); background: rgba(255, 255, 255, 0.7); }
+    .quick-spec-icon { font-size: 1.5rem; }
+    .quick-spec-label { font-weight: 700; font-size: 0.78rem; color: var(--texto-principal); line-height: 1.3; }
+
+    .header-sadrif-seccion { max-width: 1000px; margin: 0 auto 32px; text-align: center; }
+    .header-sadrif-seccion h3 { margin: 0 0 10px; }
+    .header-sadrif-seccion p { margin: 0; }
+
+    .model-grid { max-width: 1150px; margin: 0 auto; display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 28px; align-items: stretch; }
+    .device-photo-frame {
+      position: relative; background: var(--glass-bg); backdrop-filter: blur(25px) saturate(120%); -webkit-backdrop-filter: blur(25px) saturate(120%);
+      border: 1px solid var(--glass-border); border-radius: 26px; box-shadow: var(--glass-shadow);
+      display: flex; align-items: center; justify-content: center; padding: 28px; min-height: 340px; transition: var(--transicion);
+    }
+    .device-photo-frame:hover { transform: translateY(-4px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); }
+    .device-photo-frame img { width: 100%; max-width: 300px; filter: drop-shadow(0 18px 26px rgba(15,23,42,0.18)); }
+    .device-photo-badge {
+      position: absolute; top: 18px; left: 18px; background: rgba(15,23,42,0.9); color: #fff; font-weight: 800;
+      font-size: 0.7rem; letter-spacing: 0.04em; text-transform: uppercase; padding: 6px 12px; border-radius: 99px;
+      backdrop-filter: blur(6px);
+    }
+    @media (max-width: 900px) { .model-grid { grid-template-columns: 1fr; } .device-photo-frame { max-width: 340px; margin: 0 auto; } }
+
+    .model-toolbar { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 22px; }
+    .toolbar-group { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+    .toolbar-btn {
+      display: inline-flex; align-items: center; gap: 7px; background: var(--glass-bg); backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border); padding: 9px 16px; border-radius: 99px; font-weight: 700; font-size: 0.82rem;
+      color: var(--texto-principal); cursor: pointer; transition: var(--transicion); box-shadow: var(--glass-shadow);
+    }
+    .toolbar-btn:hover { background: rgba(255,255,255,0.8); transform: translateY(-2px); }
+    .toolbar-btn.actiu { background: var(--riesgo-color-dinamico); color: #fff; border-color: transparent; }
+    .toolbar-btn.ar-btn { background: rgba(15,23,42,0.92); color: #fff; border-color: transparent; }
+    .toolbar-btn.ar-btn:hover { background: var(--riesgo-color-dinamico); }
+    .toolbar-divider { width: 1px; align-self: stretch; background: var(--borde-claro); margin: 0 2px; }
+    @media (max-width: 640px) { .toolbar-divider { display: none; } }
+
+    .spec-sheet-card {
+      max-width: 900px; margin: 0 auto; background: var(--glass-bg); backdrop-filter: blur(20px) saturate(120%);
+      -webkit-backdrop-filter: blur(20px) saturate(120%); border: 1px solid var(--glass-border); border-radius: 22px;
+      box-shadow: var(--glass-shadow); padding: 30px 32px; transition: var(--transicion);
+    }
+    .spec-sheet-toggle-btn {
+      display: inline-flex; align-items: center; gap: 8px; background: rgba(15,23,42,0.92); color: #fff;
+      padding: 11px 22px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; cursor: pointer; border: none;
+      transition: var(--transicion);
+    }
+    .spec-sheet-toggle-btn:hover { background: var(--riesgo-color-dinamico); }
+    .spec-sheet-toggle-btn svg { transition: transform 0.3s ease; }
+    .spec-sheet-toggle-btn.obert svg { transform: rotate(180deg); }
+    .spec-sheet-body { max-height: 0; overflow: hidden; opacity: 0; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+    .spec-sheet-body.obert { max-height: 700px; opacity: 1; margin-top: 24px; }
+    .spec-table-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 36px; }
+    @media (max-width: 640px) { .spec-table-grid { grid-template-columns: 1fr; } }
+    .spec-row { display: flex; justify-content: space-between; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--borde-claro); font-size: 0.92rem; }
+    .spec-row span:first-child { color: var(--texto-mutado); font-weight: 600; }
+    .spec-row span:last-child { font-weight: 700; color: var(--texto-principal); text-align: right; }
+
+    .gallery-wrap-card {
+      max-width: 1150px; margin: 0 auto; background: var(--glass-bg); backdrop-filter: blur(20px) saturate(120%);
+      -webkit-backdrop-filter: blur(20px) saturate(120%); border: 1px solid var(--glass-border); border-radius: 26px;
+      box-shadow: var(--glass-shadow); padding: 26px;
+    }
+
+    .explore-cta-grid { max-width: 1150px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .explore-cta-card {
+      display: flex; flex-direction: column; gap: 10px; background: linear-gradient(135deg, rgba(15,23,42,0.94) 0%, rgba(30,41,59,0.94) 100%);
+      color: #fff; border-radius: 20px; padding: 28px; text-decoration: none; transition: var(--transicion);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .explore-cta-card:hover { transform: translateY(-5px); box-shadow: 0 22px 45px rgba(0,0,0,0.22); }
+    .explore-cta-card strong { font-size: 1.15rem; }
+    .explore-cta-card span.sub { color: #94a3b8; font-size: 0.9rem; line-height: 1.5; }
+    .explore-cta-arrow { margin-top: 10px; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 0.85rem; color: #6ee7b7; }
+    @media (max-width: 700px) { .quick-specs-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 560px) { .explore-cta-grid { grid-template-columns: 1fr; } }
+
+    /* ========= FOOTER COMPARTIT (igual a totes les pàgines) ========= */
+    .footer-logos-contenedor {
+      max-width: 1150px; margin: 0 auto 24px; background: var(--glass-bg);
+      backdrop-filter: blur(15px) saturate(120%); -webkit-backdrop-filter: blur(15px) saturate(120%);
+      border: 1px solid var(--glass-border); border-radius: 20px; padding: 35px 50px;
+      display: flex; justify-content: center; gap: 70px; align-items: center; flex-wrap: wrap;
+    }
+    .footer-logos-contenedor img { height: 85px; filter: grayscale(10%); transition: var(--transicion); }
+    .footer-logos-contenedor img:hover { filter: grayscale(0%); transform: scale(1.1) rotate(-2deg); }
+    .footer-disclaimer { text-align: center; font-size: 0.78rem; color: var(--texto-mutado); max-width: 720px; margin: 0 auto; padding: 0 20px 30px; }
+    .footer-disclaimer p { margin: 0 0 8px; line-height: 1.6; }
+    @media (max-width: 600px) {
+      .footer-logos-contenedor { gap: 30px; padding: 24px; }
+      .footer-logos-contenedor img { height: 58px; }
     }
   </style>
 </head>
@@ -313,7 +438,7 @@
               <!-- Logo -->
               <div class="logo-container">
                   <a href="#inicio" class="navbar-brand">
-                      <img src="logo-sadrif.svg" alt="SADRIF" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/a/ab/Icon-mac.svg';">
+                      <img src="logo-sadrif.svg" alt="SADRIF" onerror="this.onerror=null; this.src='logo-sadrif.svg.svg';">
                       <span>PLA DRIF</span>
                   </a>
               </div>
@@ -334,13 +459,13 @@
               <div class="nav-card" style="background-color: rgba(27, 23, 34, 0.85); color: #fff;">
                   <div class="nav-card-label">Navegació</div>
                   <div class="nav-card-links">
+                      <a class="nav-card-link" href="index.html">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                          Inici DRIF
+                      </a>
                       <a class="nav-card-link" href="sobre-nosotros.html">
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-                          Sobre nosaltres
-                      </a>
-                      <a class="nav-card-link" href="producto3d.html">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-                          Model 3D Dispositiu
+                          Sobre el Projecte
                       </a>
                   </div>
               </div>
@@ -662,37 +787,73 @@
     function App() {
       // ESTADO PARA CONTROLAR QUÉ MODELO 3D SE MUESTRA
       const [modelSrc, setModelSrc] = useState('sadrif_3d.glb');
+      const [autoRotate, setAutoRotate] = useState(true);
+      const [activeView, setActiveView] = useState('frontal');
+      const [specOpen, setSpecOpen] = useState(false);
+      const modelRef = useRef(null);
 
       const heroWords = [
-        'seguretat per als boscos',
-        "detecció precoç d'incendis",
-        'tecnologia de protecció',
-        'futur per al medi natural',
-        'innovació en prevenció'
+        'autònoma i alimentada amb energia solar',
+        'resistent a la intempèrie del bosc',
+        'equipada amb 4 sensors ambientals',
+        'dissenyada i impresa en 3D',
+        'connectada al núvol en temps real'
       ];
 
       const marqueeTexts = [
-        "PLA DRIF • PREVENCIÓ D'INCENDIS FORESTALS • MONITORATGE EN TEMPS REAL",
-        "PROTEGINT ELS NOSTRES BOSCOS • TECNOLOGIA I NATURA • SISTEMA SADRIF"
+        "DISPOSITIU SADRIF • ENERGIA SOLAR AUTÒNOMA • 4 SENSORS AMBIENTALS",
+        "CARCASSA IMPRESA EN 3D • RESISTENT A LA INTEMPÈRIE • DADES EN TEMPS REAL"
       ];
+
+      const quickSpecs = [
+        { icon: '🔆', label: 'Alimentació solar autònoma' },
+        { icon: '🌡️', label: '4 sensors ambientals' },
+        { icon: '📡', label: 'Comunicació Long-Range' },
+        { icon: '🖨️', label: 'Carcassa impresa en 3D' }
+      ];
+
+      const specRows = [
+        ['Microcontrolador', 'ESP32'],
+        ['Sensors integrats', 'Temperatura, humitat, vent i pressió'],
+        ['Alimentació', 'Panell solar + bateria autònoma'],
+        ['Comunicació', 'Mòdul Long-Range (LoRa)'],
+        ['Emmagatzematge de dades', 'Núvol (ThingSpeak), en temps real'],
+        ['Carcassa', 'Impresa en 3D, resistent a la intempèrie'],
+        ['Model de risc', "Regla del 30-30-30 (temp / humitat / vent)"],
+        ['Ubicació actual', 'Bosc de Can Deu, Torrent de Colobrers (Sabadell)']
+      ];
+
+      const setView = (name, orbit) => {
+        setActiveView(name);
+        if (modelRef.current) {
+          modelRef.current.cameraOrbit = orbit;
+        }
+      };
+
+      const handleAR = () => {
+        const mv = modelRef.current;
+        if (mv && typeof mv.activateAR === 'function') {
+          mv.activateAR();
+        }
+      };
 
       const componentsItems = [
         { image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80', label: 'Processador Edge AI (IA Local)' },
         { image: 'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&w=900&q=80', label: 'Càmera Tèrmica d’Alta Precisió' },
-        { image: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=900&q=80', label: 'Panell Solar i Bateria Autònoma' },
+        { image: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&w=900&q=80', label: 'Panell Solar i Bateria Autònoma' },
         { image: 'https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?auto=format&fit=crop&w=900&q=80', label: 'Sensors Ambientals (Tª, Humitat i Gasos)' },
         { image: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=900&q=80', label: 'Mòdul de Comunicació Long-Range' }
       ];
 
       return (
         <div className="font-sans">
-          
-          {/* HERO SECTION */}
-          <header className="hero-container flex flex-col items-center text-center py-24 px-4 min-h-[60vh] justify-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-100/60 via-slate-50 to-slate-50 -z-10"></div>
-            
-            <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold flex flex-col md:flex-row flex-wrap justify-center items-center gap-4 md:gap-6 text-slate-800">
-              <span>Pla DRIF és</span>
+
+          {/* HERO SECTION — CENTRAT NOMÉS EN EL DISPOSITIU */}
+          <header className="hero-container flex flex-col items-center text-center py-20 px-4 min-h-[50vh] justify-center relative">
+            <span className="hero-eyebrow-chip">Dispositiu SADRIF</span>
+
+            <h2 className="text-3xl sm:text-5xl md:text-6xl font-extrabold flex flex-col md:flex-row flex-wrap justify-center items-center gap-3 md:gap-4 text-slate-800 max-w-5xl">
+              <span>El dispositiu SADRIF és</span>
               <RotatingText
                 texts={heroWords}
                 mainClassName="px-5 py-2 bg-emerald-500 text-white rounded-xl overflow-hidden justify-center inline-flex shadow-lg shadow-emerald-500/20"
@@ -706,9 +867,18 @@
                 rotationInterval={3000}
               />
             </h2>
-            <p className="mt-8 text-xl sm:text-2xl text-slate-600 max-w-4xl leading-relaxed">
-              Desenvolupem eines tecnològiques d’última generació per a la monitorització, avaluació del risc i protecció activa dels espais naturals davant la amenaça dels incendis forestals.
+            <p className="mt-7 text-lg sm:text-xl text-slate-600 max-w-3xl leading-relaxed">
+              L'estació física que vigila el bosc les 24 hores del dia, instal·lada al Bosc de Can Deu (Sabadell).
             </p>
+
+            <div className="quick-specs-grid mt-10 max-w-2xl w-full">
+              {quickSpecs.map((spec, i) => (
+                <div className="quick-spec-card" key={i}>
+                  <span className="quick-spec-icon">{spec.icon}</span>
+                  <span className="quick-spec-label">{spec.label}</span>
+                </div>
+              ))}
+            </div>
           </header>
 
           {/* MARQUEE SECTION */}
@@ -716,71 +886,148 @@
             <ScrollVelocity texts={marqueeTexts} velocity={30} className="custom-scroll-text" numCopies={4} />
           </div>
 
-          {/* 3D MODEL SECTION */}
-          <section className="py-24 px-4 bg-white">
-            <div className="max-w-6xl mx-auto text-center mb-12">
-              <h3 className="text-3xl sm:text-5xl font-bold mb-4 text-slate-900">El Dispositiu al Detall</h3>
-              <p className="text-slate-600 text-lg max-w-2xl mx-auto">
-                Model 3D interactiu de la nostra estació de monitoratge autònoma. Pots girar i fer zoom per veure'n el disseny.
+          {/* 3D MODEL + FOTO REAL */}
+          <section className="py-20 px-4 bg-white">
+            <div className="header-sadrif-seccion">
+              <h3 className="text-3xl sm:text-5xl font-bold text-slate-900">El Dispositiu al Detall</h3>
+              <p className="text-slate-600 text-lg">
+                Compara la fotografia real amb el model 3D interactiu. Gira'l, fes zoom, canvia de vista o veu-lo a mida real amb Realitat Augmentada.
               </p>
             </div>
-            
-            <div className="max-w-4xl mx-auto h-[600px] bg-white rounded-3xl border border-slate-200 p-4 model-container shadow-xl">
-              <model-viewer
-                src={modelSrc}
-                alt="Model 3D del dispositiu Pla DRIF"
-                auto-rotate
-                camera-controls
-                shadow-intensity="1"
-                environment-image="neutral"
-                exposure="1"
-                style={{ width: '100%', height: '100%', borderRadius: '1rem', outline: 'none' }}
-              >
-              </model-viewer>
+
+            <div className="model-grid">
+              <div className="device-photo-frame">
+                <span className="device-photo-badge">Foto real</span>
+                <img src="foto-caja-sadrif.png" alt="Fotografia real del dispositiu SADRIF" />
+              </div>
+
+              <div className="h-[420px] md:h-[600px] bg-white rounded-3xl border border-slate-200 p-4 model-container shadow-xl">
+                <model-viewer
+                  ref={modelRef}
+                  src={modelSrc}
+                  alt="Model 3D del dispositiu SADRIF"
+                  auto-rotate={autoRotate ? true : undefined}
+                  camera-controls
+                  camera-orbit="0deg 75deg auto"
+                  ar
+                  ar-modes="webxr scene-viewer quick-look"
+                  shadow-intensity="1"
+                  environment-image="neutral"
+                  exposure="1"
+                  style={{ width: '100%', height: '100%', borderRadius: '1rem', outline: 'none' }}
+                >
+                </model-viewer>
+              </div>
             </div>
 
-            {/* BOTONES AÑADIDOS PARA CONTROLAR LA VISTA DEL MODELO */}
-            <div className="flex flex-wrap justify-center gap-4 mt-8">
-              <button
-                onClick={() => setModelSrc('sadrif_3d.glb')}
-                className={`px-8 py-3 rounded-full font-bold transition-all duration-300 ${
-                  modelSrc === 'sadrif_3d.glb' 
-                    ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 ring-2 ring-emerald-500 ring-offset-2' 
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
-                }`}
-              >
-                Dispositiu Tancat
-              </button>
-              <button
-                onClick={() => setModelSrc('sadrif_inside.glb')}
-                className={`px-8 py-3 rounded-full font-bold transition-all duration-300 ${
-                  modelSrc === 'sadrif_inside.glb' 
-                    ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 ring-2 ring-emerald-500 ring-offset-2' 
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
-                }`}
-              >
-                Dispositiu Obert (Interior)
-              </button>
-            </div>
+            {/* CONTROLES DEL MODELO 3D */}
+            <div className="model-toolbar">
+              <div className="toolbar-group">
+                <button
+                  onClick={() => setModelSrc('sadrif_3d.glb')}
+                  className={`toolbar-btn ${modelSrc === 'sadrif_3d.glb' ? 'actiu' : ''}`}
+                >
+                  📦 Dispositiu Tancat
+                </button>
+                <button
+                  onClick={() => setModelSrc('sadrif_inside.glb')}
+                  className={`toolbar-btn ${modelSrc === 'sadrif_inside.glb' ? 'actiu' : ''}`}
+                >
+                  🔧 Dispositiu Obert (Interior)
+                </button>
+              </div>
 
+              <div className="toolbar-divider"></div>
+
+              <div className="toolbar-group">
+                <button onClick={() => setView('frontal', '0deg 75deg auto')} className={`toolbar-btn ${activeView === 'frontal' ? 'actiu' : ''}`}>Vista Frontal</button>
+                <button onClick={() => setView('lateral', '90deg 75deg auto')} className={`toolbar-btn ${activeView === 'lateral' ? 'actiu' : ''}`}>Vista Lateral</button>
+                <button onClick={() => setView('superior', '0deg 20deg auto')} className={`toolbar-btn ${activeView === 'superior' ? 'actiu' : ''}`}>Vista Superior</button>
+              </div>
+
+              <div className="toolbar-divider"></div>
+
+              <div className="toolbar-group">
+                <button onClick={() => setAutoRotate(v => !v)} className={`toolbar-btn ${autoRotate ? 'actiu' : ''}`}>
+                  {autoRotate ? '⏸ Aturar rotació' : '▶ Rotació automàtica'}
+                </button>
+                <button onClick={handleAR} className="toolbar-btn ar-btn">📱 Veure en Realitat Augmentada</button>
+              </div>
+            </div>
+          </section>
+
+          {/* FITXA TÈCNICA */}
+          <section className="py-16 px-4 bg-slate-50">
+            <div className="spec-sheet-card">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 m-0">Fitxa Tècnica</h3>
+                  <p className="text-slate-500 text-sm mt-1">Tots els components i característiques del dispositiu.</p>
+                </div>
+                <button
+                  className={`spec-sheet-toggle-btn ${specOpen ? 'obert' : ''}`}
+                  onClick={() => setSpecOpen(v => !v)}
+                >
+                  {specOpen ? 'Amagar detalls' : 'Veure fitxa completa'}
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+              </div>
+              <div className={`spec-sheet-body ${specOpen ? 'obert' : ''}`}>
+                <div className="spec-table-grid">
+                  {specRows.map(([label, value], i) => (
+                    <div className="spec-row" key={i}>
+                      <span>{label}</span>
+                      <span>{value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </section>
 
           {/* ACCORDION GALLERY SECTION */}
-          <section className="py-24 px-4 bg-slate-50">
-            <div className="max-w-6xl mx-auto text-center mb-12">
-              <h3 className="text-3xl sm:text-5xl font-bold mb-4 text-slate-900">Arquitectura del Sistema</h3>
-              <p className="text-slate-600 text-lg max-w-2xl mx-auto">
-                Explora els components d’alta tecnologia que fan possible la detecció immediata i la protecció contínua dels nostres boscos.
+          <section className="py-20 px-4 bg-white">
+            <div className="header-sadrif-seccion">
+              <h3 className="text-3xl sm:text-5xl font-bold text-slate-900">Arquitectura del Sistema</h3>
+              <p className="text-slate-600 text-lg">
+                Explora els components que fan possible la detecció immediata: toca o passa el ratolí per cada peça.
               </p>
             </div>
-            <div className="max-w-6xl mx-auto">
+            <div className="gallery-wrap-card">
               <AccordionGallery items={componentsItems} />
             </div>
           </section>
 
+          {/* SEGUEIX EXPLORANT */}
+          <section className="py-20 px-4 bg-slate-50">
+            <div className="header-sadrif-seccion">
+              <h3 className="text-3xl sm:text-4xl font-bold text-slate-900">Segueix explorant</h3>
+              <p className="text-slate-600 text-lg">El dispositiu és només una part del projecte.</p>
+            </div>
+            <div className="explore-cta-grid">
+              <a href="index.html" className="explore-cta-card">
+                <strong>Panell en Directe</strong>
+                <span className="sub">Consulta les dades en temps real de temperatura, humitat, vent i risc d'incendi de l'estació.</span>
+                <span className="explore-cta-arrow">Veure el panell →</span>
+              </a>
+              <a href="sobre-nosotros.html" className="explore-cta-card">
+                <strong>La Història del Projecte</strong>
+                <span className="sub">Descobreix per què vam crear SADRIF, com l'hem construït i qui hi ha darrere.</span>
+                <span className="explore-cta-arrow">Descobrir el projecte →</span>
+              </a>
+            </div>
+          </section>
+
           {/* FOOTER */}
-          <footer className="py-12 text-center border-t border-slate-200 bg-white mt-12">
-            <p className="text-slate-500 font-medium">© 2026 Pla DRIF - Protegint la Natura amb Tecnologia.</p>
+          <footer className="pt-12 border-t border-slate-200 bg-white mt-4 px-4">
+            <div className="footer-logos-contenedor">
+              <img src="logo-sabadell.png" alt="Ajuntament de Sabadell" onError={(e) => { e.target.onerror = null; e.target.src = 'logo-sabadell.png.png'; }} />
+              <img src="logo-generalitat.png" alt="Generalitat de Catalunya" onError={(e) => { e.target.onerror = null; e.target.src = 'logo-generalitat.png.png'; }} />
+            </div>
+            <div className="footer-disclaimer">
+              <p><strong>Pla DRIF</strong> és un Treball de Recerca de 2n de Batxillerat. No tenim cap vinculació oficial amb les entitats mostrades ni en representem cap.</p>
+              <p>© 2026 PLA DRIF Project. Tots els drets reservats.</p>
+            </div>
           </footer>
 
         </div>
@@ -827,8 +1074,8 @@
 
         function createTimeline() {
             navTimeline.clear();
-            navTimeline.to(navEl, { height: calculateHeight, duration: 0.4, ease: 'power3.out' });
-            navTimeline.to(cards, { y: 0, opacity: 1, duration: 0.4, ease: 'power3.out', stagger: 0.08 }, '-=0.1');
+            navTimeline.to(navEl, { height: calculateHeight, duration: 0.5, ease: 'power2.inOut' });
+            navTimeline.to(cards, { y: 0, opacity: 1, duration: 0.42, ease: 'power2.out', stagger: 0.07 }, '-=0.28');
         }
 
         createTimeline();
@@ -842,7 +1089,7 @@
             if (isExpanded) {
                 navTimeline.timeScale(1).play(0);
             } else {
-                navTimeline.timeScale(3).reverse();
+                navTimeline.timeScale(1.15).reverse();
             }
         });
 
