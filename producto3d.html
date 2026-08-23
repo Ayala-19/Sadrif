@@ -4,6 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dispositiu SADRIF en 3D | Pla DRIF</title>
+
+    <!-- Favicon i icones de l'aplicació -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="shortcut icon" href="favicon.svg">
+    <link rel="apple-touch-icon" href="apple-touch-icon.svg">
+    <link rel="mask-icon" href="favicon.svg" color="#059669">
+    <meta name="theme-color" content="#059669">
+
+    <!-- SEO i previsualització a xarxes socials -->
+    <meta name="description" content="Explora el dispositiu SADRIF en 3D: components, material, circuit d'alimentació solar i fitxa tècnica completa.">
+    <link rel="canonical" href="http://pladrif.online/producto3d.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Pla DRIF">
+    <meta property="og:locale" content="ca_ES">
+    <meta property="og:title" content="Dispositiu SADRIF en 3D | Pla DRIF">
+    <meta property="og:description" content="Explora el dispositiu SADRIF en 3D: components, material, circuit d'alimentació solar i fitxa tècnica completa.">
+    <meta property="og:url" content="http://pladrif.online/producto3d.html">
+    <meta property="og:image" content="og-preview.svg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Dispositiu SADRIF en 3D | Pla DRIF">
+    <meta name="twitter:description" content="Explora el dispositiu SADRIF en 3D: components, material, circuit d'alimentació solar i fitxa tècnica completa.">
+    <meta name="twitter:image" content="og-preview.svg">
+
   
   <!-- Fuentes para el menú CardNav -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -380,12 +403,46 @@
     .spec-sheet-toggle-btn svg { transition: transform 0.3s ease; }
     .spec-sheet-toggle-btn.obert svg { transform: rotate(180deg); }
     .spec-sheet-body { max-height: 0; overflow: hidden; opacity: 0; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
-    .spec-sheet-body.obert { max-height: 700px; opacity: 1; margin-top: 24px; }
+    .spec-sheet-body.obert { max-height: 1100px; opacity: 1; margin-top: 24px; }
     .spec-table-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 36px; }
     @media (max-width: 640px) { .spec-table-grid { grid-template-columns: 1fr; } }
     .spec-row { display: flex; justify-content: space-between; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--borde-claro); font-size: 0.92rem; }
     .spec-row span:first-child { color: var(--texto-mutado); font-weight: 600; }
     .spec-row span:last-child { font-weight: 700; color: var(--texto-principal); text-align: right; }
+
+    /* ===== MATERIAL I CIRCUIT (llista real de components del dispositiu) ===== */
+    .bom-grid { max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 22px; align-items: start; }
+    @media (max-width: 900px) { .bom-grid { grid-template-columns: 1fr; } }
+    .bom-card {
+      background: var(--glass-bg); backdrop-filter: blur(20px) saturate(120%);
+      -webkit-backdrop-filter: blur(20px) saturate(120%); border: 1px solid var(--glass-border);
+      border-radius: 22px; box-shadow: var(--glass-shadow); padding: 26px 26px 20px; overflow: hidden;
+    }
+    .bom-card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+    .bom-card-head .bom-chip {
+      font-size: 0.7rem; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase;
+      padding: 6px 12px; border-radius: 999px; color: #fff; background: rgba(15,23,42,0.9);
+    }
+    .bom-card--circuit .bom-card-head .bom-chip { background: var(--riesgo-color-dinamico, #059669); }
+    .bom-card h4 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--texto-principal); }
+    .bom-card > p { margin: 8px 0 18px; color: var(--texto-mutado); font-size: 0.9rem; line-height: 1.6; }
+    .bom-list { list-style: none; margin: 0; padding: 0; }
+    .bom-item {
+      display: flex; align-items: flex-start; gap: 14px; padding: 13px 0;
+      border-bottom: 1px solid var(--borde-claro);
+    }
+    .bom-item:last-child { border-bottom: none; }
+    .bom-ico {
+      flex: 0 0 38px; height: 38px; border-radius: 11px; display: grid; place-items: center;
+      font-size: 1.05rem; background: rgba(5,150,105,0.10); border: 1px solid rgba(5,150,105,0.18);
+    }
+    .bom-card--circuit .bom-ico { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.22); }
+    .bom-text strong { display: block; font-size: 0.95rem; font-weight: 700; color: var(--texto-principal); line-height: 1.35; }
+    .bom-text span { display: block; margin-top: 3px; font-size: 0.83rem; color: var(--texto-mutado); line-height: 1.5; }
+    .bom-note {
+      max-width: 1080px; margin: 20px auto 0; font-size: 0.85rem; color: var(--texto-mutado);
+      text-align: center; line-height: 1.6;
+    }
 
     .gallery-wrap-card {
       max-width: 1150px; margin: 0 auto; background: var(--glass-bg); backdrop-filter: blur(20px) saturate(120%);
@@ -801,25 +858,32 @@
       ];
 
       const marqueeTexts = [
-        "DISPOSITIU SADRIF • ENERGIA SOLAR AUTÒNOMA • 4 SENSORS AMBIENTALS",
+        "DISPOSITIU SADRIF • ENERGIA SOLAR AUTÒNOMA • ESP32 + 5 SENSORS",
         "CARCASSA IMPRESA EN 3D • RESISTENT A LA INTEMPÈRIE • DADES EN TEMPS REAL"
       ];
 
       const quickSpecs = [
         { icon: '🔆', label: 'Alimentació solar autònoma' },
         { icon: '🌡️', label: '4 sensors ambientals' },
-        { icon: '📡', label: 'Comunicació Long-Range' },
+        { icon: '📡', label: 'Enviament de dades per Wi-Fi' },
         { icon: '🖨️', label: 'Carcassa impresa en 3D' }
       ];
 
       const specRows = [
-        ['Microcontrolador', 'ESP32'],
-        ['Sensors integrats', 'Temperatura, humitat, vent i pressió'],
-        ['Alimentació', 'Panell solar + bateria autònoma'],
-        ['Comunicació', 'Mòdul Long-Range (LoRa)'],
+        ['Microcontrolador', 'ESP32 STEAMakers'],
+        ['Mòdul de càmera', 'ESP32-CAM'],
+        ['Temperatura i humitat', 'DHT11'],
+        ['Pressió atmosfèrica', 'BMP280'],
+        ['Vent', 'Anemòmetre'],
+        ['Qualitat de l’aire', 'Sensor de CO₂ SEN-CCS811B'],
+        ['Pantalla', 'OLED 0,96"'],
+        ['Alimentació', 'Mini plaques solars + bateria de liti'],
+        ['Gestió de càrrega', 'Mòdul TP4056'],
+        ['Conversió de tensió', 'Step-Up MT3608 (3,7 V → 5 V)'],
+        ['Comunicació', 'Wi-Fi (enviament a ThingSpeak)'],
         ['Emmagatzematge de dades', 'Núvol (ThingSpeak), en temps real'],
         ['Carcassa', 'Impresa en 3D, resistent a la intempèrie'],
-        ['Model de risc', "Regla del 30-30-30 (temp / humitat / vent)"],
+        ['Model de risc', "Puntuació de 0 a 100 + regla del 30-30-30"],
         ['Ubicació actual', 'Bosc de Can Deu, Torrent de Colobrers (Sabadell)']
       ];
 
@@ -838,11 +902,30 @@
       };
 
       const componentsItems = [
-        { image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80', label: 'Processador Edge AI (IA Local)' },
-        { image: 'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&w=900&q=80', label: 'Càmera Tèrmica d’Alta Precisió' },
-        { image: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&w=900&q=80', label: 'Panell Solar i Bateria Autònoma' },
-        { image: 'https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?auto=format&fit=crop&w=900&q=80', label: 'Sensors Ambientals (Tª, Humitat i Gasos)' },
-        { image: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=900&q=80', label: 'Mòdul de Comunicació Long-Range' }
+        { image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80', label: 'ESP32 STEAMakers — Placa principal' },
+        { image: 'https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?auto=format&fit=crop&w=900&q=80', label: 'DHT11 i BMP280 — Temperatura, humitat i pressió' },
+        { image: 'https://images.unsplash.com/photo-1621570075668-7ed4e4ec1a0e?auto=format&fit=crop&w=900&q=80', label: 'Anemòmetre — Velocitat del vent' },
+        { image: 'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&w=900&q=80', label: 'ESP32-CAM — Vigilància visual del bosc' },
+        { image: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&w=900&q=80', label: 'Plaques solars, TP4056 i bateria — Energia autònoma' }
+      ];
+
+      /* Llistat real de material del dispositiu SADRIF */
+      const bomMaterial = [
+        { ico: '🧠', name: 'ESP32 STEAMakers', desc: 'Microcontrolador principal: llegeix els sensors, calcula i envia les dades al núvol per Wi-Fi.' },
+        { ico: '📷', name: 'ESP32-CAM', desc: "Mòdul amb càmera integrada per a la vigilància visual de l'entorn de l'estació." },
+        { ico: '🫁', name: 'Sensor de CO₂ (SEN-CCS811B)', desc: "Detecta la concentració de CO₂ i compostos volàtils, un indici primerenc de combustió." },
+        { ico: '🌡️', name: 'Sensor de temperatura i humitat (DHT11)', desc: "Mesura la temperatura de l'aire i la humitat relativa, dos dels tres factors de la regla del 30-30-30." },
+        { ico: '🧭', name: 'Sensor de pressió baromètrica (BMP280)', desc: "Registra la pressió atmosfèrica com a indicador complementari de l'estat de l'atmosfera." },
+        { ico: '💨', name: 'Anemòmetre', desc: 'Mesura la velocitat del vent, el factor determinant en la propagació del foc.' },
+        { ico: '🖥️', name: 'Pantalla OLED 0,96"', desc: 'Mostra les lectures i el nivell de risc directament al dispositiu, sense necessitat de connexió.' },
+        { ico: '🔌', name: 'Cables i protoboard', desc: "Connexionat i muntatge de tot el conjunt electrònic dins de la carcassa impresa en 3D." }
+      ];
+
+      const bomCircuit = [
+        { ico: '🔆', name: 'Mini plaques solars', desc: "Obtenció d'energia: alimenten el dispositiu i recarreguen la bateria durant el dia." },
+        { ico: '🔋', name: 'Mòdul TP4056', desc: 'Carrega la bateria de forma segura i evita sobrecàrregues i descàrregues profundes.' },
+        { ico: '🪫', name: 'Bateria de liti', desc: '3.000–3.500 mAh (versió compacta) o 4.000–5.000 mAh (versió d’autonomia estesa).' },
+        { ico: '⚡', name: 'Convertidor Step-Up MT3608', desc: 'Eleva la tensió de la bateria de 3,7 V als 5 V que necessita l’electrònica.' }
       ];
 
       return (
@@ -985,8 +1068,62 @@
             </div>
           </section>
 
-          {/* ACCORDION GALLERY SECTION */}
+          {/* MATERIAL I CIRCUIT — LLISTA REAL DE COMPONENTS */}
           <section className="py-20 px-4 bg-white">
+            <div className="header-sadrif-seccion">
+              <h3 className="text-3xl sm:text-5xl font-bold text-slate-900">Material i circuit</h3>
+              <p className="text-slate-600 text-lg">
+                Tot el que hi ha dins de la caixa: l'electrònica que pren les mesures i el circuit que manté el dispositiu alimentat sense endoll.
+              </p>
+            </div>
+
+            <div className="bom-grid">
+              <div className="bom-card">
+                <div className="bom-card-head">
+                  <span className="bom-chip">Material</span>
+                </div>
+                <h4>Electrònica i sensors</h4>
+                <p>Els components que llegeixen l'entorn i processen la informació.</p>
+                <ul className="bom-list">
+                  {bomMaterial.map((it, i) => (
+                    <li className="bom-item" key={i}>
+                      <span className="bom-ico">{it.ico}</span>
+                      <span className="bom-text">
+                        <strong>{it.name}</strong>
+                        <span>{it.desc}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="bom-card bom-card--circuit">
+                <div className="bom-card-head">
+                  <span className="bom-chip">Circuit</span>
+                </div>
+                <h4>Alimentació autònoma</h4>
+                <p>El circuit solar que fa que l'estació funcioni sola al bosc.</p>
+                <ul className="bom-list">
+                  {bomCircuit.map((it, i) => (
+                    <li className="bom-item" key={i}>
+                      <span className="bom-ico">{it.ico}</span>
+                      <span className="bom-text">
+                        <strong>{it.name}</strong>
+                        <span>{it.desc}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <p className="bom-note">
+              Cadena d'alimentació: mini plaques solars → mòdul de càrrega TP4056 → bateria de liti (3,7 V) → convertidor Step-Up MT3608 → 5 V per a l'ESP32 i els sensors.
+            </p>
+          </section>
+
+          {/* ACCORDION GALLERY SECTION */}
+          <section className="py-20 px-4 bg-slate-50">
             <div className="header-sadrif-seccion">
               <h3 className="text-3xl sm:text-5xl font-bold text-slate-900">Arquitectura del Sistema</h3>
               <p className="text-slate-600 text-lg">
@@ -999,7 +1136,7 @@
           </section>
 
           {/* SEGUEIX EXPLORANT */}
-          <section className="py-20 px-4 bg-slate-50">
+          <section className="py-20 px-4 bg-white">
             <div className="header-sadrif-seccion">
               <h3 className="text-3xl sm:text-4xl font-bold text-slate-900">Segueix explorant</h3>
               <p className="text-slate-600 text-lg">El dispositiu és només una part del projecte.</p>
