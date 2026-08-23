@@ -193,7 +193,9 @@
         .contrast-card--resposta .contrast-tag { background: rgba(5,150,105,0.14); color: #047857; }
         .contrast-card h3 { margin: 0 0 10px; font-size: 1.2rem; }
         .contrast-card p { margin: 0; color: var(--texto-mutado); font-size: 0.97rem; line-height: 1.65; }
-        .contrast-icon { font-size: 1.9rem; margin-bottom: 6px; display: block; }
+        .contrast-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; margin-bottom: 14px; }
+        .contrast-card--problema .contrast-icon { background: rgba(239,68,68,0.10); border: 1px solid rgba(239,68,68,0.20); color: #dc2626; }
+        .contrast-card--resposta .contrast-icon { background: rgba(5,150,105,0.10); border: 1px solid rgba(5,150,105,0.20); color: #047857; }
 
         .objective-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 36px; }
         @media (max-width: 800px) { .objective-grid { grid-template-columns: 1fr; } }
@@ -215,7 +217,8 @@
         }
         .sensor-card:hover { transform: translateY(-5px); box-shadow: 0 16px 30px rgba(15,23,42,0.09); }
         .sensor-card.actiu { box-shadow: 0 16px 34px rgba(15,23,42,0.12); transform: translateY(-5px); }
-        .sensor-icon { font-size: 1.7rem; display: block; margin-bottom: 8px; }
+        .sensor-icon { display: grid; place-items: center; width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 13px; background: rgba(15,23,42,0.04); color: var(--texto-mutado); transition: color 0.3s ease, background 0.3s ease; }
+        .sensor-card.actiu .sensor-icon { background: rgba(15,23,42,0.06); }
         .sensor-card h4 { margin: 0 0 4px 0; font-size: 0.98rem; }
         .sensor-card .sensor-hint { margin: 0; font-size: 0.76rem; color: var(--texto-mutado); font-weight: 600; }
         .sensor-live-val { font-size: 1.35rem; font-weight: 800; font-variant-numeric: tabular-nums; margin-top: 8px; }
@@ -224,7 +227,7 @@
             background: #fff; border: 1px solid var(--borde-claro); border-radius: 20px; padding: 26px 28px;
             box-shadow: 0 8px 26px rgba(15,23,42,0.06); margin-bottom: 34px; border-left: 6px solid var(--accent);
         }
-        .sensor-detail h4 { margin: 0 0 8px; font-size: 1.15rem; }
+        .sensor-detail h4 { margin: 0 0 10px; font-size: 1.15rem; }
         .sensor-detail p { margin: 0 0 10px; color: var(--texto-mutado); line-height: 1.7; font-size: 0.97rem; }
         .sensor-detail p:last-child { margin-bottom: 0; }
 
@@ -235,8 +238,8 @@
         .simulador-box h4 { margin: 0 0 6px 0; font-size: 1.2rem; text-align: center; }
         .simulador-intro { margin: 0 auto 26px; color: var(--texto-mutado); line-height: 1.65; text-align: center; max-width: 560px; font-size: 0.95rem; }
         .slider-row { margin-bottom: 22px; }
-        .slider-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; gap: 12px; }
-        .slider-label { font-weight: 700; font-size: 0.95rem; }
+        .slider-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 12px; }
+        .slider-label { font-weight: 700; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px; }
         .slider-value { font-weight: 800; font-size: 1.05rem; font-variant-numeric: tabular-nums; }
         .slider-input { width: 100%; -webkit-appearance: none; appearance: none; height: 8px; border-radius: 99px; outline: none; cursor: pointer; }
         .slider-input::-webkit-slider-thumb {
@@ -256,7 +259,7 @@
         .sim-result-title { font-size: 1.5rem; font-weight: 800; margin: 6px 0 8px; }
         .sim-result-text { font-size: 0.93rem; line-height: 1.6; margin: 0; opacity: 0.9; }
         .sim-badges { display: flex; justify-content: center; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
-        .sim-badge { font-size: 0.75rem; font-weight: 800; padding: 5px 12px; border-radius: 99px; background: rgba(255,255,255,0.75); border: 1px solid rgba(15,23,42,0.08); }
+        .sim-badge { font-size: 0.75rem; font-weight: 800; padding: 5px 12px; border-radius: 99px; background: rgba(255,255,255,0.75); border: 1px solid rgba(15,23,42,0.08); display: inline-flex; align-items: center; gap: 6px; }
         .btn-reset-sim {
             display: block; margin: 18px auto 0; background: transparent; border: 1px solid var(--borde-claro);
             color: var(--texto-mutado); padding: 8px 18px; border-radius: 99px; font-weight: 700; font-size: 0.83rem;
@@ -292,7 +295,22 @@
         .depth-carousel__dots { display: flex; justify-content: center; gap: 8px; margin-top: 20px; }
         .depth-carousel__dot { width: 8px; height: 8px; border-radius: 50%; background: #cbd5e1; cursor: pointer; transition: background 0.3s ease, transform 0.3s ease; }
         .depth-carousel__dot--active { background: var(--accent); transform: scale(1.3); }
-        .carousel-note { text-align: center; color: var(--texto-mutado); font-size: 0.9rem; margin-top: -20px; margin-bottom: 30px; }
+        /* Descripció de la fotografia seleccionada del carrusel */
+        .carousel-detail {
+            max-width: 720px; margin: 26px auto 30px; padding: 22px 24px; border-radius: 18px;
+            background: #fff; border: 1px solid var(--borde-claro); box-shadow: 0 6px 22px rgba(15,23,42,0.05);
+            text-align: center;
+        }
+        .carousel-detail.is-in { animation: carouselDetailIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+        .carousel-detail-index {
+            display: block; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.12em;
+            color: var(--accent); margin-bottom: 8px; font-variant-numeric: tabular-nums;
+        }
+        .carousel-detail strong { display: block; font-size: 1.05rem; font-weight: 800; line-height: 1.35; }
+        .carousel-detail p { margin: 8px 0 0; font-size: 0.92rem; color: var(--texto-mutado); line-height: 1.7; }
+        @keyframes carouselDetailIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+        @media (prefers-reduced-motion: reduce) { .carousel-detail.is-in { animation: none; } }
+        @media (max-width: 600px) { .carousel-detail { padding: 18px; margin-top: 18px; } }
 
         /* ========= SCROLL STACK (línia de temps, estil React Bits) =========
            L'apilament el fa `position: sticky` del navegador (compositor natiu, sense
@@ -337,62 +355,157 @@
             .scroll-stack-card p { font-size: 0.92rem; }
         }
 
-        /* ========= EQUIP ========= */
-        .team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 24px; }
-        @media (max-width: 800px) { .team-grid { grid-template-columns: 1fr 1fr; } }
-        /* ========= TARGETES D'EQUIP (estil Profile Card: tilt + holograma) ========= */
-        .team-card-wrap { perspective: 900px; }
-        .team-card {
-            position: relative; overflow: hidden; border-radius: 22px; padding: 30px 20px 26px; text-align: center;
-            background: linear-gradient(165deg, #ffffff 0%, #f8fafc 100%);
-            border: 1px solid var(--borde-claro); box-shadow: 0 6px 20px rgba(15,23,42,0.06);
-            will-change: transform; transition: transform 0.5s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s ease;
-            transform-style: preserve-3d;
-        }
-        .team-card:hover { box-shadow: 0 26px 50px rgba(15,23,42,0.16); transition: transform 0.1s ease-out, box-shadow 0.3s ease; }
-        /* Capa holográfica que segueix el cursor */
-        .team-card-holo {
-            position: absolute; inset: 0; pointer-events: none; border-radius: inherit; z-index: 1;
-            mix-blend-mode: color-dodge; opacity: 0; transition: opacity 0.35s ease;
-        }
-        .team-card-spot { position: absolute; inset: 0; pointer-events: none; border-radius: inherit; transition: opacity 0.35s ease; z-index: 2; }
-        .team-card-inner { position: relative; z-index: 3; }
-        .team-logo-badge {
-            position: absolute; top: 14px; right: 14px; width: 30px; height: 30px; opacity: 0.5;
-            z-index: 4; transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-        .team-card:hover .team-logo-badge { opacity: 1; transform: scale(1.1) rotate(-6deg); }
-        .team-logo-badge img { width: 100%; height: 100%; object-fit: contain; }
-        .team-avatar {
-            position: relative; width: 84px; height: 84px; border-radius: 50%; margin: 0 auto 16px auto;
-            display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.4rem; color: #fff;
-            box-shadow: 0 0 0 4px rgba(255,255,255,0.9), 0 12px 26px rgba(15,23,42,0.18);
-        }
-        .team-avatar::after {
-            content: ''; position: absolute; inset: -3px; border-radius: 50%;
-            background: conic-gradient(from 0deg, transparent, rgba(255,255,255,0.85), transparent 40%);
-            opacity: 0; transition: opacity 0.4s ease; animation: spinRing 3.5s linear infinite;
-        }
-        .team-card:hover .team-avatar::after { opacity: 1; }
-        @keyframes spinRing { to { transform: rotate(360deg); } }
-        .team-card h4 { margin: 0; font-size: 1.05rem; font-weight: 800; }
-        .team-card .rol { font-size: 0.85rem; color: var(--texto-mutado); margin-top: 5px; }
-        .team-card .team-line { width: 34px; height: 3px; border-radius: 99px; margin: 14px auto 0; opacity: 0.65; }
+        /* Icones SVG: mida uniforme a tota la pàgina */
+        .ico { display: inline-block; flex: none; vertical-align: middle; }
 
-        /* ========= FOOTER COMPARTIT ========= */
-        .footer-logos-contenedor {
-            background: var(--glass-bg); backdrop-filter: blur(15px) saturate(120%);
-            -webkit-backdrop-filter: blur(15px) saturate(120%);
-            border: 1px solid var(--glass-border); border-radius: 20px; padding: 35px 50px;
-            display: flex; justify-content: center; gap: 70px; align-items: center; flex-wrap: wrap; margin-bottom: 24px;
+        /* =========================================================
+           EQUIP — Profile Card (port del component de React Bits)
+           https://reactbits.dev/components/profile-card
+           ========================================================= */
+        .team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 8px; }
+        @media (max-width: 1000px) { .team-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; } }
+        @media (max-width: 520px) { .team-grid { grid-template-columns: 1fr; max-width: 330px; margin-inline: auto; } }
+
+        .pc-card-wrapper {
+            --pointer-x: 50%; --pointer-y: 50%; --pointer-from-center: 0;
+            --pointer-from-top: 0.5; --pointer-from-left: 0.5;
+            --card-opacity: 0; --rotate-x: 0deg; --rotate-y: 0deg;
+            --background-x: 50%; --background-y: 50%;
+            --behind-glow-color: rgba(16, 185, 129, 0.55); --behind-glow-size: 45%;
+            --inner-gradient: linear-gradient(145deg, #0f766e8c 0%, #10b98144 100%);
+            --card-radius: 26px;
+            perspective: 620px; transform: translate3d(0, 0, 0.1px); position: relative; touch-action: none;
         }
-        .footer-logos-contenedor img { height: 85px; filter: grayscale(10%); transition: var(--transicion); }
-        .footer-logos-contenedor img:hover { filter: grayscale(0%); transform: scale(1.1) rotate(-2deg); }
-        .footer-disclaimer { text-align: center; padding: 10px 0 30px; color: var(--texto-mutado); font-size: 0.8rem; max-width: 720px; margin: 0 auto; }
-        .footer-disclaimer p { margin: 0 0 8px; line-height: 1.6; }
-        @media (max-width: 600px) {
-            .footer-logos-contenedor { gap: 30px; padding: 24px; }
-            .footer-logos-contenedor img { height: 58px; }
+        .pc-behind {
+            position: absolute; inset: 6%; z-index: 0; pointer-events: none;
+            background: radial-gradient(circle at var(--pointer-x) var(--pointer-y), var(--behind-glow-color) 0%, transparent var(--behind-glow-size));
+            filter: blur(34px) saturate(1.1); opacity: calc(0.75 * var(--card-opacity));
+            transition: opacity 200ms ease;
+        }
+        .pc-card-wrapper:hover, .pc-card-wrapper.active { --card-opacity: 1; }
+        .pc-card-shell { position: relative; z-index: 1; }
+        .pc-card {
+            width: 100%; height: auto; aspect-ratio: 0.718; display: grid;
+            border-radius: var(--card-radius); position: relative;
+            background: rgba(6, 12, 20, 0.92); background-blend-mode: color-dodge, normal, normal, normal;
+            box-shadow: rgba(0,0,0,0.55) calc((var(--pointer-from-left) * 10px) - 3px) calc((var(--pointer-from-top) * 20px) - 6px) 22px -6px;
+            transition: transform 1s ease; transform: translateZ(0) rotateX(0deg) rotateY(0deg);
+            backface-visibility: hidden; overflow: hidden;
+        }
+        .pc-card:hover, .pc-card.active { transition: none; transform: translateZ(0) rotateX(var(--rotate-y)) rotateY(var(--rotate-x)); }
+        .pc-card-shell.entering .pc-card { transition: transform 180ms ease-out; }
+        .pc-card * { display: grid; grid-area: 1/-1; border-radius: var(--card-radius); pointer-events: none; }
+        .pc-inside { inset: 0; position: absolute; background-image: var(--inner-gradient); background-color: rgba(6, 12, 20, 0.92); transform: none; }
+
+        .pc-glare {
+            transform: translate3d(0, 0, 1.1px); overflow: hidden;
+            background-image: radial-gradient(farthest-corner circle at var(--pointer-x) var(--pointer-y), hsl(248, 25%, 80%) 12%, hsla(207, 40%, 30%, 0.8) 90%);
+            mix-blend-mode: overlay; filter: brightness(0.8) contrast(1.2); z-index: 4;
+        }
+
+        .pc-avatar-content { mix-blend-mode: luminosity; overflow: hidden; backface-visibility: hidden; }
+        .pc-avatar-content .avatar {
+            display: block; width: 100%; height: 78%; object-fit: cover; object-position: top center; position: absolute;
+            left: 50%; bottom: 0; border-radius: 0; transform-origin: 50% 100%;
+            transform: translateX(calc(-50% + (var(--pointer-from-left) - 0.5) * 6px)) translateZ(0)
+                scaleY(calc(1 + (var(--pointer-from-top) - 0.5) * 0.02)) scaleX(calc(1 + (var(--pointer-from-left) - 0.5) * 0.01));
+            backface-visibility: hidden; will-change: transform; transition: transform 120ms ease-out;
+            -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 100%);
+            mask-image: linear-gradient(180deg, #000 62%, transparent 100%);
+        }
+        /* Monograma de reserva mentre no hi ha la fotografia del membre */
+        .pc-fallback {
+            position: absolute; inset: 0; place-items: center; align-content: center;
+            font-size: clamp(3rem, 9vw, 4.4rem); font-weight: 800; letter-spacing: 0.04em;
+            color: rgba(255, 255, 255, 0.16); z-index: 0;
+        }
+
+        .pc-user-info {
+            position: absolute; --ui-inset: 14px;
+            /* Sense el botó de contacte, la barra s'ajusta al contingut
+               en comptes d'estirar-se d'una punta a l'altra. */
+            bottom: var(--ui-inset); left: var(--ui-inset); right: auto; max-width: calc(100% - var(--ui-inset) * 2);
+            z-index: 2; display: flex; align-items: center; gap: 10px;
+            background: rgba(255, 255, 255, 0.10); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 16px; padding: 9px 10px; pointer-events: auto;
+        }
+        .pc-user-details { display: flex; align-items: center; gap: 9px; min-width: 0; }
+        .pc-mini-avatar { width: 34px; height: 34px; border-radius: 50%; overflow: hidden; border: 1px solid rgba(255,255,255,0.18); flex-shrink: 0; background: rgba(255,255,255,0.08); }
+        .pc-mini-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .pc-mini-fallback { display: grid; place-items: center; width: 100%; height: 100%; font-size: 0.72rem; font-weight: 800; color: rgba(255,255,255,0.7); }
+        .pc-user-text { display: flex; align-items: flex-start; flex-direction: column; gap: 4px; min-width: 0; }
+        .pc-handle { font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.92); line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+        .pc-status { font-size: 0.7rem; color: rgba(255,255,255,0.65); line-height: 1; display: inline-flex; align-items: center; gap: 5px; }
+        .pc-status i { width: 6px; height: 6px; border-radius: 50%; background: #34d399; box-shadow: 0 0 8px #34d399; display: block; }
+        .pc-content:not(.pc-avatar-content) {
+            max-height: 100%; overflow: hidden; text-align: center; position: relative;
+            transform: translate3d(calc(var(--pointer-from-left) * -6px + 3px), calc(var(--pointer-from-top) * -6px + 3px), 0.1px);
+            z-index: 5; mix-blend-mode: luminosity;
+        }
+        .pc-details { width: 100%; position: absolute; top: 1.7em; display: flex; flex-direction: column; padding: 0 12px; }
+        .pc-details h3 {
+            font-weight: 700; margin: 0; font-size: clamp(1.15rem, 2.2vw, 1.6rem); line-height: 1.15;
+            background-image: linear-gradient(to bottom, #fff, #7fd8c0);
+            -webkit-text-fill-color: transparent; background-clip: text; -webkit-background-clip: text;
+        }
+        .pc-details p {
+            font-weight: 600; position: relative; top: 4px; font-size: 0.78rem; margin: 0 auto; max-width: 100%;
+            background-image: linear-gradient(to bottom, #fff, #3f9c86);
+            -webkit-text-fill-color: transparent; background-clip: text; -webkit-background-clip: text;
+        }
+        /* Als dispositius tàctils no hi ha cursor a seguir: desactivem
+           la resplendor de darrere, que és el que costa més de pintar. */
+        @media (hover: none) {
+            .pc-behind { display: none; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .pc-card { transition: none; }
+        }
+
+        /* ========= FOOTER COMPARTIT (igual a totes les pàgines) ========= */
+        .site-footer {
+            position: relative; background: #0b1220; color: #cbd5e1; padding: 64px 20px 26px;
+            font-size: 0.9rem; overflow: hidden;
+        }
+        .site-footer::before {
+            content: ''; position: absolute; inset: 0; pointer-events: none;
+            background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(16,185,129,0.13), transparent 62%);
+        }
+        .footer-inner {
+            position: relative; max-width: 1150px; margin: 0 auto; display: grid;
+            grid-template-columns: 1.6fr 1fr 1fr 1.2fr; gap: 44px 32px;
+        }
+        .footer-brand-logo { display: inline-flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.2rem; color: #fff; text-decoration: none; }
+        .footer-brand-logo img { height: 30px; filter: brightness(0) invert(1); }
+        .footer-brand p { margin: 16px 0 20px; color: #94a3b8; line-height: 1.7; max-width: 38ch; font-size: 0.86rem; }
+        .footer-social { display: flex; gap: 10px; }
+        .footer-social a {
+            width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center;
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); color: #cbd5e1;
+            transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+        }
+        .footer-social a:hover { background: rgba(16,185,129,0.18); border-color: rgba(16,185,129,0.45); color: #6ee7b7; transform: translateY(-3px); }
+        .footer-col h5 { margin: 0 0 16px; font-size: 0.71rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #64748b; }
+        .footer-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 11px; }
+        .footer-col a { color: #cbd5e1; text-decoration: none; font-size: 0.87rem; transition: color 0.22s ease; display: inline-flex; align-items: center; gap: 7px; }
+        .footer-col a:hover { color: #6ee7b7; }
+        .footer-partners { display: flex; flex-direction: column; gap: 12px; }
+        .footer-partner-chip { display: flex; align-items: center; gap: 12px; background: #fff; border-radius: 12px; padding: 10px 14px; transition: transform 0.25s ease; }
+        .footer-partner-chip:hover { transform: translateY(-2px); }
+        .footer-partner-chip img { height: 34px; width: auto; }
+        .footer-partner-chip span { font-size: 0.71rem; font-weight: 700; color: #334155; line-height: 1.35; white-space: nowrap; }
+        .footer-bottom {
+            position: relative; max-width: 1150px; margin: 44px auto 0; padding-top: 22px;
+            border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-wrap: wrap; gap: 12px;
+            align-items: center; justify-content: space-between; color: #64748b; font-size: 0.76rem;
+        }
+        .footer-bottom p { margin: 0; line-height: 1.6; }
+        .footer-bottom .footer-legal { max-width: 62ch; }
+        @media (max-width: 900px) { .footer-inner { grid-template-columns: 1fr 1fr; gap: 36px 24px; } }
+        @media (max-width: 560px) {
+            .site-footer { padding: 46px 18px 22px; }
+            .footer-inner { grid-template-columns: 1fr; gap: 32px; }
+            .footer-bottom { flex-direction: column; align-items: flex-start; margin-top: 32px; }
         }
     </style>
 </head>
@@ -496,7 +609,7 @@
             <div style="height:460px;">
                 <div class="depth-carousel" id="depth-carousel"></div>
             </div>
-            <p class="carousel-note">Imatges d'exemple — es substituiran per fotos reals del projecte.</p>
+            <div class="carousel-detail" id="carousel-detail" aria-live="polite"></div>
         </div>
 
         <!-- LÍNIA DE TEMPS -->
@@ -515,17 +628,76 @@
             </div>
             <div id="team-root"></div>
         </div>
-
-        <div class="footer-logos-contenedor animated-element" style="animation-delay:0.3s;">
-            <img src="logo-sabadell.png" alt="Ajuntament de Sabadell" onerror="this.onerror=null; this.src='logo-sabadell.png.png';">
-            <img src="logo-generalitat.png" alt="Generalitat de Catalunya" onerror="this.onerror=null; this.src='logo-generalitat.png.png';">
-        </div>
-
-        <div class="footer-disclaimer">
-            <p><strong>Pla DRIF</strong> és un Treball de Recerca de 2n de Batxillerat. No tenim cap vinculació oficial amb les entitats mostrades ni en representem cap.</p>
-            <p>© 2026 PLA DRIF Project. Tots els drets reservats.</p>
-        </div>
     </div>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <a href="index.html" class="footer-brand-logo">
+                    <img src="logo-sadrif.svg" alt="" onerror="this.onerror=null; this.src='logo-sadrif.svg.svg';">
+                    <span>PLA DRIF</span>
+                </a>
+                <p>
+                    Estació autònoma de detecció de risc d'incendis forestals, instal·lada al bosc de Can Deu (Sabadell).
+                    Treball de Recerca de 2n de Batxillerat.
+                </p>
+                <div class="footer-social">
+                    <a href="https://www.youtube.com/@PlaDRIF_Oficial" target="_blank" rel="noopener" aria-label="Canal de YouTube">
+                        <svg class="ico" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22.2 7.4a2.7 2.7 0 0 0-1.9-1.9C18.6 5 12 5 12 5s-6.6 0-8.3.5A2.7 2.7 0 0 0 1.8 7.4 28 28 0 0 0 1.3 12a28 28 0 0 0 .5 4.6 2.7 2.7 0 0 0 1.9 1.9C5.4 19 12 19 12 19s6.6 0 8.3-.5a2.7 2.7 0 0 0 1.9-1.9 28 28 0 0 0 .5-4.6 28 28 0 0 0-.5-4.6z"/><polygon points="9.9 15.1 15.4 12 9.9 8.9 9.9 15.1" fill="currentColor" stroke="none"/></svg>
+                    </a>
+                    <a href="https://www.instagram.com/pladrif_cat" target="_blank" rel="noopener" aria-label="Instagram">
+                        <svg class="ico" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.8"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>
+                    </a>
+                    <a href="https://www.twitch.tv/pla_drif" target="_blank" rel="noopener" aria-label="Directe a Twitch">
+                        <svg class="ico" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3h16v10.5L15.5 18H12l-3 3H7v-3H4z"/><path d="M11 7.5v4M15.5 7.5v4"/></svg>
+                    </a>
+                </div>
+            </div>
+
+            <div class="footer-col">
+                <h5>El projecte</h5>
+                <ul>
+                    <li><a href="index.html">Panell en directe</a></li>
+                    <li><a href="producto3d.html">Dispositiu en 3D</a></li>
+                    <li><a href="sobre-nosotros.html">Sobre el projecte</a></li>
+                    <li><a href="index.html#contenedor-visor">Càmera de vigilància</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h5>El dispositiu</h5>
+                <ul>
+                    <li><a href="producto3d.html">Fitxa tècnica</a></li>
+                    <li><a href="producto3d.html">Com funciona</a></li>
+                    <li><a href="producto3d.html">Preguntes freqüents</a></li>
+                    <li><a href="https://www.youtube.com/watch?v=5t9_Szm1RwA" target="_blank" rel="noopener">Vídeo del projecte</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h5>Amb el suport de</h5>
+                <div class="footer-partners">
+                    <div class="footer-partner-chip">
+                        <img src="logo-sabadell.png" alt="Ajuntament de Sabadell" onerror="this.onerror=null; this.src='logo-sabadell.png.png';">
+                        <span>Ajuntament<br>de Sabadell</span>
+                    </div>
+                    <div class="footer-partner-chip">
+                        <img src="logo-generalitat.png" alt="Generalitat de Catalunya" onerror="this.onerror=null; this.src='logo-generalitat.png.png';">
+                        <span>Generalitat<br>de Catalunya</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p class="footer-legal">
+                <strong>Pla DRIF</strong> és un Treball de Recerca de 2n de Batxillerat. No tenim cap vinculació oficial
+                amb les entitats mostrades ni en representem cap.
+            </p>
+            <p>© 2026 Pla DRIF. Tots els drets reservats.</p>
+        </div>
+    </footer>
 
     <!-- ISLES REACT: hero animat, objectius, línia de temps i equip (mateix mecanisme que producto3d.html) -->
     <script type="text/babel">
@@ -533,6 +705,38 @@
         const { motion } = window.Motion;
 
         function cn(...classes) { return classes.filter(Boolean).join(' '); }
+
+        /* =========================================================
+           SISTEMA D'ICONES SVG (substitueix qualsevol emoji)
+           Mateix traç i mateixa quadrícula que a producto3d.html.
+           ========================================================= */
+        const ICON_PATHS = {
+            flame: <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.4-.5-2-1-3-1.1-2.1-.2-4.1 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.2.4-2.3 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>,
+            radio: <React.Fragment><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49M7.76 16.25a6 6 0 0 1 0-8.49M19.07 4.93a10 10 0 0 1 0 14.14M4.93 19.07a10 10 0 0 1 0-14.14"/></React.Fragment>,
+            thermometer: <path d="M14 14.76V4.5a2.5 2.5 0 0 0-5 0v10.26a4.5 4.5 0 1 0 5 0z"/>,
+            droplet: <path d="M12 2.7l5.66 5.65a8 8 0 1 1-11.31 0z"/>,
+            wind: <path d="M9.6 4.6A2 2 0 1 1 11 8H2M12.6 19.4A2 2 0 1 0 14 16H2M17.7 7.7A2.5 2.5 0 1 1 19.5 12H2"/>,
+            gauge: <React.Fragment><circle cx="12" cy="12" r="9"/><path d="M12 12l4.2-3.2"/><circle cx="12" cy="12" r="1.4"/><path d="M12 3v1.6M21 12h-1.6M3 12h1.6"/></React.Fragment>,
+            alert: <React.Fragment><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4.5M12 17.5h.01"/></React.Fragment>,
+            check: <polyline points="20 6.5 9.5 17.5 4 12"/>,
+            circleEmpty: <circle cx="12" cy="12" r="7.5"/>,
+            reset: <React.Fragment><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><polyline points="3.5 4 3.5 9 8.5 9"/></React.Fragment>,
+            mail: <React.Fragment><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M3 7l9 6 9-6"/></React.Fragment>
+        };
+
+        const Icon = ({ name, size = 20, stroke = 1.75, className = '', style }) => {
+            const content = ICON_PATHS[name];
+            if (!content) return null;
+            return (
+                <svg
+                    className={cn('ico', className)} style={style}
+                    width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"
+                >
+                    {content}
+                </svg>
+            );
+        };
 
         /* ===== RotatingText (idèntic a producto3d.html) ===== */
         const RotatingText = forwardRef((props, ref) => {
@@ -632,12 +836,12 @@
         function ContrastCards() {
             const cards = [
                 {
-                    mod: 'problema', tag: 'El problema', icon: '🔥',
+                    mod: 'problema', tag: 'El problema', icon: 'flame',
                     title: 'Quan es veu el foc, ja és tard',
                     text: "Moltes vegades, quan un incendi es detecta visualment ja s'ha propagat massa ràpid per poder-lo controlar amb facilitat. La resposta arriba després que el foc s'hagi originat."
                 },
                 {
-                    mod: 'resposta', tag: 'La nostra resposta', icon: '📡',
+                    mod: 'resposta', tag: 'La nostra resposta', icon: 'radio',
                     title: 'Vigilar les condicions, no les flames',
                     text: "SADRIF (Sistema Autònom de Detecció de Risc d'Incendis Forestals) monitoritza les condicions ambientals del bosc en temps real i avisa del risc abans que l'incendi arribi a originar-se."
                 }
@@ -648,7 +852,7 @@
                 <motion.div className="contrast-grid" variants={container} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.3 }}>
                     {cards.map((c, i) => (
                         <motion.div className={`contrast-card contrast-card--${c.mod}`} variants={item} key={i} whileHover={{ y: -6 }}>
-                            <span className="contrast-icon">{c.icon}</span>
+                            <span className="contrast-icon"><Icon name={c.icon} size={26} /></span>
                             <span className="contrast-tag">{c.tag}</span>
                             <h3>{c.title}</h3>
                             <p>{c.text}</p>
@@ -661,25 +865,25 @@
         /* ===== Sensors interactius + simulador 30-30-30 ===== */
         const SENSORS = [
             {
-                id: 'temp', icon: '🌡️', name: 'Temperatura', unit: '°C', color: '#ef4444',
+                id: 'temp', icon: 'thermometer', name: 'Temperatura', unit: '°C', color: '#ef4444',
                 hint: 'Sensor DHT / BMP',
                 detail: "Mesura la temperatura de l'aire en graus Celsius. És un dels tres factors de la regla del 30-30-30: com més calor fa, més s'asseca el combustible vegetal i més fàcil és que una espurna s'converteixi en incendi.",
                 extra: "Al bosc de Can Deu, les temperatures d'estiu poden superar fàcilment el llindar crític durant les hores centrals del dia."
             },
             {
-                id: 'hum', icon: '💧', name: 'Humitat', unit: '%', color: '#0ea5e9',
+                id: 'hum', icon: 'droplet', name: 'Humitat', unit: '%', color: '#0ea5e9',
                 hint: 'Humitat relativa',
                 detail: "Mesura la humitat relativa de l'aire. És el factor invers: com més baixa és la humitat, més sec està tot i més ràpid es propaga el foc. Per sota del 30% les condicions ja es consideren perilloses.",
                 extra: "La humitat baixa afecta especialment les plantes resinoses, molt presents a la vegetació mediterrània."
             },
             {
-                id: 'vent', icon: '💨', name: 'Vent', unit: 'km/h', color: '#10b981',
+                id: 'vent', icon: 'wind', name: 'Vent', unit: 'km/h', color: '#10b981',
                 hint: 'Anemòmetre',
                 detail: "Mesura la velocitat del vent. És el factor que més accelera la propagació: el vent aporta oxigen al foc i transporta espurnes a distància, obrint nous focus lluny del punt inicial.",
                 extra: "Per sobre de 30 km/h, un incendi pot avançar més ràpid del que els equips terrestres poden reaccionar."
             },
             {
-                id: 'pres', icon: '📊', name: 'Pressió', unit: 'hPa', color: '#f59e0b',
+                id: 'pres', icon: 'gauge', name: 'Pressió', unit: 'hPa', color: '#f59e0b',
                 hint: 'Baròmetre',
                 detail: "Mesura la pressió atmosfèrica. No forma part de la regla del 30-30-30, però serveix per contextualitzar: ajuda a anticipar canvis de temps, entrades d'aire sec o l'arribada d'una tempesta.",
                 extra: "Una baixada brusca de pressió sol indicar un canvi de temps imminent que pot alterar el risc."
@@ -726,7 +930,7 @@
                                 variants={{ hidden: { opacity: 0, y: 26 }, show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } } }}
                                 style={{ borderColor: actiu === s.id ? s.color : undefined }}
                             >
-                                <span className="sensor-icon">{s.icon}</span>
+                                <span className="sensor-icon" style={{ color: actiu === s.id ? s.color : undefined }}><Icon name={s.icon} size={24} /></span>
                                 <h4>{s.name}</h4>
                                 <p className="sensor-hint">{s.hint}</p>
                                 <div className="sensor-live-val" style={{ color: s.color }}>
@@ -746,7 +950,9 @@
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                     >
-                        <h4>{sensor.icon} {sensor.name}</h4>
+                        <h4 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <Icon name={sensor.icon} size={20} style={{ color: sensor.color }} /> {sensor.name}
+                        </h4>
                         <p>{sensor.detail}</p>
                         <p style={{ fontSize: '0.9rem', fontStyle: 'italic' }}>{sensor.extra}</p>
                     </motion.div>
@@ -760,40 +966,40 @@
 
                         <div className="slider-row">
                             <div className="slider-head">
-                                <span className="slider-label">🌡️ Temperatura</span>
+                                <span className="slider-label"><Icon name="thermometer" size={17} style={{ color: "#ef4444" }} /> Temperatura</span>
                                 <span className="slider-value" style={{ color: cTemp ? '#dc2626' : 'var(--texto-principal)' }}>{temp} °C</span>
                             </div>
                             <input className="slider-input" type="range" min="0" max="45" value={temp}
                                 style={sliderStyle(temp, 0, 45, cTemp ? '#dc2626' : '#ef4444')}
                                 onChange={e => setTemp(Number(e.target.value))} aria-label="Temperatura" />
                             <div className="slider-threshold" style={{ color: cTemp ? '#dc2626' : 'var(--texto-mutado)' }}>
-                                {cTemp ? '⚠ Supera el llindar de 30 °C' : 'Llindar crític: 30 °C o més'}
+                                {cTemp ? <React.Fragment><Icon name="alert" size={14} /> Supera el llindar de 30 °C</React.Fragment> : 'Llindar crític: 30 °C o més'}
                             </div>
                         </div>
 
                         <div className="slider-row">
                             <div className="slider-head">
-                                <span className="slider-label">💧 Humitat relativa</span>
+                                <span className="slider-label"><Icon name="droplet" size={17} style={{ color: "#0ea5e9" }} /> Humitat relativa</span>
                                 <span className="slider-value" style={{ color: cHum ? '#dc2626' : 'var(--texto-principal)' }}>{hum} %</span>
                             </div>
                             <input className="slider-input" type="range" min="0" max="100" value={hum}
                                 style={sliderStyle(hum, 0, 100, cHum ? '#dc2626' : '#0ea5e9')}
                                 onChange={e => setHum(Number(e.target.value))} aria-label="Humitat relativa" />
                             <div className="slider-threshold" style={{ color: cHum ? '#dc2626' : 'var(--texto-mutado)' }}>
-                                {cHum ? '⚠ Per sota del llindar del 30 %' : 'Llindar crític: 30 % o menys'}
+                                {cHum ? <React.Fragment><Icon name="alert" size={14} /> Per sota del llindar del 30 %</React.Fragment> : 'Llindar crític: 30 % o menys'}
                             </div>
                         </div>
 
                         <div className="slider-row">
                             <div className="slider-head">
-                                <span className="slider-label">💨 Velocitat del vent</span>
+                                <span className="slider-label"><Icon name="wind" size={17} style={{ color: "#10b981" }} /> Velocitat del vent</span>
                                 <span className="slider-value" style={{ color: cVent ? '#dc2626' : 'var(--texto-principal)' }}>{vent} km/h</span>
                             </div>
                             <input className="slider-input" type="range" min="0" max="70" value={vent}
                                 style={sliderStyle(vent, 0, 70, cVent ? '#dc2626' : '#10b981')}
                                 onChange={e => setVent(Number(e.target.value))} aria-label="Velocitat del vent" />
                             <div className="slider-threshold" style={{ color: cVent ? '#dc2626' : 'var(--texto-mutado)' }}>
-                                {cVent ? '⚠ Supera el llindar de 30 km/h' : 'Llindar crític: 30 km/h o més'}
+                                {cVent ? <React.Fragment><Icon name="alert" size={14} /> Supera el llindar de 30 km/h</React.Fragment> : 'Llindar crític: 30 km/h o més'}
                             </div>
                         </div>
 
@@ -807,9 +1013,9 @@
                             <div className="sim-result-title">{estat.titol}</div>
                             <p className="sim-result-text" style={{ color: 'var(--texto-principal)' }}>{estat.text}</p>
                             <div className="sim-badges">
-                                <span className="sim-badge" style={{ color: cTemp ? '#dc2626' : 'var(--texto-mutado)' }}>{cTemp ? '✓' : '○'} Temp ≥ 30°</span>
-                                <span className="sim-badge" style={{ color: cHum ? '#dc2626' : 'var(--texto-mutado)' }}>{cHum ? '✓' : '○'} Humitat ≤ 30%</span>
-                                <span className="sim-badge" style={{ color: cVent ? '#dc2626' : 'var(--texto-mutado)' }}>{cVent ? '✓' : '○'} Vent ≥ 30 km/h</span>
+                                <span className="sim-badge" style={{ color: cTemp ? '#dc2626' : 'var(--texto-mutado)' }}><Icon name={cTemp ? "check" : "circleEmpty"} size={14} /> Temp ≥ 30°</span>
+                                <span className="sim-badge" style={{ color: cHum ? '#dc2626' : 'var(--texto-mutado)' }}><Icon name={cHum ? "check" : "circleEmpty"} size={14} /> Humitat ≤ 30%</span>
+                                <span className="sim-badge" style={{ color: cVent ? '#dc2626' : 'var(--texto-mutado)' }}><Icon name={cVent ? "check" : "circleEmpty"} size={14} /> Vent ≥ 30 km/h</span>
                             </div>
                         </motion.div>
 
@@ -1001,78 +1207,254 @@
             );
         }
 
-        /* ===== Equip: targetes tipus Profile Card (tilt 3D + holograma + logo SADRIF) ===== */
-        function TeamCard({ member, variants }) {
-            const ref = useRef(null);
-            const [style, setStyle] = useState({});
-            const [spot, setSpot] = useState({ x: 50, y: 50, opacity: 0 });
-            const [holo, setHolo] = useState({ x: 50, y: 50, opacity: 0 });
+        /* =========================================================
+           EQUIP — ProfileCard, port del component de React Bits
+           https://reactbits.dev/components/profile-card
+           El motor de tilt és un seguiment amortit (interpolació
+           exponencial) dins d'un sol requestAnimationFrame, i escriu
+           directament variables CSS: no provoca cap re-render de React.
+           ========================================================= */
 
-            const handleMove = (e) => {
-                const rect = ref.current.getBoundingClientRect();
-                const px = (e.clientX - rect.left) / rect.width;
-                const py = (e.clientY - rect.top) / rect.height;
-                const rotateY = (px - 0.5) * 16;
-                const rotateX = (0.5 - py) * 16;
-                setStyle({ transform: `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(14px)` });
-                setSpot({ x: px * 100, y: py * 100, opacity: 1 });
-                setHolo({ x: px * 100, y: py * 100, opacity: 0.55 });
-            };
-            const handleLeave = () => {
-                setStyle({ transform: 'rotateX(0deg) rotateY(0deg) translateZ(0px)' });
-                setSpot(s => ({ ...s, opacity: 0 }));
-                setHolo(h => ({ ...h, opacity: 0 }));
-            };
+        const clamp = (v, min = 0, max = 100) => Math.min(Math.max(v, min), max);
+        const round = (v, p = 3) => parseFloat(v.toFixed(p));
+        const adjust = (v, fMin, fMax, tMin, tMax) => round(tMin + ((tMax - tMin) * (v - fMin)) / (fMax - fMin));
+
+        const PC_ANIM = { INITIAL_DURATION: 1200, INITIAL_X_OFFSET: 70, INITIAL_Y_OFFSET: 60, ENTER_TRANSITION_MS: 180 };
+
+        function ProfileCard({
+            avatarBase, initials, name, title, handle,
+            status = 'Pla DRIF', innerGradient, behindGlowColor, enableTilt = true
+        }) {
+            const wrapRef = useRef(null);
+            const shellRef = useRef(null);
+            const enterTimerRef = useRef(null);
+            const leaveRafRef = useRef(null);
+            /* Provem les extensions habituals en ordre. Així tant fa que la
+               fotografia s'exporti com a .png (retallada, amb transparència)
+               com a .jpeg: la que existeixi és la que es mostrarà. Si no n'hi
+               ha cap, es queda el monograma d'inicials. */
+            const candidats = useMemo(
+                () => (avatarBase ? [avatarBase + '.png', avatarBase + '.jpeg', avatarBase + '.jpg'] : []),
+                [avatarBase]
+            );
+            const [intent, setIntent] = useState(0);
+            const [miniIntent, setMiniIntent] = useState(0);
+            const avatarSrc = candidats[intent];
+            const miniSrc = candidats[miniIntent];
+
+            const tiltEngine = useMemo(() => {
+                if (!enableTilt) return null;
+                let rafId = null, running = false, lastTs = 0;
+                let currentX = 0, currentY = 0, targetX = 0, targetY = 0;
+                const DEFAULT_TAU = 0.14, INITIAL_TAU = 0.6;
+                let initialUntil = 0;
+
+                const setVarsFromXY = (x, y) => {
+                    const shell = shellRef.current, wrap = wrapRef.current;
+                    if (!shell || !wrap) return;
+                    const width = shell.clientWidth || 1, height = shell.clientHeight || 1;
+                    const percentX = clamp((100 / width) * x), percentY = clamp((100 / height) * y);
+                    const centerX = percentX - 50, centerY = percentY - 50;
+                    const props = {
+                        '--pointer-x': `${percentX}%`,
+                        '--pointer-y': `${percentY}%`,
+                        '--background-x': `${adjust(percentX, 0, 100, 35, 65)}%`,
+                        '--background-y': `${adjust(percentY, 0, 100, 35, 65)}%`,
+                        '--pointer-from-center': `${clamp(Math.hypot(percentY - 50, percentX - 50) / 50, 0, 1)}`,
+                        '--pointer-from-top': `${percentY / 100}`,
+                        '--pointer-from-left': `${percentX / 100}`,
+                        '--rotate-x': `${round(-(centerX / 5))}deg`,
+                        '--rotate-y': `${round(centerY / 4)}deg`
+                    };
+                    for (const k in props) wrap.style.setProperty(k, props[k]);
+                };
+
+                const step = ts => {
+                    if (!running) return;
+                    if (lastTs === 0) lastTs = ts;
+                    const dt = (ts - lastTs) / 1000;
+                    lastTs = ts;
+                    const tau = ts < initialUntil ? INITIAL_TAU : DEFAULT_TAU;
+                    const k = 1 - Math.exp(-dt / tau);
+                    currentX += (targetX - currentX) * k;
+                    currentY += (targetY - currentY) * k;
+                    setVarsFromXY(currentX, currentY);
+                    const stillFar = Math.abs(targetX - currentX) > 0.05 || Math.abs(targetY - currentY) > 0.05;
+                    if (stillFar) {
+                        rafId = requestAnimationFrame(step);
+                    } else {
+                        running = false; lastTs = 0;
+                        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+                    }
+                };
+
+                const start = () => { if (running) return; running = true; lastTs = 0; rafId = requestAnimationFrame(step); };
+
+                return {
+                    setImmediate(x, y) { currentX = x; currentY = y; setVarsFromXY(x, y); },
+                    setTarget(x, y) { targetX = x; targetY = y; start(); },
+                    toCenter() {
+                        const shell = shellRef.current;
+                        if (!shell) return;
+                        this.setTarget(shell.clientWidth / 2, shell.clientHeight / 2);
+                    },
+                    beginInitial(ms) { initialUntil = performance.now() + ms; start(); },
+                    getCurrent() { return { x: currentX, y: currentY, tx: targetX, ty: targetY }; },
+                    cancel() { if (rafId) cancelAnimationFrame(rafId); rafId = null; running = false; lastTs = 0; }
+                };
+            }, [enableTilt]);
+
+            useEffect(() => {
+                const shell = shellRef.current;
+                if (!enableTilt || !tiltEngine || !shell) return;
+
+                const offsets = evt => {
+                    const rect = shell.getBoundingClientRect();
+                    return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
+                };
+
+                const onEnter = event => {
+                    shell.classList.add('active', 'entering');
+                    wrapRef.current && wrapRef.current.classList.add('active');
+                    if (enterTimerRef.current) clearTimeout(enterTimerRef.current);
+                    enterTimerRef.current = setTimeout(() => shell.classList.remove('entering'), PC_ANIM.ENTER_TRANSITION_MS);
+                    const { x, y } = offsets(event);
+                    tiltEngine.setTarget(x, y);
+                };
+                const onMove = event => { const { x, y } = offsets(event); tiltEngine.setTarget(x, y); };
+                const onLeave = () => {
+                    tiltEngine.toCenter();
+                    const settle = () => {
+                        const { x, y, tx, ty } = tiltEngine.getCurrent();
+                        if (Math.hypot(tx - x, ty - y) < 0.6) {
+                            shell.classList.remove('active');
+                            wrapRef.current && wrapRef.current.classList.remove('active');
+                            leaveRafRef.current = null;
+                        } else {
+                            leaveRafRef.current = requestAnimationFrame(settle);
+                        }
+                    };
+                    if (leaveRafRef.current) cancelAnimationFrame(leaveRafRef.current);
+                    leaveRafRef.current = requestAnimationFrame(settle);
+                };
+
+                shell.addEventListener('pointerenter', onEnter);
+                shell.addEventListener('pointermove', onMove);
+                shell.addEventListener('pointerleave', onLeave);
+
+                /* Animació d'entrada: la targeta arriba lleugerament girada
+                   i s'endreça sola, com a la demo de React Bits. */
+                tiltEngine.setImmediate((shell.clientWidth || 0) - PC_ANIM.INITIAL_X_OFFSET, PC_ANIM.INITIAL_Y_OFFSET);
+                tiltEngine.toCenter();
+                tiltEngine.beginInitial(PC_ANIM.INITIAL_DURATION);
+
+                return () => {
+                    shell.removeEventListener('pointerenter', onEnter);
+                    shell.removeEventListener('pointermove', onMove);
+                    shell.removeEventListener('pointerleave', onLeave);
+                    if (enterTimerRef.current) clearTimeout(enterTimerRef.current);
+                    if (leaveRafRef.current) cancelAnimationFrame(leaveRafRef.current);
+                    tiltEngine.cancel();
+                    shell.classList.remove('entering', 'active');
+                };
+            }, [enableTilt, tiltEngine]);
+
+            const cardStyle = useMemo(() => ({
+                '--inner-gradient': innerGradient || 'linear-gradient(145deg, #0f766e8c 0%, #10b98144 100%)',
+                '--behind-glow-color': behindGlowColor || 'rgba(16, 185, 129, 0.55)'
+            }), [innerGradient, behindGlowColor]);
 
             return (
-                <motion.div className="team-card-wrap" variants={variants}>
-                    <div
-                        className="team-card"
-                        ref={ref}
-                        style={style}
-                        onMouseMove={handleMove}
-                        onMouseLeave={handleLeave}
-                    >
-                        {/* Capa holográfica tipus Profile Card */}
-                        <span
-                            className="team-card-holo"
-                            style={{
-                                opacity: holo.opacity,
-                                background: `linear-gradient(${holo.x * 2}deg, rgba(255,0,132,0.35) 0%, rgba(255,215,0,0.3) 25%, rgba(0,255,170,0.3) 50%, rgba(0,170,255,0.35) 75%, rgba(160,0,255,0.35) 100%)`
-                            }}
-                        ></span>
-                        <span
-                            className="team-card-spot"
-                            style={{ background: `radial-gradient(circle at ${spot.x}% ${spot.y}%, rgba(255,255,255,0.6), transparent 60%)`, opacity: spot.opacity }}
-                        ></span>
-
-                        <span className="team-logo-badge">
-                            <img src="logo-sadrif.svg" alt="" onError={(e) => { e.target.onerror = null; e.target.src = 'logo-sadrif.svg.svg'; }} />
-                        </span>
-
-                        <div className="team-card-inner">
-                            <div className="team-avatar" style={{ background: member.color }}>{member.initials}</div>
-                            <h4>{member.name}</h4>
-                            <div className="rol">{member.role}</div>
-                            <div className="team-line" style={{ background: member.color }}></div>
-                        </div>
+                <div ref={wrapRef} className="pc-card-wrapper" style={cardStyle}>
+                    <div className="pc-behind" />
+                    <div ref={shellRef} className="pc-card-shell">
+                        <section className="pc-card">
+                            <div className="pc-inside">
+                                <div className="pc-glare" />
+                                <div className="pc-content pc-avatar-content">
+                                    <span className="pc-fallback" aria-hidden="true">{initials}</span>
+                                    {avatarSrc && (
+                                        <img
+                                            key={avatarSrc}
+                                            className="avatar" src={avatarSrc} alt={`Fotografia de ${name}`}
+                                            loading="lazy" decoding="async"
+                                            onError={() => setIntent(n => n + 1)}
+                                        />
+                                    )}
+                                    <div className="pc-user-info">
+                                        <div className="pc-user-details">
+                                            <div className="pc-mini-avatar">
+                                                {miniSrc ? (
+                                                    <img
+                                                        key={miniSrc}
+                                                        src={miniSrc} alt="" loading="lazy" decoding="async"
+                                                        onError={() => setMiniIntent(n => n + 1)}
+                                                    />
+                                                ) : (
+                                                    <span className="pc-mini-fallback">{initials}</span>
+                                                )}
+                                            </div>
+                                            <div className="pc-user-text">
+                                                <div className="pc-handle">@{handle}</div>
+                                                <div className="pc-status"><i></i>{status}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="pc-content">
+                                    <div className="pc-details">
+                                        <h3>{name}</h3>
+                                        <p>{title}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
                     </div>
-                </motion.div>
+                </div>
             );
         }
 
         function TeamGrid() {
+            /* Només cal deixar la fotografia a la carpeta amb el nom d'`avatarBase`
+               i l'extensió .png, .jpeg o .jpg. Mentre no hi sigui, la targeta
+               mostra el monograma d'inicials. */
             const members = [
-                { initials: 'AA', name: 'Abraham Ayala', role: 'Autor del TdR', color: '#059669' },
-                { initials: 'KJ', name: 'Kevin Juan', role: 'Autor del TdR', color: '#0ea5e9' },
-                { initials: 'GL', name: 'Guillem Llamas', role: 'Autor del TdR', color: '#f59e0b' },
-                { initials: 'UC', name: 'Unai Cañas', role: 'Autor del TdR', color: '#ef4444' }
+                {
+                    initials: 'AA', name: 'Abraham Ayala', title: 'Autor del TdR', handle: 'abraham',
+                    avatarBase: 'equip-abraham',
+                    innerGradient: 'linear-gradient(145deg, #0f766e8c 0%, #10b98144 100%)',
+                    behindGlowColor: 'rgba(16, 185, 129, 0.55)'
+                },
+                {
+                    initials: 'KJ', name: 'Kevin Juan', title: 'Autor del TdR', handle: 'kevin',
+                    avatarBase: 'equip-kevin',
+                    innerGradient: 'linear-gradient(145deg, #0369a18c 0%, #0ea5e944 100%)',
+                    behindGlowColor: 'rgba(14, 165, 233, 0.5)'
+                },
+                {
+                    initials: 'GL', name: 'Guillem Llamas', title: 'Autor del TdR', handle: 'guillem',
+                    avatarBase: 'equip-guillem',
+                    innerGradient: 'linear-gradient(145deg, #b453098c 0%, #f59e0b44 100%)',
+                    behindGlowColor: 'rgba(245, 158, 11, 0.5)'
+                },
+                {
+                    initials: 'UC', name: 'Unai Cañas', title: 'Autor del TdR', handle: 'unai',
+                    avatarBase: 'equip-unai',
+                    innerGradient: 'linear-gradient(145deg, #b91c1c8c 0%, #ef444444 100%)',
+                    behindGlowColor: 'rgba(239, 68, 68, 0.5)'
+                }
             ];
+
             const container = { hidden: {}, show: { transition: { staggerChildren: 0.1 } } };
-            const cardVariant = { hidden: { opacity: 0, y: 30, scale: 0.96 }, show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] } } };
+            const cardVariant = { hidden: { opacity: 0, y: 30 }, show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] } } };
+
             return (
-                <motion.div className="team-grid" variants={container} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.25 }}>
-                    {members.map((m, i) => <TeamCard member={m} variants={cardVariant} key={i} />)}
+                <motion.div className="team-grid" variants={container} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}>
+                    {members.map((m, i) => (
+                        <motion.div variants={cardVariant} key={i}>
+                            <ProfileCard {...m} />
+                        </motion.div>
+                    ))}
                 </motion.div>
             );
         }
@@ -1088,14 +1470,55 @@
     <script>
         /* ========= DEPTH CAROUSEL (vanilla JS) ========= */
         (function() {
-            // NOTA PER A L'ABRAHAM: substitueix aquestes imatges de mostra
-            // per fotografies reals del procés quan les tinguis.
+            // Marcador de posició generat en local (SVG inline): res de serveis
+            // externs, així la secció no depèn de cap petició de xarxa.
+            // SUBSTITUIR per les fotografies reals del procés (veure ASSETS-NECESSARIS.md).
+            const ph = (text, from, to) => 'data:image/svg+xml;utf8,' + encodeURIComponent(
+                `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000">
+                  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/>
+                  </linearGradient></defs>
+                  <rect width="800" height="1000" fill="url(#g)"/>
+                  <g fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"
+                     transform="translate(340,420) scale(5)">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                    <path d="M3.3 7 12 12l8.7-5"/><path d="M12 22V12"/>
+                  </g>
+                  <text x="400" y="620" text-anchor="middle" fill="rgba(255,255,255,0.72)"
+                    font-family="system-ui,sans-serif" font-size="34" font-weight="700">${text}</text>
+                  <text x="400" y="666" text-anchor="middle" fill="rgba(255,255,255,0.42)"
+                    font-family="system-ui,sans-serif" font-size="24">Fotografia pendent</text>
+                </svg>`
+            );
+
+            // Si el fitxer real encara no existeix, l'onerror cau al marcador de posició:
+            // només cal deixar la foto a la carpeta amb aquest nom i ja apareix.
             const items = [
-                { image: 'https://placehold.co/800x1000/0f172a/f8fafc?text=Disseny+3D', alt: 'Disseny 3D de la carcassa' },
-                { image: 'https://placehold.co/800x1000/1e293b/f8fafc?text=Impressio+3D', alt: 'Impressió 3D de les peces' },
-                { image: 'https://placehold.co/800x1000/065f46/f8fafc?text=Muntatge+ESP32', alt: 'Muntatge electrònic amb ESP32' },
-                { image: 'https://placehold.co/800x1000/047857/f8fafc?text=Sensors', alt: 'Instal·lació dels sensors' },
-                { image: 'https://placehold.co/800x1000/0f172a/f8fafc?text=Estacio+Final', alt: "Estació SADRIF instal·lada al bosc" }
+                {
+                    image: 'proces-1-disseny3d.jpeg', ph: ph('Disseny 3D', '#0f172a', '#1e293b'),
+                    alt: 'Disseny 3D de la carcassa',
+                    desc: "El primer pas: modelar la caixa peça per peça abans d'imprimir res. Aquí es veuen les reixes de ventilació laterals, la finestra de la pantalla i el logotip en relleu, amb les frontisses que permeten obrir-la per accedir a l'electrònica."
+                },
+                {
+                    image: 'proces-2-programacio.jpeg', ph: ph('Programació', '#1e293b', '#134e4a'),
+                    alt: 'Programació del dispositiu',
+                    desc: "Programant el firmware de l'ESP32 des de l'aula. La placa està connectada per USB amb els sensors i la pantalla OLED endollats, per anar comprovant en directe que cada lectura arriba bé abans de tancar-ho tot dins de la carcassa."
+                },
+                {
+                    image: 'proces-3-muntatge.jpeg', ph: ph('Soldadura', '#134e4a', '#065f46'),
+                    alt: 'Soldadura dels components',
+                    desc: "Soldant els components al taller. Aquesta part és la més delicada de totes: una soldadura freda o un pont entre dues pistes i el sensor deixa d'enviar dades, sovint sense cap avís evident."
+                },
+                {
+                    image: 'proces-4-sensors.jpeg', ph: ph('Muntatge final', '#065f46', '#047857'),
+                    alt: 'Muntatge de sensors i electrònica dins de la carcassa',
+                    desc: "El conjunt muntat dins de la caixa oberta: l'ESP32, la bateria de liti, els mòduls d'alimentació i els sensors, amb les tres mini plaques solars ja cablejades a la tapa. Cada peça té el seu allotjament per poder-la treure sense desmuntar la resta."
+                },
+                {
+                    image: 'proces-5-bosc.jpeg', ph: ph('Estació final', '#047857', '#10b981'),
+                    alt: "Estació SADRIF instal·lada a l'exterior",
+                    desc: "L'estació ja instal·lada i lligada al tronc d'un arbre, amb l'anemòmetre a dalt i les plaques solars orientades al sol. A partir d'aquest moment funciona sola: capta, calcula i envia les dades sense cap cable."
+                }
             ];
             const count = items.length;
             let active = 0;
@@ -1116,16 +1539,21 @@
             dotsWrap.className = 'depth-carousel__dots';
             root.parentElement.appendChild(dotsWrap);
 
+            // Panell de descripció, just sota del carrusel.
+            const detail = document.getElementById('carousel-detail');
+
             items.forEach((item, i) => {
                 const card = document.createElement('div');
                 card.className = 'depth-carousel__card';
-                card.innerHTML = `<img src="${item.image}" alt="${item.alt}" draggable="false"><div class="depth-carousel__caption">${item.alt}</div>`;
-                card.addEventListener('click', () => setActive(i));
+                card.innerHTML = `<img src="${item.image}" alt="${item.alt}" draggable="false" loading="lazy"><div class="depth-carousel__caption">${item.alt}</div>`;
+                const img = card.querySelector('img');
+                img.addEventListener('error', () => { img.src = item.ph; }, { once: true });
+                card.addEventListener('click', () => { setActive(i); aturaAutoplay(); });
                 stage.appendChild(card);
 
                 const dot = document.createElement('div');
                 dot.className = 'depth-carousel__dot';
-                dot.addEventListener('click', () => setActive(i));
+                dot.addEventListener('click', () => { setActive(i); aturaAutoplay(); });
                 dotsWrap.appendChild(dot);
             });
 
@@ -1148,25 +1576,35 @@
                     card.style.opacity = opacity;
                     card.style.filter = `blur(${blur}px)`;
                     card.style.zIndex = count - absOff;
+                    card.setAttribute('aria-current', absOff === 0 ? 'true' : 'false');
                     card.style.pointerEvents = visible ? 'auto' : 'none';
                 });
                 dots.forEach((dot, i) => dot.classList.toggle('depth-carousel__dot--active', i === active));
+
+                const it = items[active];
+                detail.innerHTML =
+                    `<span class="carousel-detail-index">${String(active + 1).padStart(2, '0')} / ${String(count).padStart(2, '0')}</span>` +
+                    `<strong>${it.alt}</strong><p>${it.desc}</p>`;
+                // Reinicia l'animació d'entrada a cada canvi de fotografia.
+                detail.classList.remove('is-in');
+                void detail.offsetWidth;
+                detail.classList.add('is-in');
             }
 
             function setActive(i) { active = ((i % count) + count) % count; render(); }
             function next() { setActive(active + 1); }
             function prev() { setActive(active - 1); }
 
-            root.querySelector('.depth-carousel__nav--next').addEventListener('click', () => { next(); resetAutoplay(); });
-            root.querySelector('.depth-carousel__nav--prev').addEventListener('click', () => { prev(); resetAutoplay(); });
+            root.querySelector('.depth-carousel__nav--next').addEventListener('click', () => { next(); aturaAutoplay(); });
+            root.querySelector('.depth-carousel__nav--prev').addEventListener('click', () => { prev(); aturaAutoplay(); });
 
-            function resetAutoplay() {
-                clearInterval(timer);
-                timer = setInterval(next, 3500);
-            }
+            /* En passar sol cada 3,5 s no es podria acabar de llegir la
+               descripció, així que a la primera interacció l'aturem del tot
+               i el carrusel passa a ser manual. */
+            function aturaAutoplay() { clearInterval(timer); timer = null; }
 
             render();
-            resetAutoplay();
+            timer = setInterval(next, 3500);
         })();
     </script>
 
