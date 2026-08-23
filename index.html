@@ -506,10 +506,51 @@
         .social-tw:hover { color: #9146FF; border-color: rgba(145, 70, 255, 0.5); box-shadow: 0 15px 25px rgba(145, 70, 255, 0.15); }
         .social-ig:hover { color: #E1306C; border-color: rgba(225, 48, 108, 0.5); box-shadow: 0 15px 25px rgba(225, 48, 108, 0.15); }
 
-        .footer-logos-contenedor { background: var(--glass-bg); backdrop-filter: blur(15px) saturate(120%); border: 1px solid var(--glass-border); border-radius: 20px; padding: 35px 50px; display: flex; justify-content: center; gap: 70px; align-items: center; margin-bottom: 24px; }
-        .footer-logos-contenedor img { height: 85px; filter: grayscale(10%); transition: var(--transicion); cursor: pointer; }
-        .footer-logos-contenedor img:hover { filter: grayscale(0%); transform: scale(1.1) rotate(-2deg); }
-        .footer-disclaimer { text-align: center; font-size: 0.78rem; color: var(--texto-mutado); margin-bottom: 20px; }
+        /* ========= FOOTER COMPARTIT (igual a totes les pàgines) ========= */
+        .site-footer {
+            position: relative; background: #0b1220; color: #cbd5e1; padding: 64px 20px 26px;
+            font-size: 0.9rem; overflow: hidden; margin-top: 40px;
+        }
+        .site-footer::before {
+            content: ''; position: absolute; inset: 0; pointer-events: none;
+            background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(16,185,129,0.13), transparent 62%);
+        }
+        .footer-inner {
+            position: relative; max-width: 1150px; margin: 0 auto; display: grid;
+            grid-template-columns: 1.6fr 1fr 1fr 1.2fr; gap: 44px 32px;
+        }
+        .footer-brand-logo { display: inline-flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.2rem; color: #fff; text-decoration: none; }
+        .footer-brand-logo img { height: 30px; filter: brightness(0) invert(1); }
+        .footer-brand p { margin: 16px 0 20px; color: #94a3b8; line-height: 1.7; max-width: 38ch; font-size: 0.86rem; }
+        .footer-social { display: flex; gap: 10px; }
+        .footer-social a {
+            width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center;
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); color: #cbd5e1;
+            transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+        }
+        .footer-social a:hover { background: rgba(16,185,129,0.18); border-color: rgba(16,185,129,0.45); color: #6ee7b7; transform: translateY(-3px); }
+        .footer-col h5 { margin: 0 0 16px; font-size: 0.71rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #64748b; }
+        .footer-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 11px; }
+        .footer-col a { color: #cbd5e1; text-decoration: none; font-size: 0.87rem; transition: color 0.22s ease; display: inline-flex; align-items: center; gap: 7px; }
+        .footer-col a:hover { color: #6ee7b7; }
+        .footer-partners { display: flex; flex-direction: column; gap: 12px; }
+        .footer-partner-chip { display: flex; align-items: center; gap: 12px; background: #fff; border-radius: 12px; padding: 10px 14px; transition: transform 0.25s ease; }
+        .footer-partner-chip:hover { transform: translateY(-2px); }
+        .footer-partner-chip img { height: 34px; width: auto; }
+        .footer-partner-chip span { font-size: 0.71rem; font-weight: 700; color: #334155; line-height: 1.35; white-space: nowrap; }
+        .footer-bottom {
+            position: relative; max-width: 1150px; margin: 44px auto 0; padding-top: 22px;
+            border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-wrap: wrap; gap: 12px;
+            align-items: center; justify-content: space-between; color: #64748b; font-size: 0.76rem;
+        }
+        .footer-bottom p { margin: 0; line-height: 1.6; }
+        .footer-bottom .footer-legal { max-width: 62ch; }
+        @media (max-width: 900px) { .footer-inner { grid-template-columns: 1fr 1fr; gap: 36px 24px; } }
+        @media (max-width: 560px) {
+            .site-footer { padding: 46px 18px 22px; }
+            .footer-inner { grid-template-columns: 1fr; gap: 32px; }
+            .footer-bottom { flex-direction: column; align-items: flex-start; margin-top: 32px; }
+        }
 
         @media (max-width: 950px) {
             .hero-compact { grid-template-columns: 1fr; }
@@ -533,7 +574,7 @@
 <body id="inicio">
 
     <div id="banner-urgente-30-30-30" class="banner-alerta-extrema">
-        🚨 ATENCIÓ: REGLA DEL 30-30-30 COMPLERTA — PERILL EXTREM D'INCENDI FORESTAL
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4.5M12 17.5h.01"/></svg> ATENCIÓ: REGLA DEL 30-30-30 COMPLERTA — PERILL EXTREM D'INCENDI FORESTAL
     </div>
 
     <!-- MENÚ CARDNAV -->
@@ -814,16 +855,76 @@
             <a href="https://www.instagram.com/pladrif_cat" target="_blank" class="card-social-link social-ig"><span class="social-icon"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg></span><span>Instagram</span></a>
         </div>
         
-        <div class="footer-logos-contenedor animated-element" style="animation-delay: 0.65s;">
-            <img src="logo-sabadell.png" alt="Ajuntament de Sabadell" onerror="this.onerror=null; this.src='logo-sabadell.png.png';">
-            <img src="logo-generalitat.png" alt="Generalitat de Catalunya" onerror="this.onerror=null; this.src='logo-generalitat.png.png';">
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <a href="index.html" class="footer-brand-logo">
+                    <img src="logo-sadrif.svg" alt="" onerror="this.onerror=null; this.src='logo-sadrif.svg.svg';">
+                    <span>PLA DRIF</span>
+                </a>
+                <p>
+                    Estació autònoma de detecció de risc d'incendis forestals, instal·lada al bosc de Can Deu (Sabadell).
+                    Treball de Recerca de 2n de Batxillerat.
+                </p>
+                <div class="footer-social">
+                    <a href="https://www.youtube.com/@PlaDRIF_Oficial" target="_blank" rel="noopener" aria-label="Canal de YouTube">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22.2 7.4a2.7 2.7 0 0 0-1.9-1.9C18.6 5 12 5 12 5s-6.6 0-8.3.5A2.7 2.7 0 0 0 1.8 7.4 28 28 0 0 0 1.3 12a28 28 0 0 0 .5 4.6 2.7 2.7 0 0 0 1.9 1.9C5.4 19 12 19 12 19s6.6 0 8.3-.5a2.7 2.7 0 0 0 1.9-1.9 28 28 0 0 0 .5-4.6 28 28 0 0 0-.5-4.6z"/><polygon points="9.9 15.1 15.4 12 9.9 8.9 9.9 15.1" fill="currentColor" stroke="none"/></svg>
+                    </a>
+                    <a href="https://www.instagram.com/pladrif_cat" target="_blank" rel="noopener" aria-label="Instagram">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.8"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>
+                    </a>
+                    <a href="https://www.twitch.tv/pla_drif" target="_blank" rel="noopener" aria-label="Directe a Twitch">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3h16v10.5L15.5 18H12l-3 3H7v-3H4z"/><path d="M11 7.5v4M15.5 7.5v4"/></svg>
+                    </a>
+                </div>
+            </div>
+
+            <div class="footer-col">
+                <h5>El projecte</h5>
+                <ul>
+                    <li><a href="index.html">Panell en directe</a></li>
+                    <li><a href="producto3d.html">Dispositiu en 3D</a></li>
+                    <li><a href="sobre-nosotros.html">Sobre el projecte</a></li>
+                    <li><a href="#contenedor-visor">Càmera de vigilància</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h5>El dispositiu</h5>
+                <ul>
+                    <li><a href="producto3d.html">Fitxa tècnica</a></li>
+                    <li><a href="producto3d.html">Com funciona</a></li>
+                    <li><a href="producto3d.html">Preguntes freqüents</a></li>
+                    <li><a href="https://www.youtube.com/watch?v=5t9_Szm1RwA" target="_blank" rel="noopener">Vídeo del projecte</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h5>Amb el suport de</h5>
+                <div class="footer-partners">
+                    <div class="footer-partner-chip">
+                        <img src="logo-sabadell.png" alt="Ajuntament de Sabadell" onerror="this.onerror=null; this.src='logo-sabadell.png.png';">
+                        <span>Ajuntament<br>de Sabadell</span>
+                    </div>
+                    <div class="footer-partner-chip">
+                        <img src="logo-generalitat.png" alt="Generalitat de Catalunya" onerror="this.onerror=null; this.src='logo-generalitat.png.png';">
+                        <span>Generalitat<br>de Catalunya</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="footer-disclaimer">
-            <p><strong>Pla DRIF</strong> és un Treball de Recerca de 2n de Batxillerat. No tenim cap vinculació oficial amb les entitats mostrades ni en representem cap.</p>
-            <p>© 2026 PLA DRIF Project. Tots els drets reservats.</p>
+        <div class="footer-bottom">
+            <p class="footer-legal">
+                <strong>Pla DRIF</strong> és un Treball de Recerca de 2n de Batxillerat. No tenim cap vinculació oficial
+                amb les entitats mostrades ni en representem cap.
+            </p>
+            <p>© 2026 Pla DRIF. Tots els drets reservats.</p>
         </div>
-    </div>
+    </footer>
 
     <!-- SCRIPTS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -952,22 +1053,22 @@
 
         const diccionariImpacte = {
             temp: {
-                titul: "🌡️ Temperatura i assecat de la vegetació",
+                titul: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M14 14.76V4.5a2.5 2.5 0 0 0-5 0v10.26a4.5 4.5 0 1 0 5 0z"/></svg> Temperatura i assecat de la vegetació`,
                 text: `<p><strong>Importància de la temperatura:</strong> La temperatura és un dels principals factors que condicionen l'estat de la vegetació. Els valors elevats acceleren la pèrdua d'humitat i afavoreixen l'assecat del combustible forestal.</p>
                        <p><strong>Influència en el risc:</strong> Una temperatura elevada pot augmentar la facilitat d'ignició i afavorir la propagació del foc, especialment quan coincideix amb una humitat relativa baixa.</p>`
             },
             hum: {
-                titul: "💧 Humitat relativa i estat del combustible",
+                titul: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M12 2.7l5.66 5.65a8 8 0 1 1-11.31 0z"/></svg> Humitat relativa i estat del combustible`,
                 text: `<p><strong>Importància de la humitat:</strong> La humitat relativa és un factor clau per determinar el grau de sequedat de la vegetació. Quan disminueix, el combustible forestal perd humitat i es torna més susceptible d'inflamar-se.</p>
                        <p><strong>Influència en el risc:</strong> Els valors baixos d'humitat augmenten la disponibilitat de la vegetació per a la combustió i, combinats amb temperatures elevades, poden generar unes condicions especialment favorables per a l'inici i la propagació d'un incendi.</p>`
             },
             vent: {
-                titul: "💨 Vent i propagació del foc",
+                titul: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M9.6 4.6A2 2 0 1 1 11 8H2M12.6 19.4A2 2 0 1 0 14 16H2M17.7 7.7A2.5 2.5 0 1 1 19.5 12H2"/></svg> Vent i propagació del foc`,
                 text: `<p><strong>Importància del vent:</strong> La velocitat del vent és un factor determinant en el comportament d'un incendi. El vent pot afavorir l'aportació d'oxigen, inclinar les flames i transportar calor i partícules incandescents.</p>
                        <p><strong>Influència en el risc:</strong> A mesura que augmenta la velocitat del vent, també pot augmentar la capacitat de propagació del foc i la possibilitat que apareguin nous focus a partir de partícules transportades pel vent.</p>`
             },
             pres: {
-                titul: "🌪️ Pressió atmosfèrica i condicions meteorològiques",
+                titul: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><circle cx="12" cy="12" r="9"/><path d="M12 12l4.2-3.2"/><path d="M12 3v1.6M21 12h-1.6M3 12h1.6"/></svg> Pressió atmosfèrica i condicions meteorològiques`,
                 text: `<p><strong>Importància de la pressió:</strong> La pressió atmosfèrica actua com un indicador complementari de l'estat de l'atmosfera. Els seus canvis poden estar relacionats amb variacions en les condicions meteorològiques.</p>
                        <p><strong>Influència en el risc:</strong> En el sistema SADRIF, una pressió baixa contribueix lleugerament a l'increment de la puntuació de risc i complementa la informació aportada per la temperatura, la humitat i el vent.</p>`
             }
@@ -1003,7 +1104,7 @@
             
             marker.on('mouseover', function() {
                 let d = dadesGlobalsESP32;
-                this.bindTooltip(`<b>📍 Sensor SADRIF (Sabadell)</b><br>🌡️ Temp: ${d.temp.toFixed(1)}°C<br>💧 Humitat: ${d.hum.toFixed(0)}%<br>💨 Vent: ${d.viento.toFixed(1)} km/h`, {direction: 'top'}).openTooltip();
+                this.bindTooltip(`<b><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M20 10.5c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10.3" r="2.8"/></svg> Sensor SADRIF (Sabadell)</b><br><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M14 14.76V4.5a2.5 2.5 0 0 0-5 0v10.26a4.5 4.5 0 1 0 5 0z"/></svg> Temp: ${d.temp.toFixed(1)}°C<br><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M12 2.7l5.66 5.65a8 8 0 1 1-11.31 0z"/></svg> Humitat: ${d.hum.toFixed(0)}%<br><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M9.6 4.6A2 2 0 1 1 11 8H2M12.6 19.4A2 2 0 1 0 14 16H2M17.7 7.7A2.5 2.5 0 1 1 19.5 12H2"/></svg> Vent: ${d.viento.toFixed(1)} km/h`, {direction: 'top'}).openTooltip();
             });
 
             fetch("https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/spain-provinces.geojson")
@@ -1022,7 +1123,7 @@
                                     let layer = e.target;
                                     let d = (feature.properties.name === "Barcelona") ? dadesGlobalsESP32 : simulacioComunitats[feature.properties.name];
                                     let r = calcularRiesgoCriterio(d.temp, d.hum, d.pres, d.viento);
-                                    let popContent = `<div style="font-size: 14px;"><strong style="color:${r.color}; font-size:16px;">${feature.properties.name}</strong><hr style="margin:5px 0;">🌡️ <b>${d.temp.toFixed(1)} °C</b><br>💧 <b>${d.hum.toFixed(0)} %</b><br>💨 <b>${d.viento.toFixed(1)} km/h</b><br>🚨 Risc: <b>Nivell ${r.nivelNum} · ${r.nivel}</b></div>`;
+                                    let popContent = `<div style="font-size: 14px;"><strong style="color:${r.color}; font-size:16px;">${feature.properties.name}</strong><hr style="margin:5px 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M14 14.76V4.5a2.5 2.5 0 0 0-5 0v10.26a4.5 4.5 0 1 0 5 0z"/></svg> <b>${d.temp.toFixed(1)} °C</b><br><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M12 2.7l5.66 5.65a8 8 0 1 1-11.31 0z"/></svg> <b>${d.hum.toFixed(0)} %</b><br><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M9.6 4.6A2 2 0 1 1 11 8H2M12.6 19.4A2 2 0 1 0 14 16H2M17.7 7.7A2.5 2.5 0 1 1 19.5 12H2"/></svg> <b>${d.viento.toFixed(1)} km/h</b><br><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4.5M12 17.5h.01"/></svg> Risc: <b>Nivell ${r.nivelNum} · ${r.nivel}</b></div>`;
                                     layer.bindTooltip(popContent, {sticky: true, className: 'leaflet-tooltip'}).openTooltip();
                                     layer.setStyle({ weight: 4, fillOpacity: 0.5 });
                                 },
