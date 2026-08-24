@@ -1,0 +1,46 @@
+{
+  "name": "Pla DRIF · Risc d'incendi forestal",
+  "short_name": "Pla DRIF",
+  "description": "Panell en temps real del risc d'incendi forestal calculat per l'estació SADRIF a Sabadell: temperatura, humitat, vent i pressió atmosfèrica.",
+  "lang": "ca",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "id": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f8fafc",
+  "theme_color": "#059669",
+  "categories": ["education", "utilities", "weather"],
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "apple-touch-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Panell en directe",
+      "short_name": "Panell",
+      "url": "./index.html"
+    },
+    {
+      "name": "Dispositiu en 3D",
+      "short_name": "3D",
+      "url": "./producto3d.html"
+    },
+    {
+      "name": "Sobre el projecte",
+      "short_name": "Projecte",
+      "url": "./sobre-nosotros.html"
+    }
+  ]
+}
