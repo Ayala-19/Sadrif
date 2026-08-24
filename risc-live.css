@@ -1,0 +1,104 @@
+/* =============================================================================
+   SADRIF · Estils del desplegable de la píndola de risc.
+   Compartit per index.html, producto3d.html i sobre-nosotros.html.
+
+   Els estils base de `.sticky-risk-badge` viuen a cada pàgina (cadascuna té la
+   seva paleta de vidre); aquí només hi ha el que és nou i comú: el botó, la
+   fletxa, l'estat "sense dades recents" i el desplegable amb el detall.
+   ============================================================================= */
+
+/* La píndola ara és un botó: cal neutralitzar els estils per defecte. */
+button.sticky-risk-badge {
+    font-family: inherit;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+}
+button.sticky-risk-badge:focus-visible {
+    outline: 2px solid var(--riesgo-color-dinamico, #10b981);
+    outline-offset: 3px;
+}
+
+.risc-chevron {
+    flex: none;
+    opacity: 0.5;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+}
+.sticky-risk-badge[aria-expanded="true"] .risc-chevron { transform: rotate(180deg); opacity: 0.9; }
+
+/* Lectura més antiga que el llindar: el punt deixa de bategar i es torna gris.
+   Val més ensenyar que la dada és vella que fer veure que és d'ara mateix. */
+.sticky-risk-badge.is-obsolet .sticky-risk-dot { animation: none; opacity: 0.65; }
+
+/* ===== Desplegable ======================================================== */
+.risc-pop {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    z-index: 5;
+    width: min(320px, calc(100vw - 2.5rem));
+    padding: 16px 18px 14px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(26px) saturate(140%);
+    -webkit-backdrop-filter: blur(26px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    box-shadow: 0 20px 46px -14px rgba(15, 23, 42, 0.3), 0 2px 8px rgba(15, 23, 42, 0.06);
+    color: #0f172a;
+    text-align: left;
+
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+    transform-origin: top right;
+    transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.risc-pop.is-obert { opacity: 1; transform: translateY(0) scale(1); }
+
+.risc-pop__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.risc-pop__nivell { font-size: 1.02rem; font-weight: 800; line-height: 1.2; letter-spacing: -0.01em; }
+.risc-pop__sub { font-size: 0.72rem; font-weight: 700; color: #64748b; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
+.risc-pop__punts { font-size: 1.7rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
+.risc-pop__punts small { font-size: 0.68rem; font-weight: 700; color: #94a3b8; margin-left: 2px; letter-spacing: 0; }
+
+.risc-pop__barra { height: 5px; border-radius: 99px; background: rgba(15, 23, 42, 0.08); margin: 12px 0 14px; overflow: hidden; }
+.risc-pop__barra i { display: block; height: 100%; width: 0; border-radius: 99px; transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.4s ease; }
+
+.risc-pop__llista { margin: 0; padding: 0; display: grid; gap: 7px; }
+.risc-pop__fila { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.risc-pop__fila dt { margin: 0; font-size: 0.82rem; color: #64748b; font-weight: 600; }
+.risc-pop__fila dd { margin: 0; font-size: 0.86rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+/* Només es mostra quan la regla del 30-30-30 es compleix de debò. */
+.risc-pop__regla {
+    margin-top: 13px; padding: 7px 11px; border-radius: 10px;
+    background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.28);
+    font-size: 0.73rem; font-weight: 800; color: #b91c1c;
+}
+.risc-pop__regla[hidden] { display: none; }
+
+.risc-pop__peu {
+    display: flex; flex-direction: column; gap: 2px;
+    margin-top: 12px; font-size: 0.71rem; color: #94a3b8; font-weight: 600;
+}
+.risc-pop__lloc { color: #cbd5e1; }
+
+.risc-pop__cta {
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    margin-top: 13px; padding: 9px 14px; border-radius: 11px;
+    background: #0f172a; color: #fff; text-decoration: none;
+    font-size: 0.8rem; font-weight: 700;
+    transition: background-color 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.risc-pop__cta:hover { background: #1e293b; transform: translateY(-1px); }
+
+@media (max-width: 768px) {
+    .risc-pop { padding: 14px 15px 12px; border-radius: 16px; }
+    .risc-pop__punts { font-size: 1.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .risc-pop { transition: opacity 0.15s linear; transform: none; }
+    .risc-pop.is-obert { transform: none; }
+    .risc-pop__barra i { transition: none; }
+    .risc-chevron { transition: none; }
+}
