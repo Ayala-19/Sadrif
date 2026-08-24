@@ -854,13 +854,13 @@ const { useState, useEffect, useRef, useLayoutEffect, useMemo, useCallback, forw
               <div className="power-chain">
                 {powerChain.map((n, i) => (
                   <React.Fragment key={i}>
-                    <div className="power-node">
+                    <div className="power-node" style={{ '--n': i }}>
                       <span className="power-ico"><Icon name={n.ico} size={22} /></span>
                       <strong>{n.name}</strong>
                       <span>{n.desc}</span>
                     </div>
                     {i < powerChain.length - 1 && (
-                      <span className="power-link"><Icon name="arrowRight" size={18} /></span>
+                      <span className="power-link" style={{ '--n': i }}><Icon name="arrowRight" size={18} /></span>
                     )}
                   </React.Fragment>
                 ))}
