@@ -1,0 +1,15 @@
+{
+  "name": "pladrif-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Web del Pla DRIF / estació SADRIF. Les pàgines són HTML estàtic; només el JSX de producto3d.html i sobre-nosotros.html passa per Babel.",
+  "scripts": {
+    "build": "babel src --out-dir js --presets @babel/preset-react --compact false",
+    "watch": "babel src --out-dir js --presets @babel/preset-react --compact false --watch"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.24.7",
+    "@babel/core": "^7.24.7",
+    "@babel/preset-react": "^7.24.7"
+  }
+}
