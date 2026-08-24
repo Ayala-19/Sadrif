@@ -12,20 +12,30 @@
     <link rel="mask-icon" href="favicon.svg" color="#059669">
     <meta name="theme-color" content="#059669">
 
+    <!-- Instal·lable com a aplicació (afegir a la pantalla d'inici) -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Pla DRIF">
     <!-- SEO i previsualització a xarxes socials -->
     <meta name="description" content="Explora el dispositiu SADRIF en 3D: components, material, circuit d'alimentació solar i fitxa tècnica completa.">
-    <link rel="canonical" href="http://pladrif.online/producto3d.html">
+    <link rel="canonical" href="https://pladrif.online/producto3d.html">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Pla DRIF">
     <meta property="og:locale" content="ca_ES">
     <meta property="og:title" content="Dispositiu SADRIF en 3D | Pla DRIF">
     <meta property="og:description" content="Explora el dispositiu SADRIF en 3D: components, material, circuit d'alimentació solar i fitxa tècnica completa.">
-    <meta property="og:url" content="http://pladrif.online/producto3d.html">
-    <meta property="og:image" content="og-preview.svg">
+    <meta property="og:url" content="https://pladrif.online/producto3d.html">
+    <meta property="og:image" content="https://pladrif.online/og-preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:alt" content="Pla DRIF · Sistema Autònom de Detecció de Risc d Incendis Forestals">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Dispositiu SADRIF en 3D | Pla DRIF">
     <meta name="twitter:description" content="Explora el dispositiu SADRIF en 3D: components, material, circuit d'alimentació solar i fitxa tècnica completa.">
-    <meta name="twitter:image" content="og-preview.svg">
+    <meta name="twitter:image" content="https://pladrif.online/og-preview.png">
 
   
   <!-- Fuentes para el menú CardNav -->
@@ -40,6 +50,9 @@
   
   <!-- GSAP -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <!-- Risc en directe: mateixa fórmula i mateixes dades a totes les pàgines -->
+  <link rel="stylesheet" href="risc-live.css">
+  <script src="risc-live.js" defer></script>
   
   <!-- React & ReactDOM -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
@@ -48,8 +61,6 @@
   <!-- Framer Motion -->
   <script src="https://unpkg.com/framer-motion@11.0.8/dist/framer-motion.js"></script>
   
-  <!-- Babel -->
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <!-- Google Model Viewer (Para el modelo 3D) -->
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
@@ -68,10 +79,15 @@
         --texto-mutado: #64748b;
         --borde-claro: rgba(226, 232, 240, 0.6);
 
-        /* Variables Dinámicas */
-        --riesgo-color-dinamico: #10b981; 
-        --riesgo-bg-suave: rgba(16, 185, 129, 0.15);
-        --riesgo-borde: rgba(16, 185, 129, 0.4);
+        /* Color de marca. Aquesta pàgina SEMPRE és verd maragda: el nivell de
+           risc no ha de tenyir mai els botons ni els detalls. */
+        --accent: #10b981;
+        --accent-suau: rgba(16, 185, 129, 0.15);
+        --accent-vora: rgba(16, 185, 129, 0.4);
+
+        /* Color del risc en directe. L'escriu risc-live.js NOMÉS damunt de la
+           píndola del menú, mai a l'arrel del document. */
+        --riesgo-color-dinamico: #10b981;
 
         --transicion: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
@@ -173,6 +189,7 @@
         transition: var(--transicion);
     }
     .navbar-brand img { height: 28px; }
+    .nomes-lectors { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
     .card-nav-content {
         position: absolute;
@@ -210,15 +227,18 @@
     .nav-card-links { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
     
     .nav-card-link {
-        font-size: 0.95rem; font-weight: 500; color: inherit; cursor: pointer; text-decoration: none; transition: opacity 0.3s ease; display: inline-flex; align-items: center; gap: 6px;
+        font-size: 0.95rem; font-weight: 500; color: inherit; cursor: pointer; text-decoration: none; transition: opacity 0.3s ease; display: inline-flex; align-items: center; gap: 10px;
     }
     .nav-card-link:hover { opacity: 0.6; }
+    .nav-card-link svg { flex: none; opacity: 0.82; transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16,1,0.3,1); }
+    .nav-card-link:hover svg { opacity: 1; transform: translateX(2px); }
 
     /* Badge Risc dins del nav */
     .sticky-risk-badge {
         display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(10px);
         border: 1px solid var(--glass-border); padding: 5px 12px; border-radius: 99px;
         font-weight: 700; font-size: 0.85rem; box-shadow: var(--glass-shadow);
+        color: var(--texto-principal); text-decoration: none; white-space: nowrap;
         opacity: 0;
         visibility: hidden;
         transform: translateY(-8px) scale(0.95);
@@ -232,6 +252,9 @@
         transform: translateY(0) scale(1);
         pointer-events: auto;
     }
+    a.sticky-risk-badge.visible:hover { background: rgba(255, 255, 255, 0.85); }
+    .sticky-risk-badge.is-carregant { opacity: 0.55; }
+    @media (prefers-reduced-motion: reduce) { .sticky-risk-dot { animation: none; } }
 
     .sticky-risk-dot { width: 10px; height: 10px; border-radius: 50%; background-color: var(--riesgo-color-dinamico); box-shadow: 0 0 8px var(--riesgo-color-dinamico); animation: pulseLive 1.5s infinite; }
 
@@ -344,7 +367,7 @@
     }
     .ag-detail-index {
       display: block; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.12em;
-      color: var(--riesgo-color-dinamico); margin-bottom: 8px; font-variant-numeric: tabular-nums;
+      color: var(--accent); margin-bottom: 8px; font-variant-numeric: tabular-nums;
     }
     .ag-detail strong { display: block; font-size: 1.05rem; font-weight: 800; color: var(--texto-principal); line-height: 1.35; }
     .ag-detail p { margin: 8px 0 0; font-size: 0.92rem; color: var(--texto-mutado); line-height: 1.7; max-width: 78ch; }
@@ -360,9 +383,9 @@
        ESTILS NOUS: PÀGINA CENTRADA EN EL DISPOSITIU
        ========================================= */
     .hero-eyebrow-chip {
-      display: inline-flex; align-items: center; gap: 8px; background: var(--riesgo-bg-suave);
-      color: var(--riesgo-color-dinamico); padding: 6px 16px; border-radius: 99px; font-weight: 800;
-      font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; border: 1px solid var(--riesgo-borde);
+      display: inline-flex; align-items: center; gap: 8px; background: var(--accent-suau);
+      color: var(--accent); padding: 6px 16px; border-radius: 99px; font-weight: 800;
+      font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; border: 1px solid var(--accent-vora);
       margin-bottom: 22px;
     }
     .quick-specs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
@@ -375,7 +398,7 @@
     .quick-spec-card:hover { transform: translateY(-4px); background: rgba(255, 255, 255, 0.7); }
     .quick-spec-icon {
       width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center;
-      background: rgba(5,150,105,0.10); border: 1px solid rgba(5,150,105,0.18); color: var(--riesgo-color-dinamico);
+      background: rgba(5,150,105,0.10); border: 1px solid rgba(5,150,105,0.18); color: var(--accent);
     }
     .quick-spec-label { font-weight: 700; font-size: 0.78rem; color: var(--texto-principal); line-height: 1.3; }
 
@@ -419,9 +442,9 @@
       color: var(--texto-principal); cursor: pointer; transition: var(--transicion); box-shadow: var(--glass-shadow);
     }
     .toolbar-btn:hover { background: rgba(255,255,255,0.8); transform: translateY(-2px); }
-    .toolbar-btn.actiu { background: var(--riesgo-color-dinamico); color: #fff; border-color: transparent; }
+    .toolbar-btn.actiu { background: var(--accent); color: #fff; border-color: transparent; }
     .toolbar-btn.ar-btn { background: rgba(15,23,42,0.92); color: #fff; border-color: transparent; }
-    .toolbar-btn.ar-btn:hover { background: var(--riesgo-color-dinamico); }
+    .toolbar-btn.ar-btn:hover { background: var(--accent); }
     .toolbar-divider { width: 1px; align-self: stretch; background: var(--borde-claro); margin: 0 2px; }
     @media (max-width: 640px) { .toolbar-divider { display: none; } }
 
@@ -435,7 +458,7 @@
       padding: 11px 22px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; cursor: pointer; border: none;
       transition: var(--transicion);
     }
-    .spec-sheet-toggle-btn:hover { background: var(--riesgo-color-dinamico); }
+    .spec-sheet-toggle-btn:hover { background: var(--accent); }
     .spec-sheet-toggle-btn svg { transition: transform 0.3s ease; }
     .spec-sheet-toggle-btn.obert svg { transform: rotate(180deg); }
     .spec-sheet-body { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease, margin-top 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -460,10 +483,10 @@
       transition: background 0.25s ease;
     }
     .spec-item-head:hover { background: rgba(5, 150, 105, 0.06); }
-    .spec-item-head:focus-visible { outline: 2px solid var(--riesgo-color-dinamico); outline-offset: -2px; }
+    .spec-item-head:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
     .spec-item-ico {
       flex: none; width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center;
-      background: rgba(5, 150, 105, 0.10); border: 1px solid rgba(5, 150, 105, 0.18); color: var(--riesgo-color-dinamico);
+      background: rgba(5, 150, 105, 0.10); border: 1px solid rgba(5, 150, 105, 0.18); color: var(--accent);
     }
     .spec-item--power .spec-item-ico { background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.24); color: #d97706; }
     .spec-item-txt { flex: 1; min-width: 0; }
@@ -533,22 +556,80 @@
     }
     .flow-step:hover { transform: translateY(-6px); box-shadow: 0 22px 45px -20px rgba(15,23,42,0.28); }
     .flow-step-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-    .flow-ico { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: rgba(5,150,105,0.10); border: 1px solid rgba(5,150,105,0.18); color: var(--riesgo-color-dinamico); }
+    .flow-ico { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: rgba(5,150,105,0.10); border: 1px solid rgba(5,150,105,0.18); color: var(--accent); }
     .flow-n { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; color: var(--texto-mutado); }
     .flow-step h4 { margin: 0 0 8px; font-size: 1.05rem; font-weight: 800; color: var(--texto-principal); }
     .flow-step p { margin: 0; font-size: 0.87rem; color: var(--texto-mutado); line-height: 1.6; }
     .flow-step:not(:last-child)::after {
       content: ''; position: absolute; top: 46px; right: -13px; width: 8px; height: 8px; z-index: 2;
-      border-top: 2px solid var(--riesgo-color-dinamico); border-right: 2px solid var(--riesgo-color-dinamico);
+      border-top: 2px solid var(--accent); border-right: 2px solid var(--accent);
       transform: rotate(45deg); opacity: 0.5;
     }
     @media (max-width: 980px) { .flow-grid { grid-template-columns: repeat(2, 1fr); } .flow-step:not(:last-child)::after { display: none; } }
     @media (max-width: 560px) { .flow-grid { grid-template-columns: 1fr; } }
 
     /* ===== CADENA D'ALIMENTACIÓ ===== */
+    /* Vora elèctrica, inspirada en el component d'Electric Border de React Bits
+       (https://reactbits.dev/animations/electric-border). L'original dibuixa la
+       vora en un <canvas> amb soroll de Perlin: per a aquesta caixa serien unes
+       1.400 mostres i ~6,8 milions de Math.sin per segon, en bucle infinit i
+       sense parar. Al mòbil això es nota. Aquí el mateix efecte es fa amb un
+       degradat cònic que gira: ho porta el compositor de la GPU, no la CPU, i
+       el cost és pràcticament zero. */
+    @property --eb-gir {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+    @keyframes ebGir { to { --eb-gir: 360deg; } }
+
     .power-card {
+      position: relative; isolation: isolate;
       max-width: 1150px; margin: 28px auto 0; background: linear-gradient(135deg, rgba(15,23,42,0.96) 0%, rgba(30,41,59,0.96) 100%);
       border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 32px 28px; color: #fff;
+    }
+    /* Els dos arcs de llum que recorren la vora. Només aquesta capa s'anima. */
+    .power-card::before {
+      content: ''; position: absolute; inset: -1px; border-radius: inherit; padding: 1.5px;
+      background: conic-gradient(from var(--eb-gir),
+        transparent 0deg 34deg, rgba(52,211,153,0.55) 48deg, #6ee7b7 62deg, #d1fae5 70deg, #6ee7b7 78deg, rgba(52,211,153,0.55) 92deg, transparent 106deg 214deg,
+        rgba(16,185,129,0.45) 228deg, #34d399 242deg, #a7f3d0 250deg, #34d399 258deg, rgba(16,185,129,0.45) 272deg, transparent 286deg 360deg);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      mask-composite: exclude;
+      animation: ebGir 6s linear infinite;
+      pointer-events: none; z-index: 0;
+    }
+    /* Halo difús. NO s'anima: un desenfocat que es repintés cada fotograma
+       seria justament la part cara per a la bateria. Es rasteritza un cop. */
+    .power-card::after {
+      content: ''; position: absolute; inset: -3px; border-radius: inherit; padding: 3px;
+      background: conic-gradient(from 0deg,
+        rgba(16,185,129,0.10) 0deg, rgba(52,211,153,0.34) 90deg, rgba(16,185,129,0.10) 180deg,
+        rgba(52,211,153,0.30) 270deg, rgba(16,185,129,0.10) 360deg);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      mask-composite: exclude;
+      filter: blur(7px);
+      pointer-events: none; z-index: 0;
+    }
+    .power-card > * { position: relative; z-index: 1; }
+
+    /* Un pols de llum que baixa per la cadena, com l'energia que hi circula. */
+    @keyframes ebPols {
+      0%, 62%, 100% { color: #6ee7b7; text-shadow: none; }
+      12%           { color: #ecfdf5; text-shadow: 0 0 12px rgba(110,231,183,0.9); }
+    }
+    .power-node .power-ico { animation: ebPols 4.2s ease-in-out infinite; animation-delay: calc(var(--n, 0) * 0.42s); }
+    .power-link { animation: ebPols 4.2s ease-in-out infinite; animation-delay: calc((var(--n, 0) + 0.5) * 0.42s); }
+
+    /* Si el sistema demana reduir el moviment, es queda tot quiet però amb la
+       vora pintada: no es perd el disseny, només el moviment. */
+    @media (prefers-reduced-motion: reduce) {
+      .power-card::before { animation: none; }
+      .power-node .power-ico, .power-link { animation: none; }
     }
     .power-card h4 { margin: 0 0 6px; font-size: 1.15rem; font-weight: 800; }
     .power-card > p { margin: 0 0 24px; color: #94a3b8; font-size: 0.92rem; line-height: 1.6; max-width: 70ch; }
@@ -574,7 +655,7 @@
       padding: 26px 20px; text-align: center; transition: var(--transicion);
     }
     .stat-card:hover { transform: translateY(-5px); }
-    .stat-num { font-size: clamp(2rem, 4vw, 2.6rem); font-weight: 800; color: var(--riesgo-color-dinamico); line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+    .stat-num { font-size: clamp(2rem, 4vw, 2.6rem); font-weight: 800; color: var(--accent); line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
     .stat-num small { font-size: 0.45em; font-weight: 700; margin-left: 2px; }
     .stat-label { margin-top: 10px; font-size: 0.8rem; font-weight: 700; color: var(--texto-principal); }
     .stat-sub { margin-top: 4px; font-size: 0.74rem; color: var(--texto-mutado); }
@@ -588,9 +669,9 @@
       padding: 21px 4px; background: none; border: 0; cursor: pointer; font: inherit; text-align: left;
       font-weight: 700; font-size: 1rem; color: var(--texto-principal); transition: color 0.25s ease;
     }
-    .faq-q:hover { color: var(--riesgo-color-dinamico); }
+    .faq-q:hover { color: var(--accent); }
     .faq-q svg { flex: none; color: var(--texto-mutado); transition: transform 0.3s ease; }
-    .faq-item.obert .faq-q svg { transform: rotate(180deg); color: var(--riesgo-color-dinamico); }
+    .faq-item.obert .faq-q svg { transform: rotate(180deg); color: var(--accent); }
     .faq-a { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.38s cubic-bezier(0.16, 1, 0.3, 1); }
     .faq-item.obert .faq-a { grid-template-rows: 1fr; }
     .faq-a > div { overflow: hidden; min-height: 0; }
@@ -682,7 +763,7 @@
 
               <!-- Logo -->
               <div class="logo-container">
-                  <a href="#inicio" class="navbar-brand">
+                  <a href="index.html" class="navbar-brand">
                       <img src="logo-sadrif.svg" alt="SADRIF" onerror="this.onerror=null; this.src='logo-sadrif.svg.svg';">
                       <span>PLA DRIF</span>
                   </a>
@@ -690,10 +771,11 @@
 
               <!-- Controles Nav Derecho (Riesgo Dinámico) -->
               <div class="right-controls-nav" style="display: flex; gap: 12px; align-items: center;">
-                  <div id="sticky-risk-badge" class="sticky-risk-badge">
+                  <button type="button" id="sticky-risk-badge" class="sticky-risk-badge" aria-label="Risc d'incendi en directe: veure'n el detall">
                       <span class="sticky-risk-dot"></span>
-                      <span>Risc: <strong id="sticky-risk-val">0%</strong></span>
-                  </div>
+                      <span>Risc: <strong id="sticky-risk-val" data-risc-valor>--%</strong></span>
+                      <svg class="risc-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+                  </button>
               </div>
           </div>
 
@@ -705,11 +787,11 @@
                   <div class="nav-card-label">Navegació</div>
                   <div class="nav-card-links">
                       <a class="nav-card-link" href="index.html">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3.5l9 7V20a1.5 1.5 0 0 1-1.5 1.5h-4v-6h-7v6h-4A1.5 1.5 0 0 1 3 20z"/></svg>
                           Inici DRIF
                       </a>
                       <a class="nav-card-link" href="sobre-nosotros.html">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20v-1.5a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4V20"/><circle cx="9" cy="7" r="3.2"/><path d="M22 20v-1.5a4 4 0 0 0-3-3.87M16.5 4.2a3.2 3.2 0 0 1 0 5.6"/></svg>
                           Sobre el Projecte
                       </a>
                   </div>
@@ -720,11 +802,11 @@
                   <div class="nav-card-label">Projectes & Live</div>
                   <div class="nav-card-links">
                       <a class="nav-card-link" href="https://www.twitch.tv/pla_drif" target="_blank">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3h16v10.5L15.5 18H12l-3 3H7v-3H4z"/><path d="M11 7.5v4M15.5 7.5v4"/></svg>
                           Directe Twitch
                       </a>
                       <a class="nav-card-link" href="#contenedor-visor">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h1.2a1.5 1.5 0 0 0 1.25-.67l.8-1.2A1.5 1.5 0 0 1 10 3.5h4a1.5 1.5 0 0 1 1.25.63l.8 1.2A1.5 1.5 0 0 0 17.3 6h1.2A2.5 2.5 0 0 1 21 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/><circle cx="12" cy="13" r="3.4"/></svg>
                           Càmera de Vigilància
                       </a>
                   </div>
@@ -735,11 +817,11 @@
                   <div class="nav-card-label">Xarxes Socials</div>
                   <div class="nav-card-links">
                       <a class="nav-card-link" href="https://www.youtube.com/@PlaDRIF_Oficial" target="_blank">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22.2 7.4a2.7 2.7 0 0 0-1.9-1.9C18.6 5 12 5 12 5s-6.6 0-8.3.5A2.7 2.7 0 0 0 1.8 7.4 28 28 0 0 0 1.3 12a28 28 0 0 0 .5 4.6 2.7 2.7 0 0 0 1.9 1.9C5.4 19 12 19 12 19s6.6 0 8.3-.5a2.7 2.7 0 0 0 1.9-1.9 28 28 0 0 0 .5-4.6 28 28 0 0 0-.5-4.6z"/><polygon points="9.9 15.1 15.4 12 9.9 8.9 9.9 15.1" fill="currentColor" stroke="none"/></svg>
                           Canal de YouTube
                       </a>
                       <a class="nav-card-link" href="https://www.instagram.com/pladrif_cat" target="_blank">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.8"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>
                           Instagram
                       </a>
                   </div>
@@ -750,1074 +832,15 @@
   </div>
 
   <!-- Aquí se montará la aplicación React -->
+  <!-- Encapçalament principal de la pàgina. Va a l'HTML i no dins de React
+       perquè els cercadors el trobin sense haver d'executar JavaScript.
+       Només per a lectors de pantalla: el disseny visual no canvia. -->
+  <h1 class="nomes-lectors">El dispositiu SADRIF en 3D · estació autònoma de detecció de risc d'incendis forestals</h1>
+
   <div id="root"></div>
 
   <!-- Lógica React -->
-  <script type="text/babel">
-    const { useState, useEffect, useRef, useLayoutEffect, useMemo, useCallback, forwardRef, useImperativeHandle } = React;
-    const { motion, AnimatePresence, useScroll, useSpring, useTransform, useMotionValue, useVelocity, useAnimationFrame } = window.Motion;
-
-    function cn(...classes) {
-      return classes.filter(Boolean).join(' ');
-    }
-
-    /* =========================================================
-       SISTEMA D'ICONES SVG (substitueix qualsevol emoji)
-       Traç uniforme de 1.75, quadrícula de 24x24 i currentColor,
-       perquè totes les icones tinguin exactament el mateix pes visual.
-       ========================================================= */
-    const ICON_PATHS = {
-      sun: <React.Fragment><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></React.Fragment>,
-      solar: <React.Fragment><rect x="2.5" y="4" width="19" height="11" rx="1.5"/><path d="M2.5 8.7h19M2.5 11.9h19M9 4v11M15 4v11M12 15v5M8.5 20h7"/></React.Fragment>,
-      thermometer: <path d="M14 14.76V4.5a2.5 2.5 0 0 0-5 0v10.26a4.5 4.5 0 1 0 5 0z"/>,
-      wifi: <React.Fragment><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0"/><path d="M12 20h.01"/></React.Fragment>,
-      layers: <React.Fragment><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></React.Fragment>,
-      chip: <React.Fragment><rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9.5" y="9.5" width="5" height="5"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M19 9h3M19 15h3M2 9h3M2 15h3"/></React.Fragment>,
-      camera: <React.Fragment><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3l1.5-2.5h7L17 7h3a2 2 0 0 1 2 2z"/><circle cx="12" cy="13.5" r="3.5"/></React.Fragment>,
-      air: <React.Fragment><path d="M17.5 17.5a4.5 4.5 0 0 0 0-9 6.5 6.5 0 0 0-12.3-1.2"/><path d="M2.5 10.5h6M2.5 14h9M2.5 17.5h6"/></React.Fragment>,
-      gauge: <React.Fragment><circle cx="12" cy="12" r="9"/><path d="M12 12l4.2-3.2"/><circle cx="12" cy="12" r="1.4"/><path d="M12 3v1.6M21 12h-1.6M3 12h1.6"/></React.Fragment>,
-      wind: <path d="M9.6 4.6A2 2 0 1 1 11 8H2M12.6 19.4A2 2 0 1 0 14 16H2M17.7 7.7A2.5 2.5 0 1 1 19.5 12H2"/>,
-      display: <React.Fragment><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M9 21h6M12 17v4"/></React.Fragment>,
-      cable: <path d="M9 2v6M15 2v6M7 8h10v3.5a5 5 0 0 1-10 0zM12 16.5V22"/>,
-      batteryCharging: <React.Fragment><path d="M6.5 6H4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2M15 6h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-3"/><path d="M22 10.5v3"/><path d="M12.5 6l-3.5 5.5h4.5L10 18"/></React.Fragment>,
-      battery: <React.Fragment><rect x="2" y="7" width="17" height="10" rx="2.5"/><path d="M22 10.5v3"/><rect x="5" y="10" width="6" height="4" rx="1" fill="currentColor" stroke="none"/></React.Fragment>,
-      bolt: <polygon points="13 2 4 13.5 11 13.5 10 22 20 10 13 10 13 2"/>,
-      cube: <React.Fragment><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.3 7 12 12 20.7 7"/><line x1="12" y1="22" x2="12" y2="12"/></React.Fragment>,
-      wrench: <path d="M14.5 6.5a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.5-3.5a6 6 0 0 1-7.9 7.9l-6.7 6.7a2.1 2.1 0 0 1-3-3l6.7-6.7a6 6 0 0 1 7.9-7.9z"/>,
-      ar: <React.Fragment><rect x="5" y="2" width="14" height="20" rx="2.5"/><path d="M12 6.6l3 1.6v3.4l-3 1.6-3-1.6V8.2z"/><path d="M12 9.9v3.3M9 8.2l3 1.7 3-1.7"/></React.Fragment>,
-      play: <polygon points="6 3.5 20.5 12 6 20.5 6 3.5" fill="currentColor" stroke="none"/>,
-      pause: <React.Fragment><rect x="6" y="4" width="4" height="16" rx="1.2"/><rect x="14" y="4" width="4" height="16" rx="1.2"/></React.Fragment>,
-      rotate: <React.Fragment><path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1"/><polyline points="20.5 4 20.5 9 15.5 9"/></React.Fragment>,
-      arrowRight: <React.Fragment><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></React.Fragment>,
-      chevronDown: <path d="M6 9.5l6 6 6-6"/>,
-      cloud: <path d="M18 19H7a5 5 0 1 1 1-9.9A6.5 6.5 0 0 1 20.4 11 4 4 0 0 1 18 19z"/>,
-      shield: <React.Fragment><path d="M12 22s8-3.5 8-10V5.5l-8-3-8 3V12c0 6.5 8 10 8 10z"/><polyline points="9 12 11 14 15 9.5"/></React.Fragment>,
-      clock: <React.Fragment><circle cx="12" cy="12" r="9"/><polyline points="12 6.5 12 12 15.8 14.2"/></React.Fragment>,
-      mapPin: <React.Fragment><path d="M20 10.5c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10.3" r="2.8"/></React.Fragment>,
-      ruler: <React.Fragment><rect x="2.5" y="8" width="19" height="8" rx="1.5"/><path d="M7 8v3M11 8v4.5M15 8v3M19 8v4.5"/></React.Fragment>,
-      youtube: <React.Fragment><path d="M22.2 7.4a2.7 2.7 0 0 0-1.9-1.9C18.6 5 12 5 12 5s-6.6 0-8.3.5A2.7 2.7 0 0 0 1.8 7.4 28 28 0 0 0 1.3 12a28 28 0 0 0 .5 4.6 2.7 2.7 0 0 0 1.9 1.9C5.4 19 12 19 12 19s6.6 0 8.3-.5a2.7 2.7 0 0 0 1.9-1.9 28 28 0 0 0 .5-4.6 28 28 0 0 0-.5-4.6z"/><polygon points="9.9 15.1 15.4 12 9.9 8.9 9.9 15.1" fill="currentColor" stroke="none"/></React.Fragment>,
-      instagram: <React.Fragment><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.8"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></React.Fragment>,
-      twitch: <React.Fragment><path d="M4 3h16v10.5L15.5 18H12l-3 3H7v-3H4z"/><path d="M11 7.5v4M15.5 7.5v4"/></React.Fragment>,
-      github: <path d="M9 19c-4.3 1.3-4.3-2.2-6-2.6m12 5v-3.4c0-1 .1-1.4-.5-2 2.7-.3 5.5-1.3 5.5-6a4.7 4.7 0 0 0-1.3-3.2 4.3 4.3 0 0 0-.1-3.3s-1-.3-3.5 1.3a12 12 0 0 0-6.2 0C6.4 3.2 5.4 3.5 5.4 3.5a4.3 4.3 0 0 0-.1 3.3A4.7 4.7 0 0 0 4 10c0 4.7 2.8 5.7 5.5 6-.4.4-.5.9-.5 1.5V21"/>
-    };
-
-    const Icon = ({ name, size = 20, stroke = 1.75, className = '', style }) => {
-      const content = ICON_PATHS[name];
-      if (!content) return null;
-      return (
-        <svg
-          className={cn('ico', className)} style={style}
-          width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"
-        >
-          {content}
-        </svg>
-      );
-    };
-
-    const RotatingText = forwardRef((props, ref) => {
-      const {
-        texts,
-        transition = { type: 'spring', damping: 25, stiffness: 300 },
-        initial = { y: '100%', opacity: 0 },
-        animate = { y: 0, opacity: 1 },
-        exit = { y: '-120%', opacity: 0 },
-        animatePresenceMode = 'wait',
-        animatePresenceInitial = false,
-        rotationInterval = 2500,
-        staggerDuration = 0.02,
-        staggerFrom = 'first',
-        loop = true,
-        auto = true,
-        splitBy = 'characters',
-        onNext,
-        mainClassName,
-        splitLevelClassName,
-        elementLevelClassName,
-        ...rest
-      } = props;
-
-      const [currentTextIndex, setCurrentTextIndex] = useState(0);
-
-      const splitIntoCharacters = text => {
-        if (typeof Intl !== 'undefined' && Intl.Segmenter) {
-          const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
-          return Array.from(segmenter.segment(text), segment => segment.segment);
-        }
-        return Array.from(text);
-      };
-
-      const elements = useMemo(() => {
-        const currentText = texts[currentTextIndex];
-        if (splitBy === 'characters') {
-          const words = currentText.split(' ');
-          return words.map((word, i) => ({
-            characters: splitIntoCharacters(word),
-            needsSpace: i !== words.length - 1
-          }));
-        }
-        return currentText.split(splitBy).map((part, i, arr) => ({
-          characters: [part],
-          needsSpace: i !== arr.length - 1
-        }));
-      }, [texts, currentTextIndex, splitBy]);
-
-      const getStaggerDelay = useCallback((index, totalChars) => {
-        if (staggerFrom === 'first') return index * staggerDuration;
-        if (staggerFrom === 'last') return (totalChars - 1 - index) * staggerDuration;
-        return index * staggerDuration;
-      }, [staggerFrom, staggerDuration]);
-
-      const next = useCallback(() => {
-        setCurrentTextIndex(prev => prev === texts.length - 1 ? (loop ? 0 : prev) : prev + 1);
-      }, [texts.length, loop]);
-
-      useEffect(() => {
-        if (!auto) return;
-        const intervalId = setInterval(next, rotationInterval);
-        return () => clearInterval(intervalId);
-      }, [next, rotationInterval, auto]);
-
-      return (
-        <motion.span className={cn('text-rotate', mainClassName)} {...rest} layout transition={transition}>
-          <span className="text-rotate-sr-only">{texts[currentTextIndex]}</span>
-          <AnimatePresence mode={animatePresenceMode} initial={animatePresenceInitial}>
-            <motion.span key={currentTextIndex} className="text-rotate" layout aria-hidden="true">
-              {elements.map((wordObj, wordIndex, array) => {
-                const previousCharsCount = array.slice(0, wordIndex).reduce((sum, word) => sum + word.characters.length, 0);
-                return (
-                  <span key={wordIndex} className={cn('text-rotate-word', splitLevelClassName)}>
-                    {wordObj.characters.map((char, charIndex) => (
-                      <motion.span
-                        key={charIndex}
-                        initial={initial}
-                        animate={animate}
-                        exit={exit}
-                        transition={{
-                          ...transition,
-                          delay: getStaggerDelay(previousCharsCount + charIndex, array.reduce((sum, word) => sum + word.characters.length, 0))
-                        }}
-                        className={cn('text-rotate-element', elementLevelClassName)}
-                      >
-                        {char}
-                      </motion.span>
-                    ))}
-                    {wordObj.needsSpace && <span className="text-rotate-space"> </span>}
-                  </span>
-                );
-              })}
-            </motion.span>
-          </AnimatePresence>
-        </motion.span>
-      );
-    });
-
-    function useElementWidth(ref) {
-      const [width, setWidth] = useState(0);
-      useLayoutEffect(() => {
-        function updateWidth() {
-          if (ref.current) setWidth(ref.current.offsetWidth);
-        }
-        updateWidth();
-        window.addEventListener('resize', updateWidth);
-        return () => window.removeEventListener('resize', updateWidth);
-      }, [ref]);
-      return width;
-    }
-
-    const ScrollVelocity = ({
-      texts = [], velocity = 100, className = '', damping = 50, stiffness = 400, numCopies = 6
-    }) => {
-      function VelocityText({ children, baseVelocity, className }) {
-        const baseX = useMotionValue(0);
-        const { scrollY } = useScroll();
-        const scrollVelocity = useVelocity(scrollY);
-        const smoothVelocity = useSpring(scrollVelocity, { damping, stiffness });
-        const velocityFactor = useTransform(smoothVelocity, [0, 1000], [0, 5], { clamp: false });
-
-        const copyRef = useRef(null);
-        const copyWidth = useElementWidth(copyRef);
-
-        function wrap(min, max, v) {
-          const range = max - min;
-          const mod = (((v - min) % range) + range) % range;
-          return mod + min;
-        }
-
-        const x = useTransform(baseX, v => {
-          if (copyWidth === 0) return '0px';
-          return `${wrap(-copyWidth, 0, v)}px`;
-        });
-
-        const directionFactor = useRef(1);
-        useAnimationFrame((t, delta) => {
-          let moveBy = directionFactor.current * baseVelocity * (delta / 1000);
-          if (velocityFactor.get() < 0) directionFactor.current = -1;
-          else if (velocityFactor.get() > 0) directionFactor.current = 1;
-          moveBy += directionFactor.current * moveBy * velocityFactor.get();
-          baseX.set(baseX.get() + moveBy);
-        });
-
-        const spans = [];
-        for (let i = 0; i < numCopies; i++) {
-          spans.push(<span className={className} key={i} ref={i === 0 ? copyRef : null}>{children}&nbsp;&nbsp;&nbsp;</span>);
-        }
-
-        return (
-          <div className="parallax">
-            <motion.div className="scroller" style={{ x }}>
-              {spans}
-            </motion.div>
-          </div>
-        );
-      }
-
-      return (
-        <section className="py-6 overflow-hidden">
-          {texts.map((text, index) => (
-            <VelocityText key={index} className={className} baseVelocity={index % 2 !== 0 ? -velocity : velocity}>
-              {text}
-            </VelocityText>
-          ))}
-        </section>
-      );
-    };
-
-    /* ===== CountUp (inspirat en el component de React Bits) =====
-       Compta des de 0 fins al valor final la primera vegada que la xifra
-       entra a la pantalla. Fa servir un IntersectionObserver i un sol
-       requestAnimationFrame que s'atura tot sol quan acaba. */
-    const CountUp = ({ to, duration = 1500, className = '' }) => {
-      const ref = useRef(null);
-      const [value, setValue] = useState(0);
-      const doneRef = useRef(false);
-
-      useEffect(() => {
-        const el = ref.current;
-        if (!el) return;
-
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-          setValue(to);
-          return;
-        }
-
-        let rafId = null;
-        const run = () => {
-          const start = performance.now();
-          const tick = now => {
-            const p = Math.min((now - start) / duration, 1);
-            const eased = 1 - Math.pow(1 - p, 3); // ease-out cubic
-            setValue(Math.round(to * eased));
-            if (p < 1) rafId = requestAnimationFrame(tick);
-          };
-          rafId = requestAnimationFrame(tick);
-        };
-
-        const io = new IntersectionObserver(entries => {
-          if (entries[0].isIntersecting && !doneRef.current) {
-            doneRef.current = true;
-            run();
-            io.disconnect();
-          }
-        }, { threshold: 0.4 });
-
-        io.observe(el);
-        return () => { io.disconnect(); if (rafId) cancelAnimationFrame(rafId); };
-      }, [to, duration]);
-
-      return <span ref={ref} className={className}>{value}</span>;
-    };
-
-    /* Marcador de posició mentre no hi hagi les fotografies reals dels components.
-       És un SVG inline (no fa cap petició a la xarxa) amb l'estètica de la web. */
-    const PHOTO_PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000">
-        <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="#0f172a"/><stop offset="1" stop-color="#065f46"/>
-        </linearGradient></defs>
-        <rect width="800" height="1000" fill="url(#g)"/>
-        <g fill="none" stroke="rgba(255,255,255,0.26)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"
-           transform="translate(340,440) scale(5)">
-          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-          <path d="M3.3 7 12 12l8.7-5"/><path d="M12 22V12"/>
-        </g>
-      </svg>`
-    );
-
-    /* Galeria acordió.
-       Funciona en dues orientacions: en horitzontal a l'escriptori i en
-       vertical al mòbil, amb la mateixa animació. Abans, per sota de 680 px,
-       el CSS anul·lava l'efecte i quedava una simple llista d'imatges. */
-    const AccordionGallery = ({ items }) => {
-      const rootRef = useRef(null);
-      const panelRefs = useRef([]);
-      const mediaRefs = useRef([]);
-      const barRefs = useRef([]);
-      const textRefs = useRef([]);
-      const tlRef = useRef(null);
-      const [active, setActive] = useState(0);
-      const [vertical, setVertical] = useState(false);
-
-      const count = items.length;
-
-      /* Una sola font de veritat per a l'orientació: la mateixa consulta
-         de mitjans que fa servir el CSS, escoltada des de JS. */
-      useEffect(() => {
-        const mq = window.matchMedia('(max-width: 680px)');
-        const sync = () => setVertical(mq.matches);
-        sync();
-        mq.addEventListener('change', sync);
-        return () => mq.removeEventListener('change', sync);
-      }, []);
-
-      const applyLayout = useCallback(() => {
-        const panels = panelRefs.current;
-        if (!panels.length || !window.gsap) return;
-
-        tlRef.current?.kill();
-        const tl = window.gsap.timeline();
-
-        panels.forEach((panel, i) => {
-          if (!panel) return;
-          const isActive = i === active;
-          const media = mediaRefs.current[i];
-          const bar = barRefs.current[i];
-          const text = textRefs.current[i];
-
-          const grow = count > 1 ? (0.48 * (count - 1)) / (1 - 0.48) : 1;
-          const tilt = isActive ? 0 : i < active ? 6 : -6;
-
-          tl.to(panel, {
-            flexGrow: isActive ? grow : 1,
-            /* En vertical el gir ha de ser sobre l'eix X: amb rotateY
-               la perspectiva aniria en contra del sentit de l'apilament. */
-            rotateY: vertical ? 0 : tilt,
-            rotateX: vertical ? -tilt : 0,
-            duration: 0.6, ease: 'power3.out'
-          }, 0);
-
-          if (media) {
-            tl.to(media, {
-              xPercent: -50, yPercent: -50,
-              '--ag-gray': isActive ? 0 : 1,
-              '--ag-dim': isActive ? 0 : 0.15,
-              duration: 0.6, ease: 'power3.out'
-            }, 0);
-          }
-          if (bar && text) {
-            if (isActive) {
-              tl.to([bar, text], { opacity: 1, x: 0, duration: 0.6, ease: 'power3.out', stagger: 0.06 }, 0);
-            } else {
-              tl.to([bar, text], { opacity: 0, x: -14, duration: 0.36, ease: 'power3.out' }, 0);
-            }
-          }
-        });
-        tlRef.current = tl;
-      }, [active, count, vertical]);
-
-      useEffect(() => {
-        const el = rootRef.current;
-        if (!el) return;
-        const measure = () => {
-          const rect = el.getBoundingClientRect();
-          // En vertical el que creix és l'alçada, no l'amplada.
-          const along = vertical ? rect.height : rect.width;
-          const usable = Math.max(along - 12 * (count - 1), 120);
-          const size = Math.max(140, usable * 0.48 * 1.22);
-          el.style.setProperty('--ag-media-size', `${size}px`);
-          applyLayout();
-        };
-        measure();
-        const ro = new ResizeObserver(measure);
-        ro.observe(el);
-        return () => ro.disconnect();
-      }, [applyLayout, count, vertical]);
-
-      useEffect(() => { applyLayout(); }, [applyLayout]);
-
-      const item = items[active];
-
-      return (
-        <div>
-          <div
-            ref={rootRef}
-            className={cn('accordion-gallery', vertical && 'accordion-gallery--vertical')}
-            style={{ height: vertical ? '520px' : '480px' }}
-            role="tablist"
-          >
-            {items.map((it, i) => {
-              const isActive = i === active;
-              return (
-                <button
-                  key={i}
-                  type="button"
-                  ref={el => (panelRefs.current[i] = el)}
-                  className={`ag-panel${isActive ? ' ag-panel--active' : ''}`}
-                  onClick={() => setActive(i)}
-                  /* Al mòbil no hi ha hover; el clic ja cobreix el cas. */
-                  onMouseEnter={() => { if (!vertical) setActive(i); }}
-                  role="tab"
-                  aria-selected={isActive}
-                  aria-label={it.label}
-                >
-                  <span className="ag-panel__frame">
-                    <span className="ag-panel__media" ref={el => (mediaRefs.current[i] = el)}>
-                      <img
-                        src={it.image} alt="" draggable="false" loading="lazy"
-                        onError={e => { e.target.onerror = null; e.target.src = PHOTO_PLACEHOLDER; }}
-                      />
-                    </span>
-                    <span className="ag-panel__overlay" aria-hidden="true" />
-                  </span>
-                  <span className="ag-panel__label" aria-hidden="true">
-                    <span className="ag-panel__bar" ref={el => (barRefs.current[i] = el)} />
-                    <span className="ag-panel__text" ref={el => (textRefs.current[i] = el)}>{it.label}</span>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Descripció del panell seleccionat. El `key` fa que React remunti
-              el bloc, de manera que l'animació d'entrada es torna a reproduir. */}
-          <div className="ag-detail" key={active} role="tabpanel">
-            <span className="ag-detail-index">{String(active + 1).padStart(2, '0')} / {String(count).padStart(2, '0')}</span>
-            <strong>{item.label}</strong>
-            <p>{item.desc}</p>
-          </div>
-        </div>
-      );
-    };
-
-    function App() {
-      // ESTADO PARA CONTROLAR QUÉ MODELO 3D SE MUESTRA
-      const [modelSrc, setModelSrc] = useState('sadrif_3d.glb');
-      const [autoRotate, setAutoRotate] = useState(true);
-      const [activeView, setActiveView] = useState('frontal');
-      const [specOpen, setSpecOpen] = useState(false);
-      const [openSpecItem, setOpenSpecItem] = useState(null);
-      const [openFaq, setOpenFaq] = useState(0);
-      const [videoOn, setVideoOn] = useState(false);
-      const modelRef = useRef(null);
-
-      const heroWords = [
-        'autònoma i alimentada amb energia solar',
-        'resistent a la intempèrie del bosc',
-        'equipada amb 4 sensors ambientals',
-        'dissenyada i impresa en 3D',
-        'connectada al núvol en temps real'
-      ];
-
-      const marqueeTexts = [
-        "DISPOSITIU SADRIF • ENERGIA SOLAR AUTÒNOMA • ESP32 + 5 SENSORS",
-        "CARCASSA IMPRESA EN 3D • RESISTENT A LA INTEMPÈRIE • DADES EN TEMPS REAL"
-      ];
-
-      const quickSpecs = [
-        { icon: 'solar', label: 'Alimentació solar autònoma' },
-        { icon: 'thermometer', label: '4 sensors ambientals' },
-        { icon: 'wifi', label: 'Enviament de dades per Wi-Fi' },
-        { icon: 'layers', label: 'Carcassa impresa en 3D' }
-      ];
-
-      /* ===== FITXA TÈCNICA =====
-         Cada component és desplegable: capçalera curta i, en obrir-lo,
-         l'explicació completa i les seves dades clau. */
-      const specGroups = [
-        {
-          group: 'Cervell i comunicacions',
-          items: [
-            {
-              ico: 'chip', name: 'ESP32 STEAMakers', sub: 'Microcontrolador principal',
-              detail: "És el cervell del dispositiu. Llegeix els quatre sensors ambientals cada pocs segons, aplica el model de risc del 30-30-30 i envia el resultat al núvol per Wi-Fi. També és qui refresca la pantalla OLED perquè les dades es puguin consultar directament al bosc, sense connexió.",
-              meta: ['Doble nucli a 240 MHz', 'Wi-Fi 2,4 GHz', 'Programat en C++ (Arduino)']
-            },
-            {
-              ico: 'camera', name: 'ESP32-CAM', sub: 'Mòdul de vigilància visual',
-              detail: "Mòdul independent amb càmera integrada que permet veure l'entorn real de l'estació. Serveix per confirmar visualment què està passant quan les lectures dels sensors disparen el nivell de risc: no és el mateix una pujada de temperatura per una onada de calor que una columna de fum.",
-              meta: ['Sensor OV2640', 'Captura sota demanda', 'Visor integrat al panell web']
-            },
-            {
-              ico: 'cloud', name: 'Connexió al núvol (ThingSpeak)', sub: 'Enviament i historial de dades',
-              detail: "Cada lectura viatja per Wi-Fi fins a ThingSpeak, una plataforma d'IoT que guarda l'històric complet. D'allà les llegeix el panell web en temps real. Això vol dir que les dades no es perden si algú tanca la pàgina i que es pot consultar l'evolució de setmanes anteriors.",
-              meta: ['Enviament periòdic', 'Historial permanent', 'Accés obert des del web']
-            }
-          ]
-        },
-        {
-          group: 'Sensors ambientals',
-          items: [
-            {
-              ico: 'thermometer', name: 'DHT11', sub: 'Temperatura i humitat relativa',
-              detail: "Mesura dos dels tres factors de la regla del 30-30-30. Com més alta és la temperatura i més baixa la humitat, més sec està el combustible vegetal i més fàcil és que una espurna acabi en incendi. És el sensor que més pes té en el càlcul del risc.",
-              meta: ['Temperatura: 0–50 °C', 'Humitat: 20–90 %', 'Llindars crítics: 30 °C / 30 %']
-            },
-            {
-              ico: 'gauge', name: 'BMP280', sub: 'Pressió baromètrica',
-              detail: "Registra la pressió atmosfèrica. No forma part de la regla del 30-30-30, però contextualitza la resta de lectures: una baixada brusca de pressió acostuma a anunciar un canvi de temps que pot alterar completament les condicions del bosc en poques hores.",
-              meta: ['Rang: 300–1100 hPa', 'Bus I²C', 'Indicador complementari']
-            },
-            {
-              ico: 'wind', name: 'Anemòmetre', sub: 'Velocitat del vent',
-              detail: "El vent és el factor que més accelera la propagació del foc: aporta oxigen a les flames i transporta espurnes que obren nous focus lluny del punt inicial. Per sobre de 30 km/h, un incendi pot avançar més ràpid del que els equips terrestres poden reaccionar.",
-              meta: ['Lectura en km/h', 'Llindar crític: 30 km/h', 'Tercer factor del 30-30-30']
-            },
-            {
-              ico: 'air', name: 'SEN-CCS811B', sub: "Qualitat de l'aire i CO₂",
-              detail: "Detecta la concentració de CO₂ equivalent i de compostos orgànics volàtils. És l'indici més primerenc de combustió: quan alguna cosa comença a cremar-se, aquests valors pugen abans que el fum sigui visible a simple vista.",
-              meta: ['eCO₂ i TVOC', 'Detecció precoç de combustió', 'Bus I²C']
-            }
-          ]
-        },
-        {
-          group: 'Interfície local',
-          items: [
-            {
-              ico: 'display', name: 'Pantalla OLED 0,96"', sub: 'Lectures visibles al mateix dispositiu',
-              detail: "Mostra les mesures i el nivell de risc directament sobre la caixa. És clau perquè el dispositiu segueixi sent útil encara que la cobertura Wi-Fi falli: qui s'acosti a l'estació pot veure l'estat del bosc en aquell moment sense necessitat de cap pantalla externa.",
-              meta: ['128 × 64 píxels', 'Funciona sense connexió', 'Consum molt baix']
-            }
-          ]
-        },
-        {
-          group: 'Alimentació autònoma', power: true,
-          items: [
-            {
-              ico: 'solar', name: 'Mini plaques solars', sub: 'Font d\'energia principal',
-              detail: "Alimenten el dispositiu durant el dia i, alhora, recarreguen la bateria per a la nit. Són el motiu pel qual l'estació pot estar instal·lada enmig del bosc, lluny de qualsevol endoll, i seguir funcionant indefinidament.",
-              meta: ['Orientació al sol', 'Recàrrega diürna', 'Sense manteniment']
-            },
-            {
-              ico: 'batteryCharging', name: 'Mòdul de càrrega TP4056', sub: 'Gestió segura de la bateria',
-              detail: "Controla com es carrega la bateria de liti i la protegeix de sobrecàrregues i descàrregues profundes, els dos motius que més escurcen la vida d'aquest tipus de bateries. Sense aquest mòdul, l'estació duraria unes poques setmanes.",
-              meta: ['Protecció de sobrecàrrega', 'Tall per descàrrega profunda', 'Càrrega per USB']
-            },
-            {
-              ico: 'battery', name: 'Bateria de liti', sub: 'Autonomia nocturna i dies ennuvolats',
-              detail: "Guarda l'energia sobrant del dia per mantenir el dispositiu actiu quan no hi ha sol. La versió compacta munta entre 3.000 i 3.500 mAh; la versió d'autonomia estesa, entre 4.000 i 5.000 mAh, pensada per a èpoques de menys hores de llum.",
-              meta: ['3,7 V nominals', '3.000–3.500 mAh (compacta)', '4.000–5.000 mAh (estesa)']
-            },
-            {
-              ico: 'bolt', name: 'Convertidor Step-Up MT3608', sub: 'Elevador de tensió',
-              detail: "La bateria dona 3,7 V, però l'ESP32 i els sensors en necessiten 5. Aquest convertidor eleva la tensió i la manté estable encara que la bateria es vagi descarregant, de manera que les lectures no es distorsionen quan queda poca càrrega.",
-              meta: ['3,7 V → 5 V', 'Sortida estabilitzada', 'Alt rendiment']
-            },
-            {
-              ico: 'cable', name: 'Cablejat i protoboard', sub: 'Connexionat del conjunt',
-              detail: "Uneix tots els mòduls dins de la carcassa. El muntatge està pensat perquè qualsevol component es pugui substituir per separat sense desmuntar la resta de l'estació, cosa important per al manteniment al bosc.",
-              meta: ['Muntatge modular', 'Components substituïbles', 'Cablejat protegit']
-            }
-          ]
-        },
-        {
-          group: 'Estructura i desplegament',
-          items: [
-            {
-              ico: 'layers', name: 'Carcassa impresa en 3D', sub: 'Disseny propi, resistent a la intempèrie',
-              detail: "Dissenyada i impresa per nosaltres. Protegeix l'electrònica de la pluja i del sol directe, però deixa passar l'aire cap als sensors: si la caixa fos completament tancada, les lectures de temperatura i humitat serien les de dins de la caixa, no les del bosc.",
-              meta: ['Disseny propi', 'Ventilació dirigida als sensors', 'Peces reimprimibles']
-            },
-            {
-              ico: 'shield', name: 'Model de risc 30-30-30', sub: 'Puntuació de 0 a 100',
-              detail: "Les lectures no es mostren en cru: es converteixen en una puntuació de risc de 0 a 100. La regla del 30-30-30 marca l'escenari crític — 30 °C o més, 30 % d'humitat o menys i 30 km/h de vent o més alhora — i el sistema avisa quan s'hi acosta.",
-              meta: ['Puntuació 0–100', 'Regla del 30-30-30', 'Avís automàtic al panell']
-            },
-            {
-              ico: 'mapPin', name: 'Ubicació actual', sub: 'Bosc de Can Deu (Sabadell)',
-              detail: "L'estació està instal·lada al Torrent de Colobrers, dins del bosc de Can Deu. És una zona de vegetació mediterrània amb risc real d'incendi durant l'estiu, cosa que permet validar el sistema amb dades autèntiques i no simulades.",
-              meta: ['Torrent de Colobrers', 'Vegetació mediterrània', 'Dades reals, no simulades']
-            }
-          ]
-        }
-      ];
-
-      /* Com funciona: el recorregut de la dada, de l'aire fins al teu mòbil */
-      const flowSteps = [
-        { ico: 'thermometer', n: 'PAS 01', title: 'Mesura', text: "Els quatre sensors prenen lectures de temperatura, humitat, vent i qualitat de l'aire de manera contínua, dia i nit." },
-        { ico: 'chip', n: 'PAS 02', title: 'Calcula', text: "L'ESP32 creua les quatre variables amb el model del 30-30-30 i les converteix en una puntuació de risc de 0 a 100." },
-        { ico: 'wifi', n: 'PAS 03', title: 'Envia', text: 'El resultat viatja per Wi-Fi fins a ThingSpeak, que guarda cada lectura i en manté tot l\'històric.' },
-        { ico: 'shield', n: 'PAS 04', title: 'Avisa', text: "El panell web es refresca en temps real i dispara una alerta visible quan els tres llindars crítics es compleixen alhora." }
-      ];
-
-      const powerChain = [
-        { ico: 'solar', name: 'Plaques solars', desc: "Capten l'energia del sol" },
-        { ico: 'batteryCharging', name: 'TP4056', desc: 'Regula i protegeix la càrrega' },
-        { ico: 'battery', name: 'Bateria de liti', desc: '3,7 V per a la nit' },
-        { ico: 'bolt', name: 'Step-Up MT3608', desc: 'Eleva 3,7 V fins a 5 V' },
-        { ico: 'chip', name: 'ESP32 i sensors', desc: 'Alimentats a 5 V estables' }
-      ];
-
-      const stats = [
-        { num: 24, unit: 'h', label: 'Vigilància contínua', sub: 'Cada dia de l\'any, sense pauses' },
-        { num: 4, unit: '', label: 'Sensors ambientals', sub: 'Temperatura, humitat, vent i aire' },
-        { num: 0, unit: 'W', label: 'Consum de xarxa', sub: 'Funciona només amb energia solar' },
-        { num: 100, unit: '%', label: 'Dades obertes', sub: 'Consultables per qualsevol persona' }
-      ];
-
-      const faqs = [
-        { q: 'Què passa de nit o els dies ennuvolats?', a: "La bateria de liti acumula durant el dia l'energia sobrant de les plaques solars. De nit, o quan hi ha poca llum, el dispositiu es continua alimentant d'aquesta reserva, de manera que la vigilància no s'interromp en cap moment." },
-        { q: 'Detecta el foc o el risc que es produeixi?', a: "Detecta el risc, que és precisament la diferència. Quan un incendi ja és visible, sovint ja s'ha propagat massa. SADRIF vigila les condicions ambientals que fan possible que el foc s'origini i avisa abans, no després." },
-        { q: 'Per què la carcassa és impresa en 3D?', a: "Perquè ens permet dissenyar-la exactament a mida dels components i reimprimir qualsevol peça si es fa malbé. També abarateix moltíssim el cost: replicar l'estació en una altra zona del bosc només requereix el material d'impressió i l'electrònica." },
-        { q: 'Les dades són reals o simulades?', a: "Les de l'estació de Sabadell són reals i venen directament del dispositiu instal·lat al Torrent de Colobrers. Al mapa del panell, les altres províncies catalanes es mostren amb valors de referència per poder comparar, i estan identificades com a tals." },
-        { q: "Es pot veure l'estació en realitat augmentada?", a: "Sí. Des d'un mòbil o una tauleta compatible, el botó de realitat augmentada del visor 3D projecta el dispositiu a mida real a l'espai que tinguis al davant, de manera que en pots comprovar les dimensions autèntiques." },
-        { q: "Qui hi ha darrere del projecte?", a: "Quatre alumnes de 2n de Batxillerat de l'Institut Sabadell. SADRIF és el nostre Treball de Recerca: el disseny 3D, el muntatge electrònic, la programació i aquesta mateixa web els hem fet nosaltres." }
-      ];
-
-      const setView = (name, orbit) => {
-        setActiveView(name);
-        if (modelRef.current) {
-          modelRef.current.cameraOrbit = orbit;
-        }
-      };
-
-      const handleAR = () => {
-        const mv = modelRef.current;
-        if (mv && typeof mv.activateAR === 'function') {
-          mv.activateAR();
-        }
-      };
-
-      /* Galeria de components.
-         SUBSTITUIR per fotografies reals: veure ASSETS-NECESSARIS.md */
-      const componentsItems = [
-        {
-          image: 'foto-caja-sadrif.jpeg',
-          label: 'Dispositiu SADRIF — Muntatge complet',
-          desc: "El conjunt acabat: la carcassa impresa en 3D amb les tres mini plaques solars al frontal, l'anemòmetre de cassoletes a la part superior i les reixes laterals que deixen circular l'aire fins als sensors. Tot el que hi ha a la resta de la galeria viu aquí dins."
-        },
-        {
-          image: 'foto-component-esp32.jpeg',
-          label: 'ESP32 STEAMakers — Placa principal',
-          desc: "La placa que ho controla tot, amb el mòdul ESP32-WROOM-32 al centre. Els connectors grocs i vermells són els ports on s'endollen directament els sensors, sense haver de soldar-los: per això vam triar aquesta placa i no una ESP32 pelada."
-        },
-        {
-          image: 'foto-component-sensors.jpeg',
-          label: 'DHT11 i BMP280 — Temperatura, humitat i pressió',
-          desc: "Els dos sensors que donen dos dels tres factors del 30-30-30. A dalt, el BMP280 (pressió atmosfèrica); a baix, el DHT11, el mòdul blau amb la reixeta, que mesura temperatura i humitat relativa de l'aire."
-        },
-        {
-          image: 'foto-component-anemometre.jpeg',
-          label: 'Anemòmetre — Velocitat del vent',
-          desc: "Les tres cassoletes giren amb el vent i el sensor compta les voltes per segon per traduir-les a km/h. És el tercer factor de la regla i el més determinant: el vent és el que fa que un foc petit es converteixi en un incendi."
-        },
-        {
-          image: 'foto-component-cam.jpeg',
-          label: 'ESP32-CAM — Vigilància visual del bosc',
-          desc: "Mòdul amb càmera OV2640 i el seu propi microcontrolador. Serveix per confirmar amb els ulls què està passant quan les dades disparen el risc: distingir una onada de calor d'una columna de fum."
-        },
-        {
-          image: 'foto-component-energia.jpeg',
-          label: 'Plaques solars, TP4056 i bateria — Energia autònoma',
-          desc: "A dalt, una de les mini plaques solars de 80 × 45 mm vista pel davant i pel darrere. A baix, el mòdul de càrrega TP4056, que és qui regula l'energia que entra a la bateria i evita sobrecàrregues."
-        }
-      ];
-
-      return (
-        <div className="font-sans">
-
-          {/* HERO SECTION — CENTRAT NOMÉS EN EL DISPOSITIU */}
-          <header className="hero-container flex flex-col items-center text-center py-20 px-4 min-h-[50vh] justify-center relative">
-            <span className="hero-eyebrow-chip">Dispositiu SADRIF</span>
-
-            <h2 className="text-3xl sm:text-5xl md:text-6xl font-extrabold flex flex-col md:flex-row flex-wrap justify-center items-center gap-3 md:gap-4 text-slate-800 max-w-5xl">
-              <span>El dispositiu SADRIF és</span>
-              <RotatingText
-                texts={heroWords}
-                mainClassName="px-5 py-2 bg-emerald-500 text-white rounded-xl overflow-hidden justify-center inline-flex shadow-lg shadow-emerald-500/20"
-                staggerFrom="first"
-                initial={{ y: "100%", opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: "-120%", opacity: 0 }}
-                staggerDuration={0.02}
-                splitLevelClassName="overflow-hidden pb-1"
-                transition={{ type: "spring", damping: 25, stiffness: 350 }}
-                rotationInterval={3000}
-              />
-            </h2>
-            <p className="mt-7 text-lg sm:text-xl text-slate-600 max-w-3xl leading-relaxed">
-              L'estació física que vigila el bosc les 24 hores del dia, instal·lada al Bosc de Can Deu (Sabadell).
-            </p>
-
-            <div className="quick-specs-grid mt-10 max-w-2xl w-full">
-              {quickSpecs.map((spec, i) => (
-                <div className="quick-spec-card" key={i}>
-                  <span className="quick-spec-icon"><Icon name={spec.icon} size={22} /></span>
-                  <span className="quick-spec-label">{spec.label}</span>
-                </div>
-              ))}
-            </div>
-          </header>
-
-          {/* MARQUEE SECTION */}
-          <div className="bg-emerald-50 py-8 border-y border-emerald-100">
-            <ScrollVelocity texts={marqueeTexts} velocity={30} className="custom-scroll-text" numCopies={4} />
-          </div>
-
-          {/* MODEL 3D INTERACTIU */}
-          <section className="py-20 px-4 bg-white">
-            <div className="header-sadrif-seccion">
-              <h3 className="text-3xl sm:text-5xl font-bold text-slate-900">El Dispositiu al Detall</h3>
-              <p className="text-slate-600 text-lg">
-                Gira'l, fes zoom, obre'l per veure'n l'interior o projecta'l a mida real amb Realitat Augmentada.
-              </p>
-            </div>
-
-            <div className="viewer-shell">
-              <div className="viewer-stage model-container">
-                <model-viewer
-                  ref={modelRef}
-                  src={modelSrc}
-                  alt="Model 3D del dispositiu SADRIF"
-                  auto-rotate={autoRotate ? true : undefined}
-                  camera-controls
-                  camera-orbit="0deg 75deg auto"
-                  ar
-                  ar-modes="webxr scene-viewer quick-look"
-                  shadow-intensity="1"
-                  environment-image="neutral"
-                  exposure="1"
-                  loading="lazy"
-                  style={{ width: '100%', height: '100%', borderRadius: '18px', outline: 'none' }}
-                >
-                </model-viewer>
-                <span className="viewer-hint">
-                  <Icon name="rotate" size={14} /> Arrossega per girar · pessiga per fer zoom
-                </span>
-              </div>
-            </div>
-
-            {/* CONTROLES DEL MODELO 3D */}
-            <div className="model-toolbar">
-              <div className="toolbar-group">
-                <button
-                  onClick={() => setModelSrc('sadrif_3d.glb')}
-                  className={`toolbar-btn ${modelSrc === 'sadrif_3d.glb' ? 'actiu' : ''}`}
-                >
-                  <Icon name="cube" size={16} /> Dispositiu Tancat
-                </button>
-                <button
-                  onClick={() => setModelSrc('sadrif_inside.glb')}
-                  className={`toolbar-btn ${modelSrc === 'sadrif_inside.glb' ? 'actiu' : ''}`}
-                >
-                  <Icon name="wrench" size={16} /> Dispositiu Obert (Interior)
-                </button>
-              </div>
-
-              <div className="toolbar-divider"></div>
-
-              <div className="toolbar-group">
-                <button onClick={() => setView('frontal', '0deg 75deg auto')} className={`toolbar-btn ${activeView === 'frontal' ? 'actiu' : ''}`}>Vista Frontal</button>
-                <button onClick={() => setView('lateral', '90deg 75deg auto')} className={`toolbar-btn ${activeView === 'lateral' ? 'actiu' : ''}`}>Vista Lateral</button>
-                <button onClick={() => setView('superior', '0deg 20deg auto')} className={`toolbar-btn ${activeView === 'superior' ? 'actiu' : ''}`}>Vista Superior</button>
-              </div>
-
-              <div className="toolbar-divider"></div>
-
-              <div className="toolbar-group">
-                <button onClick={() => setAutoRotate(v => !v)} className={`toolbar-btn ${autoRotate ? 'actiu' : ''}`}>
-                  <Icon name={autoRotate ? 'pause' : 'play'} size={15} />
-                  {autoRotate ? 'Aturar rotació' : 'Rotació automàtica'}
-                </button>
-                <button onClick={handleAR} className="toolbar-btn ar-btn">
-                  <Icon name="ar" size={16} /> Veure en Realitat Augmentada
-                </button>
-              </div>
-            </div>
-          </section>
-
-          {/* VÍDEO DEL PROJECTE
-              Càrrega diferida: fins que no es fa clic només hi ha una imatge,
-              cap script de YouTube. Així la pàgina segueix carregant ràpid. */}
-          <section className="video-section py-20 px-4">
-            <div className="video-wrap">
-              <div className="video-head">
-                <span className="hero-eyebrow-chip"><Icon name="youtube" size={14} /> Vídeo</span>
-                <h3 className="text-3xl sm:text-5xl font-bold">SADRIF en moviment</h3>
-                <p>Del disseny 3D fins a l'estació instal·lada al bosc de Can Deu, explicat en vídeo.</p>
-              </div>
-
-              {videoOn ? (
-                <div className="yt-facade">
-                  <iframe
-                    src="https://www.youtube-nocookie.com/embed/5t9_Szm1RwA?autoplay=1&rel=0&modestbranding=1"
-                    title="Vídeo del projecte SADRIF"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    referrerPolicy="strict-origin-when-cross-origin"
-                    allowFullScreen
-                  ></iframe>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  className="yt-facade"
-                  onClick={() => setVideoOn(true)}
-                  aria-label="Reproduir el vídeo del projecte SADRIF"
-                >
-                  <img
-                    src="https://i.ytimg.com/vi/5t9_Szm1RwA/maxresdefault.jpg"
-                    alt="Miniatura del vídeo del projecte SADRIF"
-                    loading="lazy"
-                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://i.ytimg.com/vi/5t9_Szm1RwA/hqdefault.jpg'; }}
-                  />
-                  <span className="yt-veil"></span>
-                  <span className="yt-play"><Icon name="play" size={34} /></span>
-                  <span className="yt-caption">
-                    <span className="yt-badge"><Icon name="youtube" size={13} /> YouTube</span>
-                    <strong>Pla DRIF — El projecte SADRIF</strong>
-                  </span>
-                </button>
-              )}
-            </div>
-          </section>
-
-          {/* COM FUNCIONA */}
-          <section className="py-20 px-4 bg-white">
-            <div className="header-sadrif-seccion">
-              <h3 className="text-3xl sm:text-5xl font-bold text-slate-900">Com funciona</h3>
-              <p className="text-slate-600 text-lg">
-                El recorregut complet d'una dada: des de l'aire del bosc fins a l'alerta de la teva pantalla.
-              </p>
-            </div>
-
-            <div className="flow-grid">
-              {flowSteps.map((s, i) => (
-                <div className="flow-step" key={i}>
-                  <div className="flow-step-top">
-                    <span className="flow-ico"><Icon name={s.ico} size={22} /></span>
-                    <span className="flow-n">{s.n}</span>
-                  </div>
-                  <h4>{s.title}</h4>
-                  <p>{s.text}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="power-card">
-              <h4>I tot això, sense endoll</h4>
-              <p>
-                L'estació és al mig del bosc, així que ha de generar-se la seva pròpia energia. Aquesta és la cadena
-                que la manté funcionant les 24 hores.
-              </p>
-              <div className="power-chain">
-                {powerChain.map((n, i) => (
-                  <React.Fragment key={i}>
-                    <div className="power-node">
-                      <span className="power-ico"><Icon name={n.ico} size={22} /></span>
-                      <strong>{n.name}</strong>
-                      <span>{n.desc}</span>
-                    </div>
-                    {i < powerChain.length - 1 && (
-                      <span className="power-link"><Icon name="arrowRight" size={18} /></span>
-                    )}
-                  </React.Fragment>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* XIFRES */}
-          <section className="py-16 px-4 bg-slate-50">
-            <div className="stats-band">
-              {stats.map((s, i) => (
-                <div className="stat-card" key={i}>
-                  <div className="stat-num"><CountUp to={s.num} duration={1400 + i * 120} /><small>{s.unit}</small></div>
-                  <div className="stat-label">{s.label}</div>
-                  <div className="stat-sub">{s.sub}</div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* FITXA TÈCNICA — desplegable amb tots els components */}
-          <section className="py-20 px-4 bg-white">
-            <div className="spec-sheet-card">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                  <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 m-0">Fitxa Tècnica</h3>
-                  <p className="text-slate-500 text-sm mt-1">
-                    Tots els components del dispositiu. Obre'n qualsevol per veure'n l'explicació completa.
-                  </p>
-                </div>
-                <button
-                  className={`spec-sheet-toggle-btn ${specOpen ? 'obert' : ''}`}
-                  onClick={() => setSpecOpen(v => !v)}
-                  aria-expanded={specOpen}
-                >
-                  {specOpen ? 'Amagar fitxa' : 'Veure fitxa completa'}
-                  <Icon name="chevronDown" size={16} stroke={2} />
-                </button>
-              </div>
-
-              <div className={`spec-sheet-body ${specOpen ? 'obert' : ''}`}>
-                <div className="spec-sheet-inner">
-                  <div className="spec-groups">
-                    {specGroups.map((g, gi) => (
-                      <div key={gi}>
-                        <div className="spec-group-title">{g.group}</div>
-                        <ul className="spec-list">
-                          {g.items.map((it, ii) => {
-                            const id = `${gi}-${ii}`;
-                            const obert = openSpecItem === id;
-                            return (
-                              <li className={cn('spec-item', g.power && 'spec-item--power', obert && 'obert')} key={ii}>
-                                <button
-                                  className="spec-item-head"
-                                  onClick={() => setOpenSpecItem(obert ? null : id)}
-                                  aria-expanded={obert}
-                                >
-                                  <span className="spec-item-ico"><Icon name={it.ico} size={19} /></span>
-                                  <span className="spec-item-txt">
-                                    <strong>{it.name}</strong>
-                                    <span>{it.sub}</span>
-                                  </span>
-                                  <Icon name="chevronDown" size={18} className="spec-item-chev" />
-                                </button>
-                                <div className="spec-item-body">
-                                  <div>
-                                    <div className="spec-item-detail">
-                                      <p>{it.detail}</p>
-                                      <div className="spec-meta">
-                                        {it.meta.map((m, mi) => <span key={mi}>{m}</span>)}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* ACCORDION GALLERY SECTION */}
-          <section className="py-20 px-4 bg-slate-50">
-            <div className="header-sadrif-seccion">
-              <h3 className="text-3xl sm:text-5xl font-bold text-slate-900">Arquitectura del Sistema</h3>
-              <p className="text-slate-600 text-lg">
-                Explora els components que fan possible la detecció immediata: toca o passa el ratolí per cada peça.
-              </p>
-            </div>
-            <div className="gallery-wrap-card">
-              <AccordionGallery items={componentsItems} />
-            </div>
-          </section>
-
-          {/* PREGUNTES FREQÜENTS */}
-          <section className="py-20 px-4 bg-white">
-            <div className="header-sadrif-seccion">
-              <h3 className="text-3xl sm:text-5xl font-bold text-slate-900">Preguntes freqüents</h3>
-              <p className="text-slate-600 text-lg">Els dubtes que ens plantegen més sovint sobre el dispositiu.</p>
-            </div>
-            <div className="faq-list">
-              {faqs.map((f, i) => (
-                <div className={cn('faq-item', openFaq === i && 'obert')} key={i}>
-                  <button className="faq-q" onClick={() => setOpenFaq(openFaq === i ? null : i)} aria-expanded={openFaq === i}>
-                    {f.q}
-                    <Icon name="chevronDown" size={19} />
-                  </button>
-                  <div className="faq-a">
-                    <div><p>{f.a}</p></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* SEGUEIX EXPLORANT */}
-          <section className="py-20 px-4 bg-slate-50">
-            <div className="header-sadrif-seccion">
-              <h3 className="text-3xl sm:text-4xl font-bold text-slate-900">Segueix explorant</h3>
-              <p className="text-slate-600 text-lg">El dispositiu és només una part del projecte.</p>
-            </div>
-            <div className="explore-cta-grid">
-              <a href="index.html" className="explore-cta-card">
-                <strong>Panell en Directe</strong>
-                <span className="sub">Consulta les dades en temps real de temperatura, humitat, vent i risc d'incendi de l'estació.</span>
-                <span className="explore-cta-arrow">Veure el panell <Icon name="arrowRight" size={15} /></span>
-              </a>
-              <a href="sobre-nosotros.html" className="explore-cta-card">
-                <strong>La Història del Projecte</strong>
-                <span className="sub">Descobreix per què vam crear SADRIF, com l'hem construït i qui hi ha darrere.</span>
-                <span className="explore-cta-arrow">Descobrir el projecte <Icon name="arrowRight" size={15} /></span>
-              </a>
-            </div>
-          </section>
-
-          {/* FOOTER */}
-          <footer className="site-footer">
-            <div className="footer-inner">
-              <div className="footer-brand">
-                <a href="index.html" className="footer-brand-logo">
-                  <img src="logo-sadrif.svg" alt="" onError={(e) => { e.target.onerror = null; e.target.src = 'logo-sadrif.svg.svg'; }} />
-                  <span>PLA DRIF</span>
-                </a>
-                <p>
-                  Estació autònoma de detecció de risc d'incendis forestals, instal·lada al bosc de Can Deu (Sabadell).
-                  Treball de Recerca de 2n de Batxillerat.
-                </p>
-                <div className="footer-social">
-                  <a href="https://www.youtube.com/@PlaDRIF_Oficial" target="_blank" rel="noopener" aria-label="Canal de YouTube"><Icon name="youtube" size={19} /></a>
-                  <a href="https://www.instagram.com/pladrif_cat" target="_blank" rel="noopener" aria-label="Instagram"><Icon name="instagram" size={19} /></a>
-                  <a href="https://www.twitch.tv/pla_drif" target="_blank" rel="noopener" aria-label="Directe a Twitch"><Icon name="twitch" size={19} /></a>
-                </div>
-              </div>
-
-              <div className="footer-col">
-                <h5>El projecte</h5>
-                <ul>
-                  <li><a href="index.html">Panell en directe</a></li>
-                  <li><a href="producto3d.html">Dispositiu en 3D</a></li>
-                  <li><a href="sobre-nosotros.html">Sobre el projecte</a></li>
-                  <li><a href="index.html#contenedor-visor">Càmera de vigilància</a></li>
-                </ul>
-              </div>
-
-              <div className="footer-col">
-                <h5>El dispositiu</h5>
-                <ul>
-                  <li><a href="producto3d.html">Fitxa tècnica</a></li>
-                  <li><a href="producto3d.html">Com funciona</a></li>
-                  <li><a href="producto3d.html">Preguntes freqüents</a></li>
-                  <li><a href="https://www.youtube.com/watch?v=5t9_Szm1RwA" target="_blank" rel="noopener">Vídeo del projecte</a></li>
-                </ul>
-              </div>
-
-              <div className="footer-col">
-                <h5>Amb el suport de</h5>
-                <div className="footer-partners">
-                  <div className="footer-partner-chip">
-                    <img src="logo-sabadell.png" alt="Ajuntament de Sabadell" onError={(e) => { e.target.onerror = null; e.target.src = 'logo-sabadell.png.png'; }} />
-                    <span>Ajuntament<br />de Sabadell</span>
-                  </div>
-                  <div className="footer-partner-chip">
-                    <img src="logo-generalitat.png" alt="Generalitat de Catalunya" onError={(e) => { e.target.onerror = null; e.target.src = 'logo-generalitat.png.png'; }} />
-                    <span>Generalitat<br />de Catalunya</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="footer-bottom">
-              <p className="footer-legal">
-                <strong>Pla DRIF</strong> és un Treball de Recerca de 2n de Batxillerat. No tenim cap vinculació oficial
-                amb les entitats mostrades ni en representem cap.
-              </p>
-              <p>© 2026 Pla DRIF. Tots els drets reservats.</p>
-            </div>
-          </footer>
-
-        </div>
-      );
-    }
-
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
-  </script>
+  <script src="js/producto3d.js"></script>
 
   <!-- SCRIPT DEL MENÚ CARDNAV (GSAP) -->
   <script>
@@ -1891,6 +914,15 @@
                 }
             });
         });
+
+        // Tancar el menú amb Escape i obrir-lo amb Enter o Espai.
+        document.addEventListener('keydown', e => { if (e.key === 'Escape' && isExpanded) hamburger.click(); });
+        hamburger.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); hamburger.click(); }
+        });
+
+        // Píndola del risc en directe: sempre visible en aquesta pàgina.
+        if (window.SadrifRisc) window.SadrifRisc.initPindola();
     });
   </script>
 </body>
