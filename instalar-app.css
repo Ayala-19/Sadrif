@@ -1,0 +1,833 @@
+/* =============================================================================
+   Pla DRIF · Instal·lar l'app  —  fulla d'estils del mòdul instalar-app.js
+
+   Conté tres coses:
+     1. L'enllaç "Instal·la l'app" que s'injecta dins del menú CardNav.
+     2. La píndola discreta del peu de pàgina.
+     3. La finestra amb l'escena animada del telèfon.
+
+   El verd maragda va escrit a pèl i no fa servir var(--accent): aquest
+   component ha de ser sempre del color de la marca, també al panell principal,
+   on el color del risc pot tenyir la resta de la pàgina.
+   ============================================================================= */
+
+:root {
+    --inst-verd: #059669;
+    --inst-verd-clar: #10b981;
+    --inst-molla: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --inst-suau: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* -----------------------------------------------------------------------------
+   1. ENLLAÇ DINS DEL MENÚ
+   Hereta .nav-card-link de cada pàgina; aquí només s'hi afegeix el matís verd
+   i la fletxa que baixa en passar-hi el ratolí.
+   -------------------------------------------------------------------------- */
+.nav-card-link.instalar-nav {
+    position: relative;
+    color: #6ee7b7;
+    font-weight: 700;
+}
+
+.nav-card-link.instalar-nav::after {
+    content: "";
+    position: absolute;
+    left: -10px; right: -10px; top: -6px; bottom: -6px;
+    border-radius: 12px;
+    background: linear-gradient(120deg, rgba(16, 185, 129, 0.16), rgba(16, 185, 129, 0.04));
+    border: 1px solid rgba(110, 231, 183, 0.22);
+    opacity: 0;
+    transform: scale(0.94);
+    transition: opacity 0.32s var(--inst-suau), transform 0.32s var(--inst-suau);
+    z-index: -1;
+}
+
+.nav-card-link.instalar-nav:hover::after,
+.nav-card-link.instalar-nav:focus-visible::after { opacity: 1; transform: scale(1); }
+
+.nav-card-link.instalar-nav .instalar-fletxa { transition: transform 0.34s var(--inst-molla); }
+.nav-card-link.instalar-nav:hover .instalar-fletxa { transform: translateY(2px); }
+
+/* Distintiu "Nou" perquè el primer cop es vegi que hi ha una novetat. */
+.instalar-nou {
+    margin-left: auto;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: 99px;
+    background: rgba(16, 185, 129, 0.18);
+    border: 1px solid rgba(110, 231, 183, 0.3);
+    color: #a7f3d0;
+}
+
+/* -----------------------------------------------------------------------------
+   2. PÍNDOLA DEL PEU DE PÀGINA
+   -------------------------------------------------------------------------- */
+.instalar-peu {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 17px 9px 13px;
+    border-radius: 99px;
+    border: 1px solid rgba(110, 231, 183, 0.28);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.16), rgba(16, 185, 129, 0.05));
+    color: #a7f3d0;
+    font: inherit;
+    font-size: 0.79rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    overflow: hidden;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.34s var(--inst-molla), border-color 0.3s ease, color 0.3s ease;
+}
+
+.instalar-peu:hover,
+.instalar-peu:focus-visible {
+    transform: translateY(-2px);
+    border-color: rgba(110, 231, 183, 0.6);
+    color: #d1fae5;
+}
+
+.instalar-peu:active { transform: translateY(0) scale(0.97); }
+
+/* Reflex que travessa la píndola en passar-hi el ratolí. */
+.instalar-peu::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.22) 50%, transparent 65%);
+    transform: translateX(-120%);
+    transition: transform 0.85s var(--inst-suau);
+}
+
+.instalar-peu:hover::before { transform: translateX(120%); }
+
+.instalar-peu-ico {
+    display: grid;
+    place-items: center;
+    width: 22px; height: 22px;
+    border-radius: 7px;
+    background: rgba(16, 185, 129, 0.22);
+    flex: none;
+}
+
+.instalar-peu .instalar-fletxa { transition: transform 0.34s var(--inst-molla); }
+.instalar-peu:hover .instalar-fletxa { transform: translateY(2px); }
+
+/* Entrada dels dos botons quan el navegador confirma que es pot instal·lar. */
+.instalar-entrada { animation: instalar-entra 0.55s var(--inst-suau) both; }
+
+@keyframes instalar-entra {
+    from { opacity: 0; transform: translateY(8px) scale(0.96); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* -----------------------------------------------------------------------------
+   3. FINESTRA D'INSTAL·LACIÓ
+   -------------------------------------------------------------------------- */
+.instalar-fons {
+    position: fixed;
+    inset: 0;
+    z-index: 12000;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: rgba(10, 20, 16, 0.42);
+    -webkit-backdrop-filter: blur(14px) saturate(120%);
+    backdrop-filter: blur(14px) saturate(120%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.42s var(--inst-suau);
+}
+
+.instalar-fons.obert { opacity: 1; pointer-events: auto; }
+
+.instalar-caixa {
+    position: relative;
+    width: min(720px, 100%);
+    max-height: calc(100vh - 40px);
+    overflow: auto;
+    display: grid;
+    grid-template-columns: 286px 1fr;
+    gap: 6px;
+    padding: 26px;
+    border-radius: 30px;
+    background: linear-gradient(160deg, #ffffff 0%, #f4fbf8 100%);
+    border: 1px solid rgba(15, 23, 42, 0.07);
+    box-shadow:
+        0 40px 90px -25px rgba(6, 78, 59, 0.35),
+        0 8px 24px -12px rgba(15, 23, 42, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    transform: translateY(22px) scale(0.94);
+    opacity: 0;
+    transition: transform 0.6s var(--inst-molla), opacity 0.4s ease;
+}
+
+.instalar-fons.obert .instalar-caixa { transform: none; opacity: 1; }
+
+.instalar-tancar {
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 34px; height: 34px;
+    display: grid; place-items: center;
+    border: none;
+    border-radius: 50%;
+    background: rgba(15, 23, 42, 0.05);
+    color: #475569;
+    cursor: pointer;
+    z-index: 3;
+    transition: background 0.25s ease, transform 0.3s var(--inst-molla);
+}
+
+.instalar-tancar:hover { background: rgba(15, 23, 42, 0.1); transform: rotate(90deg); }
+
+/* --- 3a. Escena: la icona a l'esquerra, el telèfon a la dreta ---------------
+   La icona no sura damunt del telèfon: seu al seu costat, com la fitxa d'una
+   botiga d'aplicacions, i només hi entra a dins quan comença la instal·lació.
+   -------------------------------------------------------------------------- */
+.instalar-escena {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 4px 0;
+}
+
+.instalar-presentacio {
+    flex: none;
+    width: 96px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.instalar-lema {
+    margin: 18px 0 0;
+    text-align: center;
+    font-size: 0.71rem;
+    line-height: 1.4;
+    color: #64748b;
+    transition: opacity 0.4s ease, transform 0.5s var(--inst-suau);
+}
+
+.instalar-lema strong {
+    display: block;
+    margin-bottom: 3px;
+    font-size: 0.83rem;
+    font-weight: 800;
+    letter-spacing: -0.015em;
+    color: #0f172a;
+}
+
+/* Quan la icona se'n va cap al telèfon, la presentació s'aparta. */
+.instalar-fons.instalant .instalar-lema { opacity: 0; transform: translateY(8px); }
+
+.instalar-telefon {
+    position: relative;
+    flex: none;
+    width: 158px;
+    height: 304px;
+    border-radius: 34px;
+    padding: 7px;
+    background: linear-gradient(160deg, #1e293b, #0f172a 55%, #020617);
+    box-shadow:
+        0 26px 50px -22px rgba(2, 6, 23, 0.6),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+    transition: box-shadow 0.8s var(--inst-suau);
+}
+
+/* El telèfon s'encén amb un halo verd, però no es mou ni un píxel: si escalés,
+   la icona voladora ja no aterraria exactament dins del forat. */
+.instalar-fons.instalant .instalar-telefon {
+    box-shadow:
+        0 26px 50px -22px rgba(2, 6, 23, 0.6),
+        0 0 34px -4px rgba(16, 185, 129, 0.55),
+        inset 0 0 0 1px rgba(52, 211, 153, 0.45);
+}
+
+.instalar-pantalla {
+    position: relative;
+    width: 100%; height: 100%;
+    border-radius: 28px;
+    overflow: hidden;
+    background: radial-gradient(120% 90% at 20% 0%, #064e3b 0%, #052e26 45%, #041c18 100%);
+}
+
+/* Aurora de fons: dona sensació de fons de pantalla real. */
+.instalar-aurora {
+    position: absolute;
+    inset: -40% -30%;
+    background:
+        radial-gradient(38% 26% at 30% 22%, rgba(52, 211, 153, 0.5), transparent 70%),
+        radial-gradient(30% 22% at 74% 40%, rgba(16, 185, 129, 0.35), transparent 70%),
+        radial-gradient(40% 30% at 50% 82%, rgba(6, 95, 70, 0.6), transparent 70%);
+    filter: blur(6px);
+    animation: instalar-aurora 14s ease-in-out infinite alternate;
+}
+
+@keyframes instalar-aurora {
+    from { transform: translate3d(-4%, -2%, 0) scale(1); }
+    to   { transform: translate3d(5%, 3%, 0) scale(1.12); }
+}
+
+.instalar-osca {
+    position: absolute;
+    top: 7px; left: 50%;
+    transform: translateX(-50%);
+    width: 52px; height: 15px;
+    border-radius: 99px;
+    background: #020617;
+    z-index: 2;
+}
+
+.instalar-hora {
+    position: absolute;
+    top: 9px; left: 14px;
+    font-size: 9px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.85);
+    letter-spacing: 0.02em;
+    z-index: 2;
+}
+
+.instalar-senyal {
+    position: absolute;
+    top: 10px; right: 13px;
+    display: flex; gap: 2px; align-items: flex-end;
+    z-index: 2;
+}
+
+.instalar-senyal i {
+    display: block;
+    width: 2px;
+    border-radius: 1px;
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.instalar-senyal i:nth-child(1) { height: 3px; }
+.instalar-senyal i:nth-child(2) { height: 5px; }
+.instalar-senyal i:nth-child(3) { height: 7px; }
+.instalar-senyal i:nth-child(4) { height: 9px; }
+
+/* Graella d'icones de la pantalla d'inici. */
+.instalar-graella {
+    position: absolute;
+    top: 40px; left: 14px; right: 14px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 13px 10px;
+    z-index: 1;
+}
+
+.instalar-graella span {
+    display: block;
+    aspect-ratio: 1;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.14);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.instalar-graella span:nth-child(3n)   { background: rgba(255, 255, 255, 0.1); }
+.instalar-graella span:nth-child(4n+1) { background: rgba(255, 255, 255, 0.17); }
+
+/* El forat on aterrarà la icona del Pla DRIF. */
+.instalar-forat {
+    position: relative;
+    background: rgba(255, 255, 255, 0.05) !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+}
+
+.instalar-forat::after {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: 14px;
+    border: 1px solid rgba(52, 211, 153, 0.75);
+    opacity: 0;
+    transform: scale(0.7);
+}
+
+.instalar-fons.instalant .instalar-forat::after { animation: instalar-onada 1.1s ease-out 0.85s 2; }
+
+@keyframes instalar-onada {
+    0%   { opacity: 0.9; transform: scale(0.7); }
+    100% { opacity: 0;   transform: scale(1.75); }
+}
+
+/* Les icones veïnes fan un petit salt quan la nova aterra. */
+.instalar-fons.instalant .instalar-graella span:not(.instalar-forat) {
+    animation: instalar-salt 0.6s var(--inst-molla) 0.86s both;
+}
+
+.instalar-fons.instalant .instalar-graella span:nth-child(2n) { animation-delay: 0.92s; }
+.instalar-fons.instalant .instalar-graella span:nth-child(3n) { animation-delay: 0.98s; }
+
+@keyframes instalar-salt {
+    0%   { transform: translateY(0)    scale(1); }
+    45%  { transform: translateY(-3px) scale(1.06); }
+    100% { transform: translateY(0)    scale(1); }
+}
+
+.instalar-dock {
+    position: absolute;
+    left: 12px; right: 12px; bottom: 12px;
+    height: 42px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+/* Escombrada de llum que travessa la pantalla en el moment d'instal·lar. */
+.instalar-llum {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, 0.28) 50%, transparent 60%);
+    transform: translateX(-130%);
+    pointer-events: none;
+    z-index: 3;
+}
+
+.instalar-fons.instalant .instalar-llum { animation: instalar-escombrada 1.1s var(--inst-suau) 0.75s; }
+
+@keyframes instalar-escombrada {
+    to { transform: translateX(130%); }
+}
+
+/* --- 3b. Icona voladora ---------------------------------------------------- */
+.instalar-icona {
+    position: relative;
+    width: 76px;
+    height: 76px;
+    z-index: 4;
+    transform-origin: 50% 22px;
+    will-change: transform;
+}
+
+.instalar-icona-quadre {
+    position: relative;
+    width: 76px; height: 76px;
+    border-radius: 22px;
+    box-shadow:
+        0 18px 34px -12px rgba(4, 120, 87, 0.75),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+    animation: instalar-flota 3.6s ease-in-out infinite;
+}
+
+.instalar-icona-quadre img {
+    width: 100%; height: 100%;
+    display: block;
+    border-radius: inherit;
+}
+
+@keyframes instalar-flota {
+    0%, 100% { transform: translateY(0)    rotate(-1.5deg); }
+    50%      { transform: translateY(-7px) rotate(1.5deg); }
+}
+
+/* Halo que batega darrere de la icona mentre espera. */
+.instalar-halo {
+    position: absolute;
+    inset: 0;
+    border-radius: 22px;
+    animation: instalar-bateg 2.8s ease-out infinite;
+    pointer-events: none;
+}
+
+@keyframes instalar-bateg {
+    0%   { box-shadow: 0 0 0 0    rgba(16, 185, 129, 0.45); }
+    70%  { box-shadow: 0 0 0 22px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0    rgba(16, 185, 129, 0); }
+}
+
+/* El nom va fora del flux a propòsit: quan creix per compensar l'escala no ha
+   d'eixamplar el contenidor ni, per tant, moure la icona del seu lloc. */
+.instalar-icona-nom {
+    position: absolute;
+    top: calc(100% + 7px);
+    left: 50%;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: #0f172a;
+    opacity: 0;
+    transform: translate(-50%, -4px);
+    transition: opacity 0.4s ease, transform 0.4s var(--inst-molla);
+    white-space: nowrap;
+}
+
+/* En vol: la icona es mou al forat, s'encongeix i deixa de flotar. */
+.instalar-fons.instalant .instalar-icona {
+    transform: translate(var(--inst-dx, 0px), var(--inst-dy, 0px)) scale(var(--inst-escala, 0.38));
+    transition: transform 0.95s var(--inst-molla);
+}
+
+.instalar-fons.instalant .instalar-icona-quadre,
+.instalar-fons.instalant .instalar-halo { animation: none; }
+
+.instalar-fons.instalant .instalar-icona-quadre {
+    box-shadow: 0 6px 14px -6px rgba(2, 6, 23, 0.8);
+    transition: box-shadow 0.6s ease;
+}
+
+.instalar-fons.instalant .instalar-icona-nom {
+    color: #ffffff;
+    opacity: 1;
+    transform: translate(-50%, 0);
+    font-size: 1.5rem;   /* compensa l'escala reduïda del pare */
+    transition-delay: 0.95s;
+}
+
+/* Marca de verificació que apareix quan ja està instal·lada. */
+.instalar-tic {
+    position: absolute;
+    top: -9px; right: -9px;
+    width: 30px; height: 30px;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    background: #10b981;
+    color: #fff;
+    box-shadow: 0 4px 12px -2px rgba(4, 120, 87, 0.7);
+    opacity: 0;
+    transform: scale(0.2);
+}
+
+.instalar-fons.feta .instalar-tic { animation: instalar-tic-entra 0.7s var(--inst-molla) 0.1s both; }
+
+@keyframes instalar-tic-entra {
+    from { opacity: 0; transform: scale(0.2) rotate(-45deg); }
+    to   { opacity: 1; transform: scale(1)   rotate(0deg); }
+}
+
+/* --- 3c. Columna de text --------------------------------------------------- */
+.instalar-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+    padding: 8px 4px 4px 14px;
+}
+
+.instalar-etiqueta {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    align-self: flex-start;
+    margin: 0;
+    padding: 5px 12px;
+    border-radius: 99px;
+    background: rgba(5, 150, 105, 0.1);
+    border: 1px solid rgba(5, 150, 105, 0.2);
+    color: #047857;
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.instalar-titol {
+    margin: 0;
+    font-size: 1.42rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+    color: #0f172a;
+}
+
+.instalar-desc {
+    margin: 0;
+    font-size: 0.87rem;
+    line-height: 1.55;
+    color: #64748b;
+}
+
+.instalar-llista {
+    list-style: none;
+    margin: 2px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 9px;
+}
+
+/* Sense això, el "display: grid" guanya a l'atribut hidden i la llista
+   d'avantatges i els passos del tutorial es veurien tots dos alhora. */
+.instalar-llista[hidden],
+.instalar-passos[hidden] { display: none; }
+
+.instalar-llista li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #334155;
+    opacity: 0;
+    transform: translateX(-8px);
+}
+
+.instalar-fons.obert .instalar-llista li { animation: instalar-llista-entra 0.5s var(--inst-suau) both; }
+.instalar-fons.obert .instalar-llista li:nth-child(1) { animation-delay: 0.16s; }
+.instalar-fons.obert .instalar-llista li:nth-child(2) { animation-delay: 0.24s; }
+.instalar-fons.obert .instalar-llista li:nth-child(3) { animation-delay: 0.32s; }
+
+@keyframes instalar-llista-entra {
+    to { opacity: 1; transform: none; }
+}
+
+.instalar-llista i {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 26px; height: 26px;
+    border-radius: 9px;
+    background: rgba(5, 150, 105, 0.1);
+    color: #059669;
+}
+
+/* Passos per a iPhone i iPad, on Safari no deixa instal·lar amb un botó. */
+.instalar-passos {
+    list-style: none;
+    margin: 2px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 11px;
+    counter-reset: pas;
+}
+
+.instalar-passos li {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding-left: 34px;
+    font-size: 0.83rem;
+    line-height: 1.45;
+    color: #334155;
+}
+
+.instalar-passos li::before {
+    counter-increment: pas;
+    content: counter(pas);
+    position: absolute;
+    left: 0;
+    display: grid;
+    place-items: center;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: #059669;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 800;
+}
+
+.instalar-passos strong { color: #0f172a; font-weight: 700; }
+
+.instalar-pas-ico {
+    display: inline-grid;
+    place-items: center;
+    width: 24px; height: 24px;
+    border-radius: 7px;
+    background: rgba(5, 150, 105, 0.1);
+    color: #059669;
+    flex: none;
+}
+
+.instalar-accions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+}
+
+.instalar-cta {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 12px 22px;
+    border: none;
+    border-radius: 99px;
+    background: linear-gradient(135deg, #10b981, #047857);
+    color: #fff;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow: 0 12px 26px -12px rgba(4, 120, 87, 0.9);
+    transition: transform 0.34s var(--inst-molla), box-shadow 0.3s ease, opacity 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.instalar-cta:hover { transform: translateY(-2px); box-shadow: 0 18px 32px -14px rgba(4, 120, 87, 1); }
+.instalar-cta:active { transform: translateY(0) scale(0.97); }
+.instalar-cta[disabled] { cursor: default; opacity: 0.8; transform: none; box-shadow: none; }
+
+.instalar-cta::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.35) 50%, transparent 65%);
+    transform: translateX(-120%);
+    animation: instalar-reflex 3.4s var(--inst-suau) 1.2s infinite;
+}
+
+@keyframes instalar-reflex {
+    0%        { transform: translateX(-120%); }
+    28%, 100% { transform: translateX(120%); }
+}
+
+.instalar-carregant {
+    width: 15px; height: 15px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: #fff;
+    animation: instalar-gira 0.7s linear infinite;
+    flex: none;
+}
+
+@keyframes instalar-gira { to { transform: rotate(360deg); } }
+
+.instalar-secundari {
+    padding: 12px 16px;
+    border: none;
+    background: none;
+    color: #64748b;
+    font: inherit;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 99px;
+    transition: background 0.25s ease, color 0.25s ease;
+}
+
+.instalar-secundari:hover { background: rgba(15, 23, 42, 0.05); color: #0f172a; }
+
+.instalar-nota {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    min-height: 1em;
+}
+
+/* --- 3d. Avís curt un cop instal·lada -------------------------------------- */
+.instalar-avis {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    z-index: 12001;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    border-radius: 99px;
+    background: rgba(15, 23, 42, 0.94);
+    color: #d1fae5;
+    font-size: 0.83rem;
+    font-weight: 600;
+    box-shadow: 0 20px 40px -18px rgba(2, 6, 23, 0.9);
+    transform: translate(-50%, 24px);
+    opacity: 0;
+    transition: transform 0.55s var(--inst-molla), opacity 0.4s ease;
+}
+
+.instalar-avis.visible { transform: translate(-50%, 0); opacity: 1; }
+
+/* -----------------------------------------------------------------------------
+   Adaptació a pantalla petita
+   -------------------------------------------------------------------------- */
+@media (max-width: 620px) {
+    .instalar-caixa {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        padding: 22px 20px 24px;
+        border-radius: 26px;
+    }
+
+    .instalar-escena { gap: 14px; }
+    .instalar-telefon { width: 138px; height: 264px; border-radius: 30px; }
+    .instalar-graella { top: 34px; left: 11px; right: 11px; gap: 11px 8px; }
+    .instalar-dock { height: 34px; }
+    .instalar-presentacio { width: 86px; }
+    .instalar-icona { width: 64px; height: 64px; }
+    .instalar-icona-quadre { width: 64px; height: 64px; border-radius: 19px; }
+    .instalar-lema { margin-top: 14px; font-size: 0.68rem; }
+    .instalar-text { padding: 0; }
+    .instalar-titol { font-size: 1.28rem; }
+    .instalar-accions { margin-top: 4px; }
+    .instalar-cta { flex: 1; }
+}
+
+/* -----------------------------------------------------------------------------
+   Pantalles baixes (mòbils petits i horitzontal): es torna a dues columnes i
+   tot s'encongeix, de manera que el botó d'instal·lar sempre queda a la vista
+   sense haver de fer scroll dins de la finestra.
+   -------------------------------------------------------------------------- */
+@media (max-height: 700px) {
+    .instalar-caixa { gap: 10px; padding: 18px; }
+
+    .instalar-telefon { width: 118px; height: 226px; border-radius: 26px; padding: 5px; }
+    .instalar-pantalla { border-radius: 22px; }
+    .instalar-osca { width: 40px; height: 12px; top: 5px; }
+    .instalar-hora { top: 6px; left: 10px; font-size: 8px; }
+    .instalar-senyal { top: 7px; right: 9px; }
+    .instalar-graella { top: 30px; left: 9px; right: 9px; gap: 9px 7px; }
+    .instalar-dock { height: 28px; left: 9px; right: 9px; bottom: 9px; }
+    .instalar-escena { gap: 12px; }
+    .instalar-presentacio { width: 76px; }
+    .instalar-icona { width: 56px; height: 56px; }
+    .instalar-icona-quadre { width: 56px; height: 56px; border-radius: 16px; }
+    .instalar-lema { margin-top: 12px; font-size: 0.66rem; }
+    .instalar-text { gap: 8px; }
+    .instalar-etiqueta { padding: 4px 10px; font-size: 0.62rem; }
+    .instalar-titol { font-size: 1.05rem; }
+    .instalar-desc { font-size: 0.78rem; line-height: 1.45; }
+    .instalar-accions { margin-top: 2px; }
+    .instalar-llista { gap: 6px; }
+    .instalar-llista li,
+    .instalar-passos li { font-size: 0.76rem; }
+    .instalar-llista i { width: 23px; height: 23px; }
+    .instalar-passos { gap: 8px; }
+    .instalar-cta { padding: 10px 18px; font-size: 0.82rem; }
+    .instalar-secundari { padding: 10px 12px; font-size: 0.8rem; }
+    .instalar-nota { font-size: 0.7rem; min-height: 0; }
+}
+
+/* Pantalla baixa però prou ampla (portàtils, mòbil en horitzontal): les dues
+   columnes es mantenen. En un mòbil estret de 360 px no, perquè la columna del
+   text es quedaria en un fil i el text es dispararia cap avall. */
+@media (max-height: 700px) and (min-width: 621px) {
+    .instalar-caixa { grid-template-columns: 214px 1fr; }
+    .instalar-text { padding: 0 0 0 10px; }
+    .instalar-cta { flex: 0 1 auto; }
+}
+
+/* -----------------------------------------------------------------------------
+   Qui demana menys moviment, en té menys: es manté el canvi d'estat però sense
+   vols, bategs ni escombrades.
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+    .instalar-aurora,
+    .instalar-icona-quadre,
+    .instalar-halo,
+    .instalar-cta::before,
+    .instalar-fons.instalant .instalar-llum,
+    .instalar-fons.instalant .instalar-forat::after,
+    .instalar-fons.instalant .instalar-graella span:not(.instalar-forat) {
+        animation: none !important;
+    }
+
+    .instalar-fons,
+    .instalar-caixa,
+    .instalar-icona,
+    .instalar-avis {
+        transition-duration: 0.12s !important;
+    }
+}
