@@ -9,6 +9,8 @@
     <!-- Favicon i icones de l'aplicació -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="shortcut icon" href="favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <!-- L’SVG el segueix fent servir Safari per a la icona de pestanya ancorada -->
     <link rel="apple-touch-icon" href="apple-touch-icon.svg">
     <link rel="mask-icon" href="favicon.svg" color="#059669">
     <meta name="theme-color" content="#059669">
@@ -52,6 +54,11 @@
     <!-- Instal·lar l’app: botó propi, escena animada i service worker -->
     <link rel="stylesheet" href="instalar-app.css">
     <script src="instalar-app.js" defer></script>
+
+    <!-- Avisos: panell de preferències i motor compartit amb el service worker -->
+    <link rel="stylesheet" href="avisos.css">
+    <script src="avisos-nucli.js" defer></script>
+    <script src="avisos.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -614,6 +621,13 @@
     </style>
 </head>
 <body id="inicio">
+
+    <!-- Tel d’arrencada de l’app instal·lada. A la web normal no es dibuixa
+         mai: el CSS el té a display:none fora del mode standalone. -->
+    <div class="app-entrada" aria-hidden="true">
+        <img src="icon-192.png" alt="" width="92" height="92">
+        <span>Pla DRIF</span>
+    </div>
 
     <div id="banner-urgente-30-30-30" class="banner-alerta-extrema">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4.5M12 17.5h.01"/></svg> ATENCIÓ: REGLA DEL 30-30-30 COMPLERTA — PERILL EXTREM D'INCENDI FORESTAL
