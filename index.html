@@ -48,6 +48,10 @@
     <!-- Risc en directe: mateixa fórmula i mateixes dades a totes les pàgines -->
     <link rel="stylesheet" href="risc-live.css">
     <script src="risc-live.js"></script>
+
+    <!-- Instal·lar l’app: botó propi, escena animada i service worker -->
+    <link rel="stylesheet" href="instalar-app.css">
+    <script src="instalar-app.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -1152,7 +1156,12 @@
 
         function initMapa() {
             map = L.map('mapa-real-catalunya', { center: [41.82, 1.85], zoom: 7.2, zoomControl: false });
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);
+            // Sense {r}: les tessel·les retina (@2x) de CARTO demanen API key i tornen
+            // la imatge amb una marca d'aigua "API KEY REQUIRED" a sobre.
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>'
+            }).addTo(map);
             
             const sabIcon = L.divIcon({ className: 'custom-pin', html: `<div style="background:#ef4444; width:16px; height:16px; border-radius:50%; border:3px solid #fff; box-shadow:0 0 12px #ef4444;"></div>`, iconSize: [16, 16] });
             const marker = L.marker([41.5481, 2.1074], { icon: sabIcon }).addTo(map);
