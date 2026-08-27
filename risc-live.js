@@ -465,6 +465,15 @@
         hora: hora,
         esObsoleta: esObsoleta,
         ultima: function () { return ultimaLectura; },
-        extrems: function () { return ultimsExtrems; }
+        extrems: function () { return ultimsExtrems; },
+        /* Una sola lectura, sense bucle ni res que toqui el DOM: és el que
+           crida el service worker quan es desperta en segon pla per mirar si
+           cal enviar cap avís. */
+        llegirAra: llegirCanal
     };
-})(window);
+
+/* Aquest mòdul viu a dos móns: dins de la pàgina, on `self` és `window`, i
+   dins del service worker, que no té `window` enlloc. Per això aquí no s'hi
+   pot escriure `window`: `sw.js` fa importScripts d'aquest mateix fitxer per
+   calcular el risc amb la fórmula de sempre i no haver-la de duplicar mai. */
+})(typeof self !== 'undefined' ? self : this);
