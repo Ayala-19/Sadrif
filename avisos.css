@@ -1,0 +1,547 @@
+/* =============================================================================
+   Pla DRIF · Avisos  —  fulla d'estils del mòdul avisos.js
+
+   Conté tres coses:
+     1. L'accés "Avisos" que s'injecta dins del menú CardNav.
+     2. El panell de configuració.
+     3. La targeta discreta que ofereix els avisos una sola vegada.
+
+   Comparteix llenguatge visual amb instalar-app.css a propòsit: per a l'usuari
+   són la mateixa família de finestres. El verd maragda va escrit a pèl i no fa
+   servir var(--accent), perquè al panell principal el color del risc pot tenyir
+   la resta de la pàgina i aquests components han de ser sempre de la marca.
+   ============================================================================= */
+
+:root {
+    --avis-verd: #059669;
+    --avis-verd-clar: #10b981;
+    --avis-molla: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --avis-suau: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* -----------------------------------------------------------------------------
+   1. ACCÉS DINS DEL MENÚ
+   -------------------------------------------------------------------------- */
+.nav-card-link.avisos-nav {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.nav-card-link.avisos-nav::after {
+    content: "";
+    position: absolute;
+    left: -10px; right: -10px; top: -6px; bottom: -6px;
+    border-radius: 12px;
+    background: linear-gradient(120deg, rgba(16, 185, 129, 0.14), rgba(16, 185, 129, 0.03));
+    border: 1px solid rgba(110, 231, 183, 0.18);
+    opacity: 0;
+    transform: scale(0.94);
+    transition: opacity 0.32s var(--avis-suau), transform 0.32s var(--avis-suau);
+    z-index: -1;
+}
+
+.nav-card-link.avisos-nav:hover::after { opacity: 1; transform: scale(1); }
+
+/* El puntet només hi és quan els avisos estan engegats de debò. */
+.avisos-punt {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6);
+    animation: avisos-bateg 2.6s ease-out infinite;
+}
+
+.avisos-punt[hidden] { display: none; }
+
+@keyframes avisos-bateg {
+    0%   { box-shadow: 0 0 0 0   rgba(52, 211, 153, 0.6); }
+    70%  { box-shadow: 0 0 0 7px rgba(52, 211, 153, 0); }
+    100% { box-shadow: 0 0 0 0   rgba(52, 211, 153, 0); }
+}
+
+/* -----------------------------------------------------------------------------
+   2. EL PANELL
+   -------------------------------------------------------------------------- */
+.avisos-fons {
+    position: fixed;
+    inset: 0;
+    z-index: 12000;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: rgba(10, 20, 16, 0.42);
+    -webkit-backdrop-filter: blur(14px) saturate(120%);
+    backdrop-filter: blur(14px) saturate(120%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.42s var(--avis-suau);
+}
+
+.avisos-fons.obert { opacity: 1; pointer-events: auto; }
+
+.avisos-caixa {
+    position: relative;
+    width: min(520px, 100%);
+    max-height: calc(100vh - 40px);
+    overflow: auto;
+    padding: 26px 26px 22px;
+    border-radius: 28px;
+    background: linear-gradient(160deg, #ffffff 0%, #f4fbf8 100%);
+    border: 1px solid rgba(15, 23, 42, 0.07);
+    box-shadow:
+        0 40px 90px -25px rgba(6, 78, 59, 0.35),
+        0 8px 24px -12px rgba(15, 23, 42, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    transform: translateY(22px) scale(0.95);
+    opacity: 0;
+    transition: transform 0.6s var(--avis-molla), opacity 0.4s ease;
+    -webkit-overflow-scrolling: touch;
+}
+
+.avisos-fons.obert .avisos-caixa { transform: none; opacity: 1; }
+
+.avisos-tancar {
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 34px; height: 34px;
+    display: grid; place-items: center;
+    border: none;
+    border-radius: 50%;
+    background: rgba(15, 23, 42, 0.05);
+    color: #475569;
+    cursor: pointer;
+    z-index: 3;
+    transition: background 0.25s ease, transform 0.3s var(--avis-molla);
+}
+
+.avisos-tancar:hover { background: rgba(15, 23, 42, 0.1); transform: rotate(90deg); }
+
+/* --- 2a. Capçalera ---------------------------------------------------------- */
+.avisos-cap {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding-right: 34px;
+}
+
+.avisos-emblema {
+    position: relative;
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 52px; height: 52px;
+    border-radius: 17px;
+    background: linear-gradient(140deg, #10b981, #047857);
+    color: #fff;
+    box-shadow: 0 14px 26px -12px rgba(4, 120, 87, 0.85);
+}
+
+/* Onada que surt de la campana: prou discreta per no distreure de la lectura. */
+.avisos-emblema i {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    animation: avisos-onada 3s ease-out infinite;
+}
+
+@keyframes avisos-onada {
+    0%   { box-shadow: 0 0 0 0    rgba(16, 185, 129, 0.5); }
+    70%  { box-shadow: 0 0 0 18px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0    rgba(16, 185, 129, 0); }
+}
+
+.avisos-cap h3 {
+    margin: 2px 0 5px;
+    font-size: 1.24rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+    color: #0f172a;
+}
+
+.avisos-cap p {
+    margin: 0;
+    font-size: 0.83rem;
+    line-height: 1.5;
+    color: #64748b;
+}
+
+/* --- 2b. Interruptor general ------------------------------------------------ */
+.avisos-estat {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin: 18px 0 4px;
+    padding: 14px 16px;
+    border-radius: 18px;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: #fff;
+    transition: border-color 0.35s ease, background 0.35s ease;
+}
+
+.avisos-estat[data-estat="ences"] {
+    border-color: rgba(16, 185, 129, 0.35);
+    background: linear-gradient(120deg, rgba(16, 185, 129, 0.09), rgba(16, 185, 129, 0.02));
+}
+
+.avisos-estat[data-estat="blocat"],
+.avisos-estat[data-estat="impossible"] {
+    border-color: rgba(245, 158, 11, 0.35);
+    background: rgba(245, 158, 11, 0.06);
+}
+
+.avisos-estat-txt { flex: 1 1 190px; min-width: 0; }
+
+.avisos-estat-txt strong {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 800;
+    letter-spacing: -0.015em;
+    color: #0f172a;
+}
+
+.avisos-estat-txt small {
+    display: block;
+    margin-top: 3px;
+    font-size: 0.76rem;
+    line-height: 1.45;
+    color: #64748b;
+}
+
+.avisos-principal {
+    flex: none;
+    padding: 11px 20px;
+    border: none;
+    border-radius: 99px;
+    background: linear-gradient(135deg, #10b981, #047857);
+    color: #fff;
+    font: inherit;
+    font-size: 0.83rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 12px 24px -14px rgba(4, 120, 87, 0.95);
+    transition: transform 0.34s var(--avis-molla), box-shadow 0.3s ease, opacity 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.avisos-principal:hover { transform: translateY(-2px); box-shadow: 0 18px 30px -16px rgba(4, 120, 87, 1); }
+.avisos-principal:active { transform: translateY(0) scale(0.97); }
+.avisos-principal[disabled] { cursor: default; opacity: 0.75; transform: none; box-shadow: none; }
+
+/* Amb els avisos engegats, el botó passa a ser el de desactivar-los i deixa
+   de cridar l'atenció: ja no és l'acció que volem que faci ningú. */
+.avisos-estat[data-estat="ences"] .avisos-principal {
+    background: none;
+    color: #475569;
+    box-shadow: none;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+}
+
+.avisos-estat[data-estat="ences"] .avisos-principal:hover {
+    background: rgba(15, 23, 42, 0.04);
+    color: #0f172a;
+}
+
+/* --- 2c. Opcions ------------------------------------------------------------ */
+.avisos-cos { transition: opacity 0.35s ease; }
+.avisos-cos.is-apagat { opacity: 0.45; }
+
+.avisos-seccio {
+    margin: 20px 0 8px;
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #94a3b8;
+}
+
+.avisos-llista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 4px;
+}
+
+.avisos-opcio {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 11px 12px;
+    border-radius: 14px;
+    transition: background 0.25s ease;
+}
+
+.avisos-opcio:hover { background: rgba(5, 150, 105, 0.05); }
+
+.avisos-opcio-ico {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 28px; height: 28px;
+    margin-top: 1px;
+    border-radius: 9px;
+    background: rgba(5, 150, 105, 0.1);
+    color: #059669;
+}
+
+.avisos-opcio-txt { flex: 1; min-width: 0; }
+
+.avisos-opcio-txt strong {
+    display: block;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.avisos-opcio-txt small {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.755rem;
+    line-height: 1.5;
+    color: #64748b;
+}
+
+/* Interruptors */
+.avisos-switch {
+    flex: none;
+    position: relative;
+    width: 42px; height: 24px;
+    margin-top: 2px;
+    padding: 0;
+    border: none;
+    border-radius: 99px;
+    background: #cbd5e1;
+    cursor: pointer;
+    transition: background 0.3s ease, opacity 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.avisos-switch i {
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 2px 5px -1px rgba(15, 23, 42, 0.35);
+    transition: transform 0.34s var(--avis-molla);
+}
+
+.avisos-switch[aria-checked="true"] { background: linear-gradient(135deg, #10b981, #059669); }
+.avisos-switch[aria-checked="true"] i { transform: translateX(18px); }
+.avisos-switch[disabled] { cursor: default; opacity: 0.5; }
+.avisos-switch:focus-visible { outline: 2px solid #059669; outline-offset: 3px; }
+
+/* Desplegables de l'hora, dins del text mateix. */
+.avisos-hora {
+    padding: 1px 4px;
+    border: 1px solid rgba(15, 23, 42, 0.14);
+    border-radius: 7px;
+    background: #fff;
+    color: #0f172a;
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.avisos-hora:disabled { opacity: 0.5; cursor: default; }
+
+/* --- 2d. El compromís ------------------------------------------------------- */
+.avisos-promesa {
+    margin-top: 18px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: rgba(15, 23, 42, 0.035);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.avisos-promesa > p {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0 0 9px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #047857;
+}
+
+.avisos-promesa ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 7px;
+}
+
+.avisos-promesa li {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    font-size: 0.76rem;
+    line-height: 1.45;
+    color: #475569;
+}
+
+.avisos-promesa li svg { flex: none; margin-top: 2px; color: #10b981; }
+.avisos-promesa li:nth-child(n+4) svg { color: #94a3b8; }
+.avisos-promesa strong { color: #0f172a; font-weight: 700; }
+
+/* --- 2e. Peu ---------------------------------------------------------------- */
+.avisos-peu {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(15, 23, 42, 0.07);
+}
+
+.avisos-prova {
+    padding: 9px 16px;
+    border: 1px solid rgba(5, 150, 105, 0.28);
+    border-radius: 99px;
+    background: rgba(5, 150, 105, 0.06);
+    color: #047857;
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.25s ease, transform 0.3s var(--avis-molla);
+}
+
+.avisos-prova:hover { background: rgba(5, 150, 105, 0.12); transform: translateY(-1px); }
+.avisos-prova[hidden] { display: none; }
+
+.avisos-nota {
+    flex: 1 1 160px;
+    margin: 0;
+    font-size: 0.73rem;
+    line-height: 1.4;
+    color: #94a3b8;
+}
+
+/* -----------------------------------------------------------------------------
+   3. LA INVITACIÓ
+   Surt una sola vegada, de baix a dalt i sense enfosquir la pàgina: no ha de
+   tallar res del que s'estigui fent.
+   -------------------------------------------------------------------------- */
+.avisos-convit {
+    position: fixed;
+    left: 50%;
+    bottom: max(18px, env(safe-area-inset-bottom));
+    z-index: 11900;
+    width: min(430px, calc(100vw - 28px));
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 14px 16px;
+    border-radius: 20px;
+    background: rgba(11, 24, 20, 0.94);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    backdrop-filter: blur(16px) saturate(140%);
+    border: 1px solid rgba(52, 211, 153, 0.2);
+    box-shadow: 0 26px 50px -22px rgba(2, 6, 23, 0.9);
+    transform: translate(-50%, 30px);
+    opacity: 0;
+    transition: transform 0.6s var(--avis-molla), opacity 0.4s ease;
+}
+
+.avisos-convit.visible { transform: translate(-50%, 0); opacity: 1; }
+
+.avisos-convit-ico {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 34px; height: 34px;
+    border-radius: 11px;
+    background: rgba(16, 185, 129, 0.18);
+    color: #6ee7b7;
+}
+
+.avisos-convit-txt { flex: 1 1 190px; min-width: 0; }
+
+.avisos-convit-txt strong {
+    display: block;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: #f1f5f9;
+}
+
+.avisos-convit-txt small {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.74rem;
+    line-height: 1.45;
+    color: #94a3b8;
+}
+
+.avisos-convit-botons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+}
+
+.avisos-convit-botons button {
+    padding: 9px 15px;
+    border: none;
+    border-radius: 99px;
+    font: inherit;
+    font-size: 0.79rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.3s var(--avis-molla), background 0.25s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.avisos-convit-botons [data-si] {
+    background: linear-gradient(135deg, #10b981, #047857);
+    color: #fff;
+}
+
+.avisos-convit-botons [data-si]:hover { transform: translateY(-2px); }
+
+.avisos-convit-botons [data-no] {
+    background: none;
+    color: #94a3b8;
+}
+
+.avisos-convit-botons [data-no]:hover { background: rgba(255, 255, 255, 0.07); color: #e2e8f0; }
+
+/* -----------------------------------------------------------------------------
+   Pantalla petita
+   -------------------------------------------------------------------------- */
+@media (max-width: 560px) {
+    .avisos-caixa { padding: 22px 18px 18px; border-radius: 24px; }
+    .avisos-cap { gap: 12px; }
+    .avisos-emblema { width: 46px; height: 46px; border-radius: 15px; }
+    .avisos-cap h3 { font-size: 1.1rem; }
+    .avisos-cap p { font-size: 0.78rem; }
+    .avisos-estat { padding: 13px 14px; }
+    .avisos-principal { width: 100%; }
+    .avisos-opcio { padding: 10px 8px; gap: 10px; }
+    .avisos-convit { gap: 10px; padding: 13px 14px; }
+    .avisos-convit-botons { width: 100%; margin-left: 0; }
+    .avisos-convit-botons [data-si] { flex: 1; }
+}
+
+/* -----------------------------------------------------------------------------
+   Qui demana menys moviment, en té menys.
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+    .avisos-emblema i,
+    .avisos-punt { animation: none !important; }
+
+    .avisos-fons,
+    .avisos-caixa,
+    .avisos-convit,
+    .avisos-switch i { transition-duration: 0.12s !important; }
+}
