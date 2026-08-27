@@ -1,479 +1,947 @@
-/* =============================================================================
-   SADRIF · Risc en directe  —  mòdul compartit per index.html, producto3d.html
-   i sobre-nosotros.html.
+<!DOCTYPE html>
+<html lang="ca" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dispositiu SADRIF en 3D | Pla DRIF</title>
 
-   Una sola font de veritat:
-     · una sola fórmula de càlcul del risc  -> SadrifRisc.calcular()
-     · una sola connexió a ThingSpeak       -> SadrifRisc.subscriure()
-     · una sola píndola "Risc: XX%" al menú -> SadrifRisc.initPindola()
+    <!-- Favicon i icones de l'aplicació -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="shortcut icon" href="favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <!-- L’SVG el segueix fent servir Safari per a la icona de pestanya ancorada -->
+    <link rel="apple-touch-icon" href="apple-touch-icon.svg">
+    <link rel="mask-icon" href="favicon.svg" color="#059669">
+    <meta name="theme-color" content="#059669">
 
-   IMPORTANT sobre els colors:
-   el color del risc NOMÉS tenyeix la pàgina quan s'hi demana explícitament
-   (initPindola({ tenyirPagina: true }), que només fa el panell principal).
-   A la resta de pàgines el color viu dins de la píndola i prou, de manera que
-   el verd maragda de la marca no canvia mai encara que el risc sigui alt.
-   ============================================================================= */
-(function (global) {
-    'use strict';
+    <!-- Instal·lable com a aplicació (afegir a la pantalla d'inici) -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Pla DRIF">
+    <!-- SEO i previsualització a xarxes socials -->
+    <meta name="description" content="Explora el dispositiu SADRIF en 3D: components, material, circuit d'alimentació solar i fitxa tècnica completa.">
+    <link rel="canonical" href="https://pladrif.online/producto3d.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Pla DRIF">
+    <meta property="og:locale" content="ca_ES">
+    <meta property="og:title" content="Dispositiu SADRIF en 3D | Pla DRIF">
+    <meta property="og:description" content="Explora el dispositiu SADRIF en 3D: components, material, circuit d'alimentació solar i fitxa tècnica completa.">
+    <meta property="og:url" content="https://pladrif.online/producto3d.html">
+    <meta property="og:image" content="https://pladrif.online/og-preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:alt" content="Pla DRIF · Sistema Autònom de Detecció de Risc d Incendis Forestals">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Dispositiu SADRIF en 3D | Pla DRIF">
+    <meta name="twitter:description" content="Explora el dispositiu SADRIF en 3D: components, material, circuit d'alimentació solar i fitxa tècnica completa.">
+    <meta name="twitter:image" content="https://pladrif.online/og-preview.png">
 
-    var CANAL_ID = '3411217';
-    var CLAU_LECTURA = 'GYE9XC7CJSA3916';
-    var INTERVAL_MS = 15000;
-    var INTERVAL_EXTREMS_MS = 300000;   // mínimes i màximes: cada 5 minuts n'hi ha de sobres
-    var MINUTS_OBSOLET = 30;            // a partir d'aquí, la lectura es marca com a antiga
+  
+  <!-- Fuentes para el menú CardNav -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Miniatura del vídeo de YouTube (el reproductor no es carrega fins que es fa clic) -->
+  <link rel="preconnect" href="https://i.ytimg.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <!-- Risc en directe: mateixa fórmula i mateixes dades a totes les pàgines -->
+  <link rel="stylesheet" href="risc-live.css">
+  <script src="risc-live.js" defer></script>
 
-    /* Escala oficial de nivells. Els colors són els mateixos que fa servir el
-       panell principal, de manera que la píndola i el panell mai no es
-       contradiuen visualment. */
-    var NIVELLS = [
-        { nivell: 0, nom: 'Molt Baix', color: '#10b981', bg: 'rgba(16, 185, 129, 0.08)',  border: 'rgba(16, 185, 129, 0.4)' },
-        { nivell: 1, nom: 'Baix',      color: '#84cc16', bg: 'rgba(132, 204, 22, 0.08)',  border: 'rgba(132, 204, 22, 0.4)' },
-        { nivell: 2, nom: 'Moderat',   color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.08)',  border: 'rgba(245, 158, 11, 0.4)' },
-        { nivell: 3, nom: 'Alt',       color: '#f97316', bg: 'rgba(249, 115, 22, 0.08)',  border: 'rgba(249, 115, 22, 0.4)' },
-        { nivell: 4, nom: 'Extrem',    color: '#ef4444', bg: 'rgba(239, 68, 68, 0.08)',   border: 'rgba(239, 68, 68, 0.4)' }
-    ];
+  <!-- Instal·lar l’app: botó propi, escena animada i service worker -->
+  <link rel="stylesheet" href="instalar-app.css">
+  <script src="instalar-app.js" defer></script>
 
-    /* ---------------------------------------------------------------------
-       CÀLCUL DEL RISC (0-100)
-       Idèntic a tot arreu: qualsevol canvi aquí es propaga a les tres pàgines.
-       --------------------------------------------------------------------- */
-    function calcular(temp, hum, pres, vent) {
-        temp = Number(temp) || 0;
-        hum  = Number(hum)  || 0;
-        pres = Number(pres) || 1013;
-        vent = Number(vent) || 0;
+  <!-- Avisos: panell de preferències i motor compartit amb el service worker -->
+  <link rel="stylesheet" href="avisos.css">
+  <script src="avisos-nucli.js" defer></script>
+  <script src="avisos.js" defer></script>
+  
+  <!-- React & ReactDOM -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  
+  <!-- Framer Motion -->
+  <script src="https://unpkg.com/framer-motion@11.0.8/dist/framer-motion.js"></script>
+  
 
-        var ptsT = temp > 35 ? 40 : temp > 30 ? 30 : temp > 25 ? 20 : temp > 20 ? 12 : 5;
-        var ptsH = hum < 15 ? 38 : hum < 25 ? 29 : hum < 40 ? 19 : hum < 55 ? 11 : 5;
-        var ptsV = vent > 60 ? 20 : vent > 40 ? 15 : vent > 20 ? 10 : vent > 10 ? 6 : 3;
-        // La pressió baixa aporta un lleuger increment de risc (inestabilitat atmosfèrica)
-        var ptsP = pres < 1005 ? 4 : pres < 1013 ? 2 : 0;
+  <!-- Google Model Viewer (Para el modelo 3D) -->
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
-        var punts = Math.min(ptsT + ptsH + ptsV + ptsP, 100);
+  <style>
+    /* =========================================
+       VARIABLES Y ESTILOS DEL MENÚ CARDNAV
+       ========================================= */
+    :root {
+        --bg-principal: #f8fafc;
+        --glass-bg: rgba(255, 255, 255, 0.45); 
+        --glass-border: rgba(255, 255, 255, 0.7);
+        --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07), inset 0 1px 2px rgba(255, 255, 255, 0.8);
+        
+        --texto-principal: #0f172a;
+        --texto-mutado: #64748b;
+        --borde-claro: rgba(226, 232, 240, 0.6);
 
-        // Regla del 30-30-30: escenari d'alerta extrema
-        var regla30 = (temp >= 30 && hum <= 30 && vent >= 30);
+        /* Color de marca. Aquesta pàgina SEMPRE és verd maragda: el nivell de
+           risc no ha de tenyir mai els botons ni els detalls. */
+        --accent: #10b981;
+        --accent-suau: rgba(16, 185, 129, 0.15);
+        --accent-vora: rgba(16, 185, 129, 0.4);
 
-        var idx;
-        if (punts <= 25) idx = 0;
-        else if (punts <= 42) idx = 1;
-        else if (punts <= 62) idx = 2;
-        else if (punts <= 80) idx = 3;
-        else idx = 4;
+        /* Color del risc en directe. L'escriu risc-live.js NOMÉS damunt de la
+           píndola del menú, mai a l'arrel del document. */
+        --riesgo-color-dinamico: #10b981;
 
-        if (regla30) { idx = 4; punts = 100; }
-
-        var n = NIVELLS[idx];
-        return {
-            punts: punts,
-            idx: idx,
-            nivellNum: n.nivell,
-            nom: regla30 ? 'Extrem (30-30-30)' : n.nom,
-            color: n.color,
-            bg: n.bg,
-            border: n.border,
-            regla30: regla30
-        };
+        --transicion: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* ---------------------------------------------------------------------
-       DADES EN DIRECTE (ThingSpeak) — una sola connexió compartida
-       --------------------------------------------------------------------- */
-    var subscriptors = [];
-    var temporitzador = null;
-    var ultimaLectura = null;
-    var demanantAra = false;
-    /* El panell principal ja demana l'històric sencer a ThingSpeak per als
-       gràfics i la taula. Quan ho declara, el mòdul no obre una segona
-       connexió: es limita a rebre les dades que li passa la pàgina. */
-    var fontExterna = false;
+    * { box-sizing: border-box; }
 
-    function configurar(o) {
-        if (o && o.fontExterna) fontExterna = true;
+    body {
+      background-color: var(--bg-principal);
+      color: var(--texto-principal);
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 0;
+      line-height: 1.5;
+      overflow-x: hidden;
+      min-height: 100vh;
+      position: relative;
     }
 
-    /* Dades que arriben de fora (les que ja ha llegit la pàgina). */
-    function publicar(d) {
-        if (!d) return null;
-        var dades = {
-            temp: Number(d.temp) || 0,
-            hum:  Number(d.hum)  || 0,
-            pres: Number(d.pres) || 1012,
-            vent: Number(d.vent) || 0,
-            data: d.data instanceof Date ? d.data : (d.data ? new Date(d.data) : new Date())
-        };
-        ultimaLectura = { dades: dades, risc: calcular(dades.temp, dades.hum, dades.pres, dades.vent) };
-        notificar(ultimaLectura, null);
-        return ultimaLectura;
+    /* Degradat verd de fons: viu al body i s'esvaeix suaument,
+       així no queda tallat en sec en acabar la capçalera. */
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 900px;
+      background:
+        radial-gradient(ellipse 120% 70% at 50% 0%, rgba(16, 185, 129, 0.16) 0%, rgba(16, 185, 129, 0.06) 40%, transparent 72%),
+        linear-gradient(180deg, rgba(248, 250, 252, 0) 65%, var(--bg-principal) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    body > * { position: relative; z-index: 1; }
+
+    /* ========= NUEVOS ESTILOS CARDNAV ========= */
+    .card-nav-container {
+        position: sticky;
+        top: 1rem;
+        margin: 0 auto;
+        width: 90%;
+        max-width: 1200px;
+        z-index: 1000;
+        box-sizing: border-box;
+        margin-bottom: 2rem;
     }
 
-    function urlCanal(params) {
-        return 'https://api.thingspeak.com/channels/' + CANAL_ID +
-               '/feeds.json?api_key=' + CLAU_LECTURA + '&' + params;
+    .card-nav {
+        display: block;
+        height: 60px;
+        padding: 0;
+        background-color: var(--glass-bg);
+        backdrop-filter: blur(25px) saturate(120%);
+        -webkit-backdrop-filter: blur(25px) saturate(120%);
+        border: 1px solid var(--glass-border);
+        border-radius: 0.75rem;
+        box-shadow: var(--glass-shadow);
+        position: relative;
+        overflow: hidden;
+        will-change: height;
     }
 
-    function llegirCanal() {
-        if (demanantAra) return Promise.resolve(ultimaLectura);
-        demanantAra = true;
-        return fetch(urlCanal('results=1'))
-            .then(function (r) {
-                if (!r.ok) throw new Error('ThingSpeak ha respost ' + r.status);
-                return r.json();
-            })
-            .then(function (data) {
-                var feeds = data && data.feeds;
-                if (!feeds || !feeds.length) throw new Error('Cap lectura disponible');
-                var f = feeds[feeds.length - 1];
-                var dades = {
-                    temp: parseFloat(f.field1) || 0,
-                    hum:  parseFloat(f.field2) || 0,
-                    pres: parseFloat(f.field3) || 1012,
-                    vent: parseFloat(f.field4) || 0,
-                    data: f.created_at ? new Date(f.created_at) : null
-                };
-                ultimaLectura = { dades: dades, risc: calcular(dades.temp, dades.hum, dades.pres, dades.vent) };
-                notificar(ultimaLectura, null);
-                return ultimaLectura;
-            })
-            .catch(function (err) {
-                console.warn('[SadrifRisc] No s\'han pogut llegir les dades:', err.message);
-                notificar(ultimaLectura, err);
-                return ultimaLectura;
-            })
-            .then(function (res) { demanantAra = false; return res; });
+    .card-nav-top {
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 1rem;
+        z-index: 2;
     }
 
-    function notificar(payload, err) {
-        for (var i = 0; i < subscriptors.length; i++) {
-            try { subscriptors[i](payload, err); } catch (e) { console.error('[SadrifRisc]', e); }
+    .hamburger-menu {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        gap: 6px;
+        width: 40px;
+    }
+
+    .hamburger-menu:hover .hamburger-line { opacity: 0.75; }
+
+    .hamburger-line {
+        width: 24px;
+        height: 2px;
+        background-color: var(--texto-principal);
+        transition: transform 0.25s ease, opacity 0.2s ease, margin 0.3s ease;
+        transform-origin: 50% 50%;
+    }
+
+    .hamburger-menu.open .hamburger-line:first-child { transform: translateY(4px) rotate(45deg); }
+    .hamburger-menu.open .hamburger-line:last-child { transform: translateY(-4px) rotate(-45deg); }
+
+    .navbar-brand {
+        display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.25rem;
+        color: var(--texto-principal); text-decoration: none;
+        transition: var(--transicion);
+    }
+    .navbar-brand img { height: 28px; }
+    .nomes-lectors { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+    .card-nav-content {
+        position: absolute;
+        left: 0; right: 0; top: 60px; bottom: 0;
+        padding: 0.5rem;
+        display: flex;
+        align-items: flex-end;
+        gap: 12px;
+        visibility: hidden;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .card-nav.open .card-nav-content {
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    .nav-card {
+        height: 100%;
+        flex: 1 1 0;
+        min-width: 0;
+        border-radius: calc(0.75rem - 0.2rem);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        padding: 16px 20px;
+        gap: 8px;
+        user-select: none;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-card-label { font-weight: 700; font-size: 1.25rem; letter-spacing: -0.5px; opacity: 0.9; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; margin-bottom: 5px; }
+    .nav-card-links { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+    
+    .nav-card-link {
+        font-size: 0.95rem; font-weight: 500; color: inherit; cursor: pointer; text-decoration: none; transition: opacity 0.3s ease; display: inline-flex; align-items: center; gap: 10px;
+    }
+    .nav-card-link:hover { opacity: 0.6; }
+    .nav-card-link svg { flex: none; opacity: 0.82; transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16,1,0.3,1); }
+    .nav-card-link:hover svg { opacity: 1; transform: translateX(2px); }
+
+    /* Badge Risc dins del nav */
+    .sticky-risk-badge {
+        display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border); padding: 5px 12px; border-radius: 99px;
+        font-weight: 700; font-size: 0.85rem; box-shadow: var(--glass-shadow);
+        color: var(--texto-principal); text-decoration: none; white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-8px) scale(0.95);
+        transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s;
+        pointer-events: none;
+    }
+
+    .sticky-risk-badge.visible {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+    }
+    a.sticky-risk-badge.visible:hover { background: rgba(255, 255, 255, 0.85); }
+    .sticky-risk-badge.is-carregant { opacity: 0.55; }
+    @media (prefers-reduced-motion: reduce) { .sticky-risk-dot { animation: none; } }
+
+    .sticky-risk-dot { width: 10px; height: 10px; border-radius: 50%; background-color: var(--riesgo-color-dinamico); box-shadow: 0 0 8px var(--riesgo-color-dinamico); animation: pulseLive 1.5s infinite; }
+
+    @keyframes pulseLive { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
+
+    @media (max-width: 768px) {
+        .card-nav-container { width: 95%; top: 0.5rem; }
+        .card-nav-top { justify-content: space-between; gap: 8px; }
+        .hamburger-menu { order: 3; }
+        .logo-container { order: 1; }
+        .right-controls-nav { order: 2; display: flex !important; } 
+        .sticky-risk-badge { padding: 4px 8px; font-size: 0.78rem; }
+        
+        .card-nav-content {
+            flex-direction: column; 
+            align-items: stretch; 
+            gap: 8px; 
+            padding: 0.5rem; 
+            top: 60px; 
+            bottom: auto; 
+            justify-content: flex-start;
+            overflow-y: auto; 
+            max-height: calc(100vh - 80px); 
         }
+        .nav-card { height: auto; min-height: auto; flex: none; padding: 16px; }
+        .nav-card-label { font-size: 1.1rem; }
+        .nav-card-links { gap: 12px; margin-top: 10px; }
     }
 
-    function arrencarBucle() {
-        if (fontExterna || temporitzador !== null) return;
-        llegirCanal();
-        temporitzador = setInterval(function () {
-            // Amb la pestanya amagada no cal gastar dades: es reprèn en tornar.
-            if (!document.hidden) llegirCanal();
-        }, INTERVAL_MS);
-        document.addEventListener('visibilitychange', function () {
-            if (!document.hidden) llegirCanal();
-        });
+    /* =========================================
+       CSS: ROTATING TEXT & OTROS COMPONENTES
+       ========================================= */
+    .text-rotate {
+      display: flex;
+      flex-wrap: wrap;
+      white-space: pre-wrap;
+      position: relative;
+    }
+    .text-rotate-sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    .text-rotate-word { display: inline-flex; }
+    .text-rotate-lines { display: flex; flex-direction: column; width: 100%; }
+    .text-rotate-element { display: inline-block; }
+    .text-rotate-space { white-space: pre; }
+
+    .parallax { position: relative; overflow: hidden; }
+    .scroller {
+      display: flex; white-space: nowrap; text-align: center; font-family: sans-serif;
+      font-size: 2.25rem; font-weight: bold; letter-spacing: -0.02em;
+    }
+    .scroller span { flex-shrink: 0; }
+    @media (min-width: 768px) { .scroller { font-size: 4rem; line-height: 4rem; } }
+    .custom-scroll-text { color: #059669; text-transform: uppercase; padding-right: 2rem; }
+
+    .accordion-gallery {
+      --ag-accent: #059669; --ag-overlay: #f8fafc; --ag-text: #0f172a; --ag-gap: 12px; --ag-radius: 20px; --ag-media-size: 320px;
+      display: flex; flex-direction: row; gap: var(--ag-gap); width: 100%; max-width: 100%;
+      perspective: 1400px; perspective-origin: 50% 50%;
+    }
+    .accordion-gallery--vertical { flex-direction: column; }
+    .ag-panel {
+      position: relative; flex: 1 1 0; min-width: 0; min-height: 0; overflow: hidden; border-radius: var(--ag-radius);
+      cursor: pointer; display: block; text-decoration: none; outline: none; transform-style: preserve-3d;
+      transform-origin: center center; background: #e2e8f0; box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.2);
+      will-change: flex-grow, transform; -webkit-tap-highlight-color: transparent;
+      padding: 0; border: 0; font: inherit; color: inherit; appearance: none;
+    }
+    .ag-panel:focus-visible { box-shadow: 0 0 0 2px var(--ag-accent), 0 10px 30px -18px rgba(0, 0, 0, 0.3); }
+    .ag-panel__frame { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; }
+    .ag-panel__media {
+      --ag-gray: 1; --ag-dim: 0.15; position: absolute; top: 50%; left: 50%; width: var(--ag-media-size);
+      height: 100%; filter: grayscale(var(--ag-gray)); will-change: transform, filter;
+    }
+    .accordion-gallery--vertical .ag-panel__media { width: 100%; height: var(--ag-media-size); }
+    .ag-panel__media img { width: 100%; height: 100%; object-fit: cover; display: block; user-select: none; -webkit-user-drag: none; }
+    .ag-panel__overlay {
+      position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(180deg, transparent 35%, color-mix(in srgb, var(--ag-overlay) 90%, transparent) 100%),
+                  color-mix(in srgb, var(--ag-overlay) calc(var(--ag-dim, 0.15) * 100%), transparent);
+    }
+    .ag-panel__label { position: absolute; left: 20px; bottom: 20px; right: 20px; display: flex; align-items: center; gap: 12px; pointer-events: none; z-index: 2; }
+    .ag-panel__bar { flex: 0 0 auto; width: 4px; height: 26px; border-radius: 4px; background: var(--ag-accent); opacity: 0; }
+    .ag-panel__text {
+      color: var(--ag-text); font-family: inherit; font-weight: 700; font-size: clamp(1rem, 1.4vw, 1.4rem);
+      letter-spacing: 0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0;
+    }
+    /* Al mòbil l'acordió no es desactiva: només canvia d'orientació.
+       El JS afegeix .accordion-gallery--vertical i el gir passa a l'eix X. */
+    @media (max-width: 680px) {
+      .accordion-gallery { --ag-radius: 16px; --ag-gap: 10px; perspective: 900px; }
+      .ag-panel__label { left: 14px; right: 14px; bottom: 14px; }
+      .ag-panel__text { font-size: 0.92rem; white-space: normal; line-height: 1.3; }
+    }
+    @media (prefers-reduced-motion: reduce) { .ag-panel, .ag-panel__media { will-change: auto; } }
+
+    /* Descripció del panell seleccionat de la galeria */
+    .ag-detail {
+      margin-top: 22px; padding: 22px 24px; border-radius: 18px;
+      background: rgba(255, 255, 255, 0.6); border: 1px solid var(--borde-claro);
+      animation: agDetailIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .ag-detail-index {
+      display: block; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.12em;
+      color: var(--accent); margin-bottom: 8px; font-variant-numeric: tabular-nums;
+    }
+    .ag-detail strong { display: block; font-size: 1.05rem; font-weight: 800; color: var(--texto-principal); line-height: 1.35; }
+    .ag-detail p { margin: 8px 0 0; font-size: 0.92rem; color: var(--texto-mutado); line-height: 1.7; max-width: 78ch; }
+    @keyframes agDetailIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .ag-detail { animation: none; } }
+    @media (max-width: 680px) { .ag-detail { padding: 18px; margin-top: 16px; } }
+
+    .model-container {
+      background: radial-gradient(circle at center, rgba(16, 185, 129, 0.05) 0%, rgba(255, 255, 255, 1) 70%);
     }
 
-    /* Registra una funció que rebrà ({dades, risc}, error) a cada actualització.
-       Retorna la funció per donar-se de baixa. */
-    function subscriure(cb) {
-        if (typeof cb !== 'function') return function () {};
-        subscriptors.push(cb);
-        if (ultimaLectura) cb(ultimaLectura, null);
-        arrencarBucle();
-        return function () {
-            var i = subscriptors.indexOf(cb);
-            if (i > -1) subscriptors.splice(i, 1);
-        };
+    /* =========================================
+       ESTILS NOUS: PÀGINA CENTRADA EN EL DISPOSITIU
+       ========================================= */
+    .hero-eyebrow-chip {
+      display: inline-flex; align-items: center; gap: 8px; background: var(--accent-suau);
+      color: var(--accent); padding: 6px 16px; border-radius: 99px; font-weight: 800;
+      font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; border: 1px solid var(--accent-vora);
+      margin-bottom: 22px;
+    }
+    .quick-specs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .quick-spec-card {
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+      background: var(--glass-bg); backdrop-filter: blur(20px) saturate(120%); -webkit-backdrop-filter: blur(20px) saturate(120%);
+      border: 1px solid var(--glass-border); border-radius: 16px; padding: 16px 10px; text-align: center;
+      box-shadow: var(--glass-shadow); transition: var(--transicion);
+    }
+    .quick-spec-card:hover { transform: translateY(-4px); background: rgba(255, 255, 255, 0.7); }
+    .quick-spec-icon {
+      width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center;
+      background: rgba(5,150,105,0.10); border: 1px solid rgba(5,150,105,0.18); color: var(--accent);
+    }
+    .quick-spec-label { font-weight: 700; font-size: 0.78rem; color: var(--texto-principal); line-height: 1.3; }
+
+    /* Icones SVG: mida uniforme a tota la pàgina */
+    .ico { display: inline-block; flex: none; vertical-align: middle; }
+
+    .header-sadrif-seccion { max-width: 1000px; margin: 0 auto 32px; text-align: center; }
+    .header-sadrif-seccion h3 { margin: 0 0 10px; }
+    .header-sadrif-seccion p { margin: 0; }
+
+    /* Visor 3D a tota amplada */
+    .viewer-shell {
+      max-width: 1150px; margin: 0 auto; position: relative;
+      background: var(--glass-bg); backdrop-filter: blur(24px) saturate(120%); -webkit-backdrop-filter: blur(24px) saturate(120%);
+      border: 1px solid var(--glass-border); border-radius: 28px; box-shadow: var(--glass-shadow);
+      padding: 14px; overflow: hidden;
+    }
+    .viewer-shell::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+      background: radial-gradient(ellipse 70% 50% at 50% 100%, rgba(16,185,129,0.10), transparent 70%);
+    }
+    .viewer-stage { position: relative; height: 62vh; min-height: 380px; max-height: 660px; border-radius: 18px; overflow: hidden; }
+    .viewer-hint {
+      position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 2;
+      display: inline-flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 99px;
+      padding: 6px 14px; font-size: 0.75rem; font-weight: 600; color: var(--texto-mutado);
+      pointer-events: none; white-space: nowrap;
+      animation: viewerHintOut 0.6s ease 7s forwards;
+    }
+    @keyframes viewerHintOut { to { opacity: 0; transform: translate(-50%, 8px); } }
+    @media (max-width: 640px) { .viewer-stage { height: 52vh; min-height: 320px; } .viewer-shell { padding: 10px; border-radius: 22px; } }
+    @media (max-width: 400px) { .viewer-hint { display: none; } }
+    @media (prefers-reduced-motion: reduce) { .viewer-hint { animation: none; } }
+
+    .model-toolbar { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 22px; }
+    .toolbar-group { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+    .toolbar-btn {
+      display: inline-flex; align-items: center; gap: 7px; background: var(--glass-bg); backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border); padding: 9px 16px; border-radius: 99px; font-weight: 700; font-size: 0.82rem;
+      color: var(--texto-principal); cursor: pointer; transition: var(--transicion); box-shadow: var(--glass-shadow);
+    }
+    .toolbar-btn:hover { background: rgba(255,255,255,0.8); transform: translateY(-2px); }
+    .toolbar-btn.actiu { background: var(--accent); color: #fff; border-color: transparent; }
+    .toolbar-btn.ar-btn { background: rgba(15,23,42,0.92); color: #fff; border-color: transparent; }
+    .toolbar-btn.ar-btn:hover { background: var(--accent); }
+    .toolbar-divider { width: 1px; align-self: stretch; background: var(--borde-claro); margin: 0 2px; }
+    @media (max-width: 640px) { .toolbar-divider { display: none; } }
+
+    .spec-sheet-card {
+      max-width: 900px; margin: 0 auto; background: var(--glass-bg); backdrop-filter: blur(20px) saturate(120%);
+      -webkit-backdrop-filter: blur(20px) saturate(120%); border: 1px solid var(--glass-border); border-radius: 22px;
+      box-shadow: var(--glass-shadow); padding: 30px 32px; transition: var(--transicion);
+    }
+    .spec-sheet-toggle-btn {
+      display: inline-flex; align-items: center; gap: 8px; background: rgba(15,23,42,0.92); color: #fff;
+      padding: 11px 22px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; cursor: pointer; border: none;
+      transition: var(--transicion);
+    }
+    .spec-sheet-toggle-btn:hover { background: var(--accent); }
+    .spec-sheet-toggle-btn svg { transition: transform 0.3s ease; }
+    .spec-sheet-toggle-btn.obert svg { transform: rotate(180deg); }
+    .spec-sheet-body { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease, margin-top 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+    .spec-sheet-body > .spec-sheet-inner { overflow: hidden; min-height: 0; }
+    .spec-sheet-body.obert { grid-template-rows: 1fr; opacity: 1; margin-top: 24px; }
+
+    /* ===== FITXA TÈCNICA: components desplegables ===== */
+    .spec-groups { display: grid; gap: 24px; }
+    .spec-group-title {
+      display: flex; align-items: center; gap: 12px; margin: 0 0 10px;
+      font-size: 0.71rem; font-weight: 800; letter-spacing: 0.11em; text-transform: uppercase; color: var(--texto-mutado);
+    }
+    .spec-group-title::after { content: ''; flex: 1; height: 1px; background: var(--borde-claro); }
+    .spec-list {
+      list-style: none; margin: 0; padding: 0; border: 1px solid var(--borde-claro);
+      border-radius: 16px; overflow: hidden; background: rgba(255, 255, 255, 0.55);
+    }
+    .spec-item + .spec-item { border-top: 1px solid var(--borde-claro); }
+    .spec-item-head {
+      width: 100%; display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+      background: none; border: 0; text-align: left; cursor: pointer; font: inherit; color: inherit;
+      transition: background 0.25s ease;
+    }
+    .spec-item-head:hover { background: rgba(5, 150, 105, 0.06); }
+    .spec-item-head:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+    .spec-item-ico {
+      flex: none; width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center;
+      background: rgba(5, 150, 105, 0.10); border: 1px solid rgba(5, 150, 105, 0.18); color: var(--accent);
+    }
+    .spec-item--power .spec-item-ico { background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.24); color: #d97706; }
+    .spec-item-txt { flex: 1; min-width: 0; }
+    .spec-item-txt strong { display: block; font-size: 0.94rem; font-weight: 700; line-height: 1.35; color: var(--texto-principal); }
+    .spec-item-txt span { display: block; margin-top: 2px; font-size: 0.8rem; color: var(--texto-mutado); }
+    .spec-item-chev { flex: none; color: var(--texto-mutado); transition: transform 0.3s ease; }
+    .spec-item.obert .spec-item-chev { transform: rotate(180deg); }
+    .spec-item-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.38s cubic-bezier(0.16, 1, 0.3, 1); }
+    .spec-item.obert .spec-item-body { grid-template-rows: 1fr; }
+    .spec-item-body > div { overflow: hidden; min-height: 0; }
+    .spec-item-detail { padding: 0 18px 18px 68px; font-size: 0.87rem; color: var(--texto-mutado); line-height: 1.65; }
+    .spec-item-detail p { margin: 0 0 12px; }
+    .spec-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+    .spec-meta span {
+      background: rgba(15, 23, 42, 0.05); border: 1px solid var(--borde-claro); border-radius: 8px;
+      padding: 4px 10px; font-size: 0.73rem; font-weight: 700; color: var(--texto-principal);
+    }
+    @media (max-width: 520px) { .spec-item-detail { padding-left: 18px; } .spec-sheet-card { padding: 24px 18px; } }
+
+    /* ===== SECCIÓ DE VÍDEO ===== */
+    .video-section { position: relative; overflow: hidden; background: #0b1220; }
+    .video-section::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse 90% 60% at 50% 0%, rgba(16, 185, 129, 0.18), transparent 65%);
+    }
+    .video-wrap { position: relative; max-width: 1150px; margin: 0 auto; }
+    .video-head { text-align: center; max-width: 760px; margin: 0 auto 34px; }
+    .video-head h3 { color: #fff; margin: 0 0 12px; }
+    .video-head p { color: #94a3b8; margin: 0; font-size: 1.05rem; line-height: 1.6; }
+    .yt-facade {
+      position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 26px; overflow: hidden;
+      background: #000; border: 1px solid rgba(255, 255, 255, 0.10); cursor: pointer; display: block; padding: 0;
+      box-shadow: 0 45px 90px -35px rgba(0, 0, 0, 0.9); -webkit-tap-highlight-color: transparent;
+    }
+    .yt-facade img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease; }
+    .yt-facade:hover img { transform: scale(1.045); filter: brightness(0.75); }
+    .yt-facade iframe { width: 100%; height: 100%; border: 0; display: block; }
+    .yt-veil { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, transparent 40%, rgba(0,0,0,0.55) 100%); }
+    .yt-play {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;
+      width: 92px; height: 92px; border-radius: 50%; display: grid; place-items: center; color: #fff;
+      background: rgba(5, 150, 105, 0.92); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.55);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease;
+      animation: ytPulse 2.6s ease-out infinite;
+    }
+    .yt-facade:hover .yt-play { transform: translate(-50%, -50%) scale(1.1); background: #059669; }
+    @keyframes ytPulse { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.5); } 70% { box-shadow: 0 0 0 26px rgba(16,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } }
+    .yt-caption {
+      position: absolute; left: 24px; bottom: 22px; right: 24px; pointer-events: none; color: #fff;
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .yt-caption strong { font-size: 1.05rem; font-weight: 800; text-shadow: 0 2px 12px rgba(0,0,0,0.6); }
+    .yt-badge {
+      display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.22); backdrop-filter: blur(10px); border-radius: 99px;
+      padding: 4px 12px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    @media (max-width: 640px) { .yt-play { width: 64px; height: 64px; } .yt-facade { border-radius: 18px; } .yt-caption { left: 16px; right: 16px; bottom: 14px; } .yt-caption strong { font-size: 0.9rem; } }
+    @media (prefers-reduced-motion: reduce) { .yt-play { animation: none; } }
+
+    /* ===== COM FUNCIONA (flux en 4 passos) ===== */
+    .flow-grid { max-width: 1150px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+    .flow-step {
+      position: relative; background: var(--glass-bg); backdrop-filter: blur(20px) saturate(120%);
+      -webkit-backdrop-filter: blur(20px) saturate(120%); border: 1px solid var(--glass-border);
+      border-radius: 20px; box-shadow: var(--glass-shadow); padding: 26px 22px; transition: var(--transicion);
+    }
+    .flow-step:hover { transform: translateY(-6px); box-shadow: 0 22px 45px -20px rgba(15,23,42,0.28); }
+    .flow-step-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .flow-ico { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: rgba(5,150,105,0.10); border: 1px solid rgba(5,150,105,0.18); color: var(--accent); }
+    .flow-n { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; color: var(--texto-mutado); }
+    .flow-step h4 { margin: 0 0 8px; font-size: 1.05rem; font-weight: 800; color: var(--texto-principal); }
+    .flow-step p { margin: 0; font-size: 0.87rem; color: var(--texto-mutado); line-height: 1.6; }
+    .flow-step:not(:last-child)::after {
+      content: ''; position: absolute; top: 46px; right: -13px; width: 8px; height: 8px; z-index: 2;
+      border-top: 2px solid var(--accent); border-right: 2px solid var(--accent);
+      transform: rotate(45deg); opacity: 0.5;
+    }
+    @media (max-width: 980px) { .flow-grid { grid-template-columns: repeat(2, 1fr); } .flow-step:not(:last-child)::after { display: none; } }
+    @media (max-width: 560px) { .flow-grid { grid-template-columns: 1fr; } }
+
+    /* ===== CADENA D'ALIMENTACIÓ ===== */
+    /* Vora elèctrica, inspirada en el component d'Electric Border de React Bits
+       (https://reactbits.dev/animations/electric-border). L'original dibuixa la
+       vora en un <canvas> amb soroll de Perlin: per a aquesta caixa serien unes
+       1.400 mostres i ~6,8 milions de Math.sin per segon, en bucle infinit i
+       sense parar. Al mòbil això es nota. Aquí el mateix efecte es fa amb un
+       degradat cònic que gira: ho porta el compositor de la GPU, no la CPU, i
+       el cost és pràcticament zero. */
+    @property --eb-gir {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+    @keyframes ebGir { to { --eb-gir: 360deg; } }
+
+    .power-card {
+      position: relative; isolation: isolate;
+      max-width: 1150px; margin: 28px auto 0; background: linear-gradient(135deg, rgba(15,23,42,0.96) 0%, rgba(30,41,59,0.96) 100%);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 32px 28px; color: #fff;
+    }
+    /* Els dos arcs de llum que recorren la vora. Només aquesta capa s'anima. */
+    .power-card::before {
+      content: ''; position: absolute; inset: -1px; border-radius: inherit; padding: 1.5px;
+      background: conic-gradient(from var(--eb-gir),
+        transparent 0deg 34deg, rgba(52,211,153,0.55) 48deg, #6ee7b7 62deg, #d1fae5 70deg, #6ee7b7 78deg, rgba(52,211,153,0.55) 92deg, transparent 106deg 214deg,
+        rgba(16,185,129,0.45) 228deg, #34d399 242deg, #a7f3d0 250deg, #34d399 258deg, rgba(16,185,129,0.45) 272deg, transparent 286deg 360deg);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      mask-composite: exclude;
+      animation: ebGir 6s linear infinite;
+      pointer-events: none; z-index: 0;
+    }
+    /* Halo difús. NO s'anima: un desenfocat que es repintés cada fotograma
+       seria justament la part cara per a la bateria. Es rasteritza un cop. */
+    .power-card::after {
+      content: ''; position: absolute; inset: -3px; border-radius: inherit; padding: 3px;
+      background: conic-gradient(from 0deg,
+        rgba(16,185,129,0.10) 0deg, rgba(52,211,153,0.34) 90deg, rgba(16,185,129,0.10) 180deg,
+        rgba(52,211,153,0.30) 270deg, rgba(16,185,129,0.10) 360deg);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      mask-composite: exclude;
+      filter: blur(7px);
+      pointer-events: none; z-index: 0;
+    }
+    .power-card > * { position: relative; z-index: 1; }
+
+    /* Un pols de llum que baixa per la cadena, com l'energia que hi circula. */
+    @keyframes ebPols {
+      0%, 62%, 100% { color: #6ee7b7; text-shadow: none; }
+      12%           { color: #ecfdf5; text-shadow: 0 0 12px rgba(110,231,183,0.9); }
+    }
+    .power-node .power-ico { animation: ebPols 4.2s ease-in-out infinite; animation-delay: calc(var(--n, 0) * 0.42s); }
+    .power-link { animation: ebPols 4.2s ease-in-out infinite; animation-delay: calc((var(--n, 0) + 0.5) * 0.42s); }
+
+    /* Si el sistema demana reduir el moviment, es queda tot quiet però amb la
+       vora pintada: no es perd el disseny, només el moviment. */
+    @media (prefers-reduced-motion: reduce) {
+      .power-card::before { animation: none; }
+      .power-node .power-ico, .power-link { animation: none; }
+    }
+    .power-card h4 { margin: 0 0 6px; font-size: 1.15rem; font-weight: 800; }
+    .power-card > p { margin: 0 0 24px; color: #94a3b8; font-size: 0.92rem; line-height: 1.6; max-width: 70ch; }
+    .power-chain { display: flex; align-items: stretch; gap: 8px; flex-wrap: wrap; }
+    .power-node {
+      flex: 1 1 140px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 16px; padding: 16px 14px; display: flex; flex-direction: column; gap: 8px; min-width: 0;
+    }
+    .power-node .power-ico { color: #6ee7b7; }
+    .power-node strong { font-size: 0.86rem; font-weight: 700; line-height: 1.3; }
+    .power-node span { font-size: 0.75rem; color: #94a3b8; line-height: 1.45; }
+    .power-link { display: grid; place-items: center; color: #475569; flex: none; }
+    @media (max-width: 760px) {
+      .power-link { width: 100%; transform: rotate(90deg); padding: 4px 0; }
+      .power-node { flex: 1 1 100%; }
     }
 
-    /* ---------------------------------------------------------------------
-       MÍNIMES I MÀXIMES DE LES ÚLTIMES 24 HORES
-       Es demanen a part i molt de tant en tant: són moltes més lectures i no
-       tenen cap sentit refrescar-les cada 15 segons.
-       --------------------------------------------------------------------- */
-    var subsExtrems = [];
-    var ultimsExtrems = null;
-    var temporitzadorExtrems = null;
+    /* ===== XIFRES ===== */
+    .stats-band { max-width: 1150px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .stat-card {
+      background: var(--glass-bg); backdrop-filter: blur(20px) saturate(120%); -webkit-backdrop-filter: blur(20px) saturate(120%);
+      border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: var(--glass-shadow);
+      padding: 26px 20px; text-align: center; transition: var(--transicion);
+    }
+    .stat-card:hover { transform: translateY(-5px); }
+    .stat-num { font-size: clamp(2rem, 4vw, 2.6rem); font-weight: 800; color: var(--accent); line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+    .stat-num small { font-size: 0.45em; font-weight: 700; margin-left: 2px; }
+    .stat-label { margin-top: 10px; font-size: 0.8rem; font-weight: 700; color: var(--texto-principal); }
+    .stat-sub { margin-top: 4px; font-size: 0.74rem; color: var(--texto-mutado); }
+    @media (max-width: 860px) { .stats-band { grid-template-columns: repeat(2, 1fr); } }
 
-    function llegirExtrems() {
-        return fetch(urlCanal('days=1&results=8000'))
-            .then(function (r) {
-                if (!r.ok) throw new Error('ThingSpeak ha respost ' + r.status);
-                return r.json();
-            })
-            .then(function (data) {
-                var feeds = (data && data.feeds) || [];
-                var camps = { temp: 'field1', hum: 'field2', pres: 'field3', vent: 'field4' };
-                var res = {};
-                Object.keys(camps).forEach(function (clau) { res[clau] = null; });
+    /* ===== PREGUNTES FREQÜENTS ===== */
+    .faq-list { max-width: 860px; margin: 0 auto; }
+    .faq-item { border-bottom: 1px solid var(--borde-claro); }
+    .faq-q {
+      width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 18px;
+      padding: 21px 4px; background: none; border: 0; cursor: pointer; font: inherit; text-align: left;
+      font-weight: 700; font-size: 1rem; color: var(--texto-principal); transition: color 0.25s ease;
+    }
+    .faq-q:hover { color: var(--accent); }
+    .faq-q svg { flex: none; color: var(--texto-mutado); transition: transform 0.3s ease; }
+    .faq-item.obert .faq-q svg { transform: rotate(180deg); color: var(--accent); }
+    .faq-a { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.38s cubic-bezier(0.16, 1, 0.3, 1); }
+    .faq-item.obert .faq-a { grid-template-rows: 1fr; }
+    .faq-a > div { overflow: hidden; min-height: 0; }
+    .faq-a p { margin: 0 0 22px; padding-right: 30px; color: var(--texto-mutado); font-size: 0.92rem; line-height: 1.75; }
 
-                feeds.forEach(function (f) {
-                    Object.keys(camps).forEach(function (clau) {
-                        var v = parseFloat(f[camps[clau]]);
-                        if (!isFinite(v)) return;
-                        var quan = f.created_at ? new Date(f.created_at) : null;
-                        var e = res[clau];
-                        if (!e) { res[clau] = { min: v, max: v, minQuan: quan, maxQuan: quan }; return; }
-                        if (v < e.min) { e.min = v; e.minQuan = quan; }
-                        if (v > e.max) { e.max = v; e.maxQuan = quan; }
-                    });
-                });
-
-                ultimsExtrems = { valors: res, lectures: feeds.length };
-                subsExtrems.forEach(function (cb) {
-                    try { cb(ultimsExtrems); } catch (e) { console.error('[SadrifRisc]', e); }
-                });
-                return ultimsExtrems;
-            })
-            .catch(function (err) {
-                console.warn('[SadrifRisc] Mínimes i màximes no disponibles:', err.message);
-                return ultimsExtrems;
-            });
+    .gallery-wrap-card {
+      max-width: 1150px; margin: 0 auto; background: var(--glass-bg); backdrop-filter: blur(20px) saturate(120%);
+      -webkit-backdrop-filter: blur(20px) saturate(120%); border: 1px solid var(--glass-border); border-radius: 26px;
+      box-shadow: var(--glass-shadow); padding: 26px;
     }
 
-    function subscriureExtrems(cb) {
-        if (typeof cb !== 'function') return function () {};
-        subsExtrems.push(cb);
-        if (ultimsExtrems) cb(ultimsExtrems);
-        if (temporitzadorExtrems === null) {
-            llegirExtrems();
-            temporitzadorExtrems = setInterval(function () {
-                if (!document.hidden) llegirExtrems();
-            }, INTERVAL_EXTREMS_MS);
-        }
-        return function () {
-            var i = subsExtrems.indexOf(cb);
-            if (i > -1) subsExtrems.splice(i, 1);
-        };
+    .explore-cta-grid { max-width: 1150px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .explore-cta-card {
+      display: flex; flex-direction: column; gap: 10px; background: linear-gradient(135deg, rgba(15,23,42,0.94) 0%, rgba(30,41,59,0.94) 100%);
+      color: #fff; border-radius: 20px; padding: 28px; text-decoration: none; transition: var(--transicion);
+      border: 1px solid rgba(255,255,255,0.08);
     }
+    .explore-cta-card:hover { transform: translateY(-5px); box-shadow: 0 22px 45px rgba(0,0,0,0.22); }
+    .explore-cta-card strong { font-size: 1.15rem; }
+    .explore-cta-card span.sub { color: #94a3b8; font-size: 0.9rem; line-height: 1.5; }
+    .explore-cta-arrow { margin-top: 10px; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 0.85rem; color: #6ee7b7; }
+    @media (max-width: 700px) { .quick-specs-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 560px) { .explore-cta-grid { grid-template-columns: 1fr; } }
 
-    /* ---------------------------------------------------------------------
-       UTILITATS DE FORMAT
-       --------------------------------------------------------------------- */
-    function fa(data) {
-        if (!data) return null;
-        var min = Math.floor((Date.now() - data.getTime()) / 60000);
-        if (min < 0) min = 0;
-        if (min < 1) return 'ara mateix';
-        if (min === 1) return 'fa 1 minut';
-        if (min < 60) return 'fa ' + min + ' minuts';
-        var h = Math.floor(min / 60);
-        if (h === 1) return 'fa 1 hora';
-        if (h < 24) return 'fa ' + h + ' hores';
-        var d = Math.floor(h / 24);
-        return d === 1 ? 'fa 1 dia' : 'fa ' + d + ' dies';
+    /* ========= FOOTER COMPARTIT (igual a totes les pàgines) ========= */
+    .site-footer {
+      position: relative; background: #0b1220; color: #cbd5e1; padding: 64px 20px 26px;
+      font-size: 0.9rem; overflow: hidden;
     }
-
-    function esObsoleta(data) {
-        if (!data) return true;
-        return (Date.now() - data.getTime()) / 60000 > MINUTS_OBSOLET;
+    .site-footer::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(16,185,129,0.13), transparent 62%);
     }
-
-    function hora(data) {
-        if (!data) return '--:--';
-        return data.toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' });
+    .footer-inner {
+      position: relative; max-width: 1150px; margin: 0 auto; display: grid;
+      grid-template-columns: 1.6fr 1fr 1fr 1.2fr; gap: 44px 32px;
     }
-
-    /* ---------------------------------------------------------------------
-       PÍNDOLA DEL MENÚ + DESPLEGABLE AMB EL DETALL
-       opcions.sentinella  : selector de l'element que, mentre es vegi, manté la
-                             píndola amagada (al panell és el percentatge gran).
-       opcions.tenyirPagina: si és cert, el color del risc s'escriu a l'arrel del
-                             document. Només l'activa el panell principal.
-       --------------------------------------------------------------------- */
-    var FILES = [
-        { clau: 'temp', nom: 'Temperatura', unitat: '°C',   dec: 1 },
-        { clau: 'hum',  nom: 'Humitat',     unitat: '%',    dec: 0 },
-        { clau: 'vent', nom: 'Vent',        unitat: 'km/h', dec: 1 },
-        { clau: 'pres', nom: 'Pressió',     unitat: 'hPa',  dec: 0 }
-    ];
-
-    function construirDesplegable(contenidor) {
-        var pop = document.createElement('div');
-        pop.className = 'risc-pop';
-        pop.id = 'risc-pop';
-        pop.setAttribute('role', 'region');
-        pop.setAttribute('aria-label', 'Detall del risc en directe');
-        pop.hidden = true;
-        pop.innerHTML =
-            '<div class="risc-pop__top">' +
-                '<div>' +
-                    '<div class="risc-pop__nivell" data-pop="nivell">--</div>' +
-                    '<div class="risc-pop__sub" data-pop="subnivell">Carregant dades…</div>' +
-                '</div>' +
-                '<div class="risc-pop__punts"><span data-pop="punts">--</span><small>/100</small></div>' +
-            '</div>' +
-            '<div class="risc-pop__barra"><i data-pop="barra"></i></div>' +
-            '<dl class="risc-pop__llista" data-pop="llista"></dl>' +
-            '<div class="risc-pop__regla is-alerta" data-pop="regla" hidden></div>' +
-            '<div class="risc-pop__peu">' +
-                '<span data-pop="quan">—</span>' +
-                '<span class="risc-pop__lloc">Estació SADRIF · Sabadell</span>' +
-            '</div>' +
-            '<a class="risc-pop__cta" href="index.html#inicio">Veure el panell complet' +
-                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg>' +
-            '</a>';
-
-        var llista = pop.querySelector('[data-pop="llista"]');
-        FILES.forEach(function (f) {
-            var wrap = document.createElement('div');
-            wrap.className = 'risc-pop__fila';
-            wrap.innerHTML = '<dt>' + f.nom + '</dt><dd data-val="' + f.clau + '">--</dd>';
-            llista.appendChild(wrap);
-        });
-
-        contenidor.appendChild(pop);
-        return pop;
+    .footer-brand-logo { display: inline-flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.2rem; color: #fff; text-decoration: none; }
+    .footer-brand-logo img { height: 30px; filter: brightness(0) invert(1); }
+    .footer-brand p { margin: 16px 0 20px; color: #94a3b8; line-height: 1.7; max-width: 38ch; font-size: 0.86rem; }
+    .footer-social { display: flex; gap: 10px; }
+    .footer-social a {
+      width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); color: #cbd5e1;
+      transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
     }
-
-    function pintar(estat, payload) {
-        var el = estat.pindola, pop = estat.pop;
-        if (!payload) return;
-
-        var risc = payload.risc, dades = payload.dades;
-        var antiga = esObsoleta(dades.data);
-        var color = antiga ? '#94a3b8' : risc.color;
-
-        // El color viu dins de la píndola; només surt a l'arrel si s'ha demanat.
-        el.style.setProperty('--riesgo-color-dinamico', color);
-        if (estat.tenyirPagina) {
-            document.documentElement.style.setProperty('--riesgo-color-dinamico', risc.color);
-            document.documentElement.style.setProperty('--riesgo-bg-suave', risc.bg);
-            document.documentElement.style.setProperty('--riesgo-borde', risc.border);
-        }
-
-        var valor = el.querySelector('[data-risc-valor]');
-        if (valor) valor.textContent = risc.punts + '%';
-        el.classList.remove('is-carregant');
-        el.classList.toggle('is-obsolet', antiga);
-        el.setAttribute('title', 'Risc d\'incendi actual: ' + risc.nom + ' (' + risc.punts + '%)');
-
-        if (!pop) return;
-        var q = function (sel) { return pop.querySelector(sel); };
-        q('[data-pop="nivell"]').textContent = 'Risc ' + risc.nom.toLowerCase();
-        q('[data-pop="nivell"]').style.color = color;
-        q('[data-pop="subnivell"]').textContent = 'Nivell ' + risc.nivellNum + ' de 4';
-        q('[data-pop="punts"]').textContent = risc.punts;
-        q('[data-pop="punts"]').style.color = color;
-        var barra = q('[data-pop="barra"]');
-        barra.style.width = risc.punts + '%';
-        barra.style.backgroundColor = color;
-
-        FILES.forEach(function (f) {
-            var cel = pop.querySelector('[data-val="' + f.clau + '"]');
-            if (cel) cel.textContent = dades[f.clau].toFixed(f.dec) + ' ' + f.unitat;
-        });
-
-        /* L'avís de la regla del 30-30-30 només apareix quan es compleix: si no,
-           no aporta res i només afegeix soroll al desplegable. */
-        var regla = q('[data-pop="regla"]');
-        regla.textContent = risc.regla30 ? 'Regla 30-30-30: es compleix ara mateix' : '';
-        regla.hidden = !risc.regla30;
-
-        q('[data-pop="quan"]').textContent = antiga
-            ? 'Sense dades recents · última lectura ' + fa(dades.data)
-            : 'Actualitzat ' + fa(dades.data);
+    .footer-social a:hover { background: rgba(16,185,129,0.18); border-color: rgba(16,185,129,0.45); color: #6ee7b7; transform: translateY(-3px); }
+    .footer-col h5 {
+      margin: 0 0 16px; font-size: 0.71rem; font-weight: 800; letter-spacing: 0.12em;
+      text-transform: uppercase; color: #64748b;
     }
+    .footer-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 11px; }
+    .footer-col a { color: #cbd5e1; text-decoration: none; font-size: 0.87rem; transition: color 0.22s ease; display: inline-flex; align-items: center; gap: 7px; }
+    .footer-col a:hover { color: #6ee7b7; }
+    .footer-partners { display: flex; flex-direction: column; gap: 12px; }
+    .footer-partner-chip {
+      display: flex; align-items: center; gap: 12px; background: #fff; border-radius: 12px;
+      padding: 10px 14px; transition: transform 0.25s ease;
+    }
+    .footer-partner-chip:hover { transform: translateY(-2px); }
+    .footer-partner-chip img { height: 34px; width: auto; }
+    .footer-partner-chip span { font-size: 0.71rem; font-weight: 700; color: #334155; line-height: 1.35; white-space: nowrap; }
+    .footer-bottom {
+      position: relative; max-width: 1150px; margin: 44px auto 0; padding-top: 22px;
+      border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-wrap: wrap; gap: 12px;
+      align-items: center; justify-content: space-between; color: #64748b; font-size: 0.76rem;
+    }
+    .footer-bottom p { margin: 0; line-height: 1.6; }
+    .footer-bottom .footer-legal { max-width: 62ch; }
+    @media (max-width: 900px) { .footer-inner { grid-template-columns: 1fr 1fr; gap: 36px 24px; } }
+    @media (max-width: 560px) {
+      .site-footer { padding: 46px 18px 22px; }
+      .footer-inner { grid-template-columns: 1fr; gap: 32px; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; margin-top: 32px; }
+    }
+  </style>
+</head>
+<body>
 
-    function initPindola(opcions) {
-        opcions = opcions || {};
-        var el = document.getElementById(opcions.id || 'sticky-risk-badge');
-        if (!el) return;
+    <!-- Tel d’arrencada de l’app instal·lada. A la web normal no es dibuixa
+         mai: el CSS el té a display:none fora del mode standalone. -->
+    <div class="app-entrada" aria-hidden="true">
+        <img src="icon-192.png" alt="" width="92" height="92">
+        <span>Pla DRIF</span>
+    </div>
 
-        el.classList.add('is-carregant');
+  <!-- MENÚ CARDNAV INTEGRADO -->
+  <div class="card-nav-container">
+      <nav id="card-nav" class="card-nav">
+          <div class="card-nav-top">
+              <!-- Hamburger -->
+              <div class="hamburger-menu" id="card-nav-hamburger" role="button" aria-label="Abrir menú" tabindex="0">
+                  <div class="hamburger-line"></div>
+                  <div class="hamburger-line"></div>
+              </div>
 
-        var estat = { pindola: el, pop: null, tenyirPagina: !!opcions.tenyirPagina };
+              <!-- Logo -->
+              <div class="logo-container">
+                  <a href="index.html" class="navbar-brand">
+                      <img src="logo-sadrif.svg" alt="SADRIF" onerror="this.onerror=null; this.src='logo-sadrif.svg.svg';">
+                      <span>PLA DRIF</span>
+                  </a>
+              </div>
 
-        /* El desplegable no pot viure dins de `.card-nav`, que té overflow
-           amagat per a l'animació d'obertura: quedaria retallat. El pengem del
-           contenidor del menú, que no retalla res. */
-        var amfitrio = el.closest('.card-nav-container') || el.parentElement;
-        if (amfitrio && el.tagName === 'BUTTON') {
-            estat.pop = construirDesplegable(amfitrio);
-            /* Al panell mateix, l'enllaç "Veure el panell complet" no porta enlloc:
-               ja hi som. Es treu en comptes de recarregar la pàgina. */
-            if (opcions.tenyirPagina) {
-                var cta = estat.pop.querySelector('.risc-pop__cta');
-                if (cta) cta.remove();
+              <!-- Controles Nav Derecho (Riesgo Dinámico) -->
+              <div class="right-controls-nav" style="display: flex; gap: 12px; align-items: center;">
+                  <button type="button" id="sticky-risk-badge" class="sticky-risk-badge" aria-label="Risc d'incendi en directe: veure'n el detall">
+                      <span class="sticky-risk-dot"></span>
+                      <span>Risc: <strong id="sticky-risk-val" data-risc-valor>--%</strong></span>
+                      <svg class="risc-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+                  </button>
+              </div>
+          </div>
+
+          <!-- Contenido desplegable del menú (Tarjetas) -->
+          <div class="card-nav-content" id="card-nav-content" aria-hidden="true">
+              
+              <!-- Tarjeta 1 -->
+              <div class="nav-card" style="background-color: rgba(27, 23, 34, 0.85); color: #fff;">
+                  <div class="nav-card-label">Navegació</div>
+                  <div class="nav-card-links">
+                      <a class="nav-card-link" href="index.html">
+                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3.5l9 7V20a1.5 1.5 0 0 1-1.5 1.5h-4v-6h-7v6h-4A1.5 1.5 0 0 1 3 20z"/></svg>
+                          Inici DRIF
+                      </a>
+                      <a class="nav-card-link" href="sobre-nosotros.html">
+                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20v-1.5a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4V20"/><circle cx="9" cy="7" r="3.2"/><path d="M22 20v-1.5a4 4 0 0 0-3-3.87M16.5 4.2a3.2 3.2 0 0 1 0 5.6"/></svg>
+                          Sobre el Projecte
+                      </a>
+                  </div>
+              </div>
+
+              <!-- Tarjeta 2 -->
+              <div class="nav-card" style="background-color: rgba(47, 41, 58, 0.85); color: #fff;">
+                  <div class="nav-card-label">Projectes & Live</div>
+                  <div class="nav-card-links">
+                      <a class="nav-card-link" href="https://www.twitch.tv/pla_drif" target="_blank">
+                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3h16v10.5L15.5 18H12l-3 3H7v-3H4z"/><path d="M11 7.5v4M15.5 7.5v4"/></svg>
+                          Directe Twitch
+                      </a>
+                      <a class="nav-card-link" href="#contenedor-visor">
+                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h1.2a1.5 1.5 0 0 0 1.25-.67l.8-1.2A1.5 1.5 0 0 1 10 3.5h4a1.5 1.5 0 0 1 1.25.63l.8 1.2A1.5 1.5 0 0 0 17.3 6h1.2A2.5 2.5 0 0 1 21 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/><circle cx="12" cy="13" r="3.4"/></svg>
+                          Càmera de Vigilància
+                      </a>
+                  </div>
+              </div>
+
+              <!-- Tarjeta 3 -->
+              <div class="nav-card" style="background-color: rgba(47, 41, 58, 0.85); color: #fff;">
+                  <div class="nav-card-label">Xarxes Socials</div>
+                  <div class="nav-card-links">
+                      <a class="nav-card-link" href="https://www.youtube.com/@PlaDRIF_Oficial" target="_blank">
+                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22.2 7.4a2.7 2.7 0 0 0-1.9-1.9C18.6 5 12 5 12 5s-6.6 0-8.3.5A2.7 2.7 0 0 0 1.8 7.4 28 28 0 0 0 1.3 12a28 28 0 0 0 .5 4.6 2.7 2.7 0 0 0 1.9 1.9C5.4 19 12 19 12 19s6.6 0 8.3-.5a2.7 2.7 0 0 0 1.9-1.9 28 28 0 0 0 .5-4.6 28 28 0 0 0-.5-4.6z"/><polygon points="9.9 15.1 15.4 12 9.9 8.9 9.9 15.1" fill="currentColor" stroke="none"/></svg>
+                          Canal de YouTube
+                      </a>
+                      <a class="nav-card-link" href="https://www.instagram.com/pladrif_cat" target="_blank">
+                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.8"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>
+                          Instagram
+                      </a>
+                  </div>
+              </div>
+
+          </div>
+      </nav>
+  </div>
+
+  <!-- Aquí se montará la aplicación React -->
+  <!-- Encapçalament principal de la pàgina. Va a l'HTML i no dins de React
+       perquè els cercadors el trobin sense haver d'executar JavaScript.
+       Només per a lectors de pantalla: el disseny visual no canvia. -->
+  <h1 class="nomes-lectors">El dispositiu SADRIF en 3D · estació autònoma de detecció de risc d'incendis forestals</h1>
+
+  <div id="root"></div>
+
+  <!-- Lógica React -->
+  <script src="js/producto3d.js"></script>
+
+  <!-- SCRIPT DEL MENÚ CARDNAV (GSAP) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const navEl = document.getElementById('card-nav');
+        const hamburger = document.getElementById('card-nav-hamburger');
+        const contentEl = document.getElementById('card-nav-content');
+        const cards = document.querySelectorAll('.nav-card');
+        let isExpanded = false;
+        let navTimeline;
+
+        gsap.set(navEl, { height: 60, overflow: 'hidden' });
+        gsap.set(cards, { y: 50, opacity: 0 });
+        navTimeline = gsap.timeline({ paused: true });
+
+        function calculateHeight() {
+            const isMobile = window.matchMedia('(max-width: 768px)').matches;
+            if (isMobile) {
+                const wasVisibility = contentEl.style.visibility;
+                const wasPosition = contentEl.style.position;
+                contentEl.style.visibility = 'hidden';
+                contentEl.style.position = 'absolute';
+                contentEl.style.display = 'flex';
+                const contentHeight = contentEl.scrollHeight;
+                contentEl.style.visibility = wasVisibility;
+                contentEl.style.position = wasPosition;
+                contentEl.style.display = '';
+
+                const topBar = 60;
+                const padding = 16;
+                return topBar + contentHeight + padding;
             }
-            connectarDesplegable(el, estat.pop);
+            return 260; 
         }
 
-        var sentinella = opcions.sentinella ? document.querySelector(opcions.sentinella) : null;
-        if (sentinella && 'IntersectionObserver' in global) {
-            var obs = new IntersectionObserver(function (entrades) {
-                entrades.forEach(function (e) {
-                    el.classList.toggle('visible', !e.isIntersecting);
-                    if (e.isIntersecting) tancar(el, estat.pop);
-                });
-            }, { threshold: 0.1 });
-            obs.observe(sentinella);
-        } else {
-            el.classList.add('visible');
+        function createTimeline() {
+            navTimeline.clear();
+            navTimeline.to(navEl, { height: calculateHeight, duration: 0.5, ease: 'power2.inOut' });
+            navTimeline.to(cards, { y: 0, opacity: 1, duration: 0.42, ease: 'power2.out', stagger: 0.07 }, '-=0.28');
         }
 
-        subscriure(function (payload) { pintar(estat, payload); });
+        createTimeline();
 
-        // El "fa X minuts" s'ha de refrescar encara que no arribin dades noves.
-        setInterval(function () {
-            if (!document.hidden && ultimaLectura) pintar(estat, ultimaLectura);
-        }, 30000);
-    }
+        hamburger.addEventListener('click', () => {
+            isExpanded = !isExpanded;
+            hamburger.classList.toggle('open', isExpanded);
+            navEl.classList.toggle('open', isExpanded);
+            contentEl.setAttribute('aria-hidden', !isExpanded);
 
-    function obrir(btn, pop) {
-        if (!pop || !pop.hidden) return;
-        pop.hidden = false;
-        // Un fotograma de marge perquè la transició d'entrada es vegi.
-        requestAnimationFrame(function () { pop.classList.add('is-obert'); });
-        btn.setAttribute('aria-expanded', 'true');
-    }
-
-    function tancar(btn, pop) {
-        if (!pop || pop.hidden) return;
-        pop.classList.remove('is-obert');
-        btn.setAttribute('aria-expanded', 'false');
-        setTimeout(function () { if (!pop.classList.contains('is-obert')) pop.hidden = true; }, 220);
-    }
-
-    function connectarDesplegable(btn, pop) {
-        var potPassarRatoli = global.matchMedia && global.matchMedia('(hover: hover)').matches;
-        var tancarTard = null;
-
-        btn.setAttribute('aria-expanded', 'false');
-        btn.setAttribute('aria-controls', pop.id);
-
-        btn.addEventListener('click', function (e) {
-            e.preventDefault();
-            pop.hidden ? obrir(btn, pop) : tancar(btn, pop);
+            if (isExpanded) {
+                navTimeline.timeScale(1).play(0);
+            } else {
+                navTimeline.timeScale(1.15).reverse();
+            }
         });
 
-        if (potPassarRatoli) {
-            var entra = function () { clearTimeout(tancarTard); obrir(btn, pop); };
-            var surt = function () { clearTimeout(tancarTard); tancarTard = setTimeout(function () { tancar(btn, pop); }, 260); };
-            btn.addEventListener('mouseenter', entra);
-            btn.addEventListener('mouseleave', surt);
-            pop.addEventListener('mouseenter', entra);
-            pop.addEventListener('mouseleave', surt);
-        }
-
-        btn.addEventListener('focus', function () { obrir(btn, pop); });
-        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') tancar(btn, pop); });
-        document.addEventListener('click', function (e) {
-            if (!pop.hidden && !pop.contains(e.target) && !btn.contains(e.target)) tancar(btn, pop);
+        window.addEventListener('resize', () => {
+            if (isExpanded) {
+                gsap.set(navEl, { height: calculateHeight() });
+                createTimeline();
+                navTimeline.progress(1);
+            } else {
+                createTimeline();
+            }
         });
-    }
+        
+        document.querySelectorAll('.nav-card-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (isExpanded) {
+                    hamburger.click();
+                }
+            });
+        });
 
-    global.SadrifRisc = {
-        CANAL_ID: CANAL_ID,
-        CLAU_LECTURA: CLAU_LECTURA,
-        NIVELLS: NIVELLS,
-        calcular: calcular,
-        configurar: configurar,
-        publicar: publicar,
-        subscriure: subscriure,
-        subscriureExtrems: subscriureExtrems,
-        initPindola: initPindola,
-        fa: fa,
-        hora: hora,
-        esObsoleta: esObsoleta,
-        ultima: function () { return ultimaLectura; },
-        extrems: function () { return ultimsExtrems; },
-        /* Una sola lectura, sense bucle ni res que toqui el DOM: és el que
-           crida el service worker quan es desperta en segon pla per mirar si
-           cal enviar cap avís. */
-        llegirAra: llegirCanal
-    };
+        // Tancar el menú amb Escape i obrir-lo amb Enter o Espai.
+        document.addEventListener('keydown', e => { if (e.key === 'Escape' && isExpanded) hamburger.click(); });
+        hamburger.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); hamburger.click(); }
+        });
 
-/* Aquest mòdul viu a dos móns: dins de la pàgina, on `self` és `window`, i
-   dins del service worker, que no té `window` enlloc. Per això aquí no s'hi
-   pot escriure `window`: `sw.js` fa importScripts d'aquest mateix fitxer per
-   calcular el risc amb la fórmula de sempre i no haver-la de duplicar mai. */
-})(typeof self !== 'undefined' ? self : this);
+        // Píndola del risc en directe: sempre visible en aquesta pàgina.
+        if (window.SadrifRisc) window.SadrifRisc.initPindola();
+    });
+  </script>
+</body>
+</html>
