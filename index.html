@@ -1,1611 +1,479 @@
-<!DOCTYPE html>
-<html lang="ca" style="scroll-behavior: smooth;">
-    
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pla DRIF - Sistema de Monitoratge de Risc d'Incendis Forestals</title>
-
-    <!-- Favicon i icones de l'aplicació -->
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="shortcut icon" href="favicon.svg">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <!-- L’SVG el segueix fent servir Safari per a la icona de pestanya ancorada -->
-    <link rel="apple-touch-icon" href="apple-touch-icon.svg">
-    <link rel="mask-icon" href="favicon.svg" color="#059669">
-    <meta name="theme-color" content="#059669">
-
-    <!-- Instal·lable com a aplicació (afegir a la pantalla d'inici) -->
-    <link rel="manifest" href="manifest.webmanifest">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Pla DRIF">
-    <!-- SEO i previsualització a xarxes socials -->
-    <meta name="description" content="Panell en temps real del risc d'incendi forestal calculat per l'estació SADRIF a Sabadell: temperatura, humitat, vent i pressió atmosfèrica.">
-    <link rel="canonical" href="https://pladrif.online/">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Pla DRIF">
-    <meta property="og:locale" content="ca_ES">
-    <meta property="og:title" content="Pla DRIF - Sistema de Monitoratge de Risc d'Incendis Forestals">
-    <meta property="og:description" content="Panell en temps real del risc d'incendi forestal calculat per l'estació SADRIF a Sabadell: temperatura, humitat, vent i pressió atmosfèrica.">
-    <meta property="og:url" content="https://pladrif.online/">
-    <meta property="og:image" content="https://pladrif.online/og-preview.png">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:image:type" content="image/png">
-    <meta property="og:image:alt" content="Pla DRIF · Sistema Autònom de Detecció de Risc d Incendis Forestals">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Pla DRIF - Sistema de Monitoratge de Risc d'Incendis Forestals">
-    <meta name="twitter:description" content="Panell en temps real del risc d'incendi forestal calculat per l'estació SADRIF a Sabadell: temperatura, humitat, vent i pressió atmosfèrica.">
-    <meta name="twitter:image" content="https://pladrif.online/og-preview.png">
-
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- GSAP CDN per a les animacions del menú -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <!-- Risc en directe: mateixa fórmula i mateixes dades a totes les pàgines -->
-    <link rel="stylesheet" href="risc-live.css">
-    <script src="risc-live.js"></script>
-
-    <!-- Instal·lar l’app: botó propi, escena animada i service worker -->
-    <link rel="stylesheet" href="instalar-app.css">
-    <script src="instalar-app.js" defer></script>
-
-    <!-- Avisos: panell de preferències i motor compartit amb el service worker -->
-    <link rel="stylesheet" href="avisos.css">
-    <script src="avisos-nucli.js" defer></script>
-    <script src="avisos.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <style>
-        :root {
-            --bg-principal: #f8fafc;
-            /* Toque cristalino mejorado: más transparente y con brillos */
-            --glass-bg: rgba(255, 255, 255, 0.45); 
-            --glass-border: rgba(255, 255, 255, 0.7);
-            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07), inset 0 1px 2px rgba(255, 255, 255, 0.8);
-            
-            --texto-principal: #0f172a;
-            --texto-mutado: #64748b;
-            --borde-claro: rgba(226, 232, 240, 0.6);
-
-            /* Variables Dinàmiques */
-            --riesgo-color-dinamico: #10b981; 
-            --riesgo-bg-suave: rgba(16, 185, 129, 0.15);
-            --riesgo-borde: rgba(16, 185, 129, 0.4);
-
-            --transicion: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg-principal);
-            background-image: radial-gradient(at 0% 0%, var(--riesgo-bg-suave) 0px, transparent 50%),
-                              radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.08) 0px, transparent 50%);
-            color: var(--texto-principal);
-            margin: 0; padding: 0; line-height: 1.5; overflow-x: hidden;
-            transition: background-image 1s ease;
-        }
-
-        /* ANIMACIONS BASE */
-        @keyframes pageEntrance { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-        .animated-element { opacity: 0; animation: pageEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        @keyframes pulseInfo { 0% { opacity: 0.7; transform: translateY(0); } 50% { opacity: 1; transform: translateY(3px); } 100% { opacity: 0.7; transform: translateY(0); } }
-
-        /* ========= NOUS ESTILS CARDNAV ========= */
-        .card-nav-container {
-            position: sticky;
-            top: 1rem;
-            margin: 0 auto;
-            width: 90%;
-            max-width: 1200px;
-            z-index: 1000;
-            box-sizing: border-box;
-            margin-bottom: 2rem;
-        }
-
-        .card-nav {
-            display: block;
-            height: 60px;
-            padding: 0;
-            /* Cristalino extra para el menú */
-            background-color: var(--glass-bg);
-            backdrop-filter: blur(25px) saturate(120%);
-            -webkit-backdrop-filter: blur(25px) saturate(120%);
-            border: 1px solid var(--glass-border);
-            border-radius: 0.75rem;
-            box-shadow: var(--glass-shadow);
-            position: relative;
-            overflow: hidden;
-            will-change: height;
-        }
-
-        .card-nav-top {
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.5rem 1rem;
-            z-index: 2;
-        }
-
-        .hamburger-menu {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            gap: 6px;
-            width: 40px;
-        }
-
-        .hamburger-menu:hover .hamburger-line { opacity: 0.75; }
-
-        .hamburger-line {
-            width: 24px;
-            height: 2px;
-            background-color: var(--texto-principal);
-            transition: transform 0.25s ease, opacity 0.2s ease, margin 0.3s ease;
-            transform-origin: 50% 50%;
-        }
-
-        .hamburger-menu.open .hamburger-line:first-child { transform: translateY(4px) rotate(45deg); }
-        .hamburger-menu.open .hamburger-line:last-child { transform: translateY(-4px) rotate(-45deg); }
-
-        .navbar-brand {
-            display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.25rem;
-            color: var(--texto-principal); text-decoration: none;
-            transition: var(--transicion);
-        }
-        .navbar-brand img { height: 28px; }
-
-        .card-nav-cta-button {
-            background-color: #0f172a;
-            color: white;
-            border: none;
-            border-radius: calc(0.75rem - 0.35rem);
-            padding: 0.5rem 1rem;
-            font-weight: 700;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-        }
-
-        .card-nav-cta-button:hover { background-color: #333; }
-
-        .card-nav-content {
-            position: absolute;
-            left: 0; right: 0; top: 60px; bottom: 0;
-            padding: 0.5rem;
-            display: flex;
-            align-items: flex-end;
-            gap: 12px;
-            visibility: hidden;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .card-nav.open .card-nav-content {
-            visibility: visible;
-            pointer-events: auto;
-        }
-
-        .nav-card {
-            height: 100%;
-            flex: 1 1 0;
-            min-width: 0;
-            border-radius: calc(0.75rem - 0.2rem);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            padding: 16px 20px;
-            gap: 8px;
-            user-select: none;
-            /* Cristal oscuro para las tarjetas internas */
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .nav-card-label { font-weight: 700; font-size: 1.25rem; letter-spacing: -0.5px; opacity: 0.9; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; margin-bottom: 5px; }
-        .nav-card-links { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
-        
-        .nav-card-link {
-            font-size: 0.95rem; font-weight: 500; color: inherit; cursor: pointer; text-decoration: none; transition: opacity 0.3s ease; display: inline-flex; align-items: center; gap: 10px;
-        }
-        .nav-card-link:hover { opacity: 0.6; }
-        .nav-card-link svg { flex: none; opacity: 0.82; transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16,1,0.3,1); }
-        .nav-card-link:hover svg { opacity: 1; transform: translateX(2px); }
-
-        /* Badge Risc dins del nav (DINÀMIC QUAN SURT DE PANTALLA) */
-        .sticky-risk-badge {
-            display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border); padding: 5px 12px; border-radius: 99px;
-            font-weight: 700; font-size: 0.85rem; box-shadow: var(--glass-shadow);
-            
-            /* Amagat per defecte, apareix quan fem scroll i el % gran desapareix */
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-8px) scale(0.95);
-            transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s;
-            pointer-events: none;
-        }
-
-        .sticky-risk-badge.visible {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0) scale(1);
-            pointer-events: auto;
-        }
-
-        .sticky-risk-dot { width: 10px; height: 10px; border-radius: 50%; background-color: var(--riesgo-color-dinamico); box-shadow: 0 0 8px var(--riesgo-color-dinamico); animation: pulseLive 1.5s infinite; }
-
-        @media (max-width: 768px) {
-            .card-nav-container { width: 95%; top: 0.5rem; }
-            .card-nav-top { justify-content: space-between; gap: 8px; }
-            .hamburger-menu { order: 3; }
-            .logo-container { order: 1; }
-            .right-controls-nav { order: 2; display: flex !important; } 
-            .sticky-risk-badge { padding: 4px 8px; font-size: 0.78rem; }
-            
-            /* Corrección para que haga scroll en móvil */
-            .card-nav-content {
-                flex-direction: column; 
-                align-items: stretch; 
-                gap: 8px; 
-                padding: 0.5rem; 
-                top: 60px; 
-                bottom: auto; 
-                justify-content: flex-start;
-                overflow-y: auto; 
-                max-height: calc(100vh - 80px); 
-            }
-            .nav-card { height: auto; min-height: auto; flex: none; padding: 16px; }
-            .nav-card-label { font-size: 1.1rem; }
-            .nav-card-links { gap: 12px; margin-top: 10px; }
-        }
-
-        /* ========= RESTA D'ESTILS ORIGINALS ========= */
-        .contenedor-principal { max-width: 1200px; margin: 0 auto; padding: 0 24px 32px; }
-
-        .banner-alerta-extrema { display: none; background: linear-gradient(90deg, #ef4444 0%, #b91c1c 100%); color: #fff; text-align: center; padding: 12px 20px; font-weight: 800; font-size: 0.85rem; letter-spacing: 0.05em; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); margin-bottom: 20px; }
-
-        /* HERO COMPACTE */
-        .hero-compact { background: var(--glass-bg); backdrop-filter: blur(25px) saturate(120%); -webkit-backdrop-filter: blur(25px) saturate(120%); border: 1px solid var(--glass-border); border-radius: 24px; box-shadow: var(--glass-shadow); overflow: hidden; display: grid; grid-template-columns: 1.2fr 1fr; min-height: 320px; margin-bottom: 12px; transition: var(--transicion); }
-        .hero-compact:hover { box-shadow: 0 30px 60px -12px rgba(0,0,0,0.12), inset 0 1px 2px rgba(255, 255, 255, 0.9); transform: translateY(-3px); }
-        .hero-left-content { padding: 32px 36px; display: flex; flex-direction: column; justify-content: space-between; z-index: 10; }
-        .hero-header-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--riesgo-bg-suave); color: var(--riesgo-color-dinamico); padding: 5px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; width: fit-content; border: 1px solid var(--riesgo-borde); transition: var(--transicion); }
-        .nomes-lectors { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
-        .ubicacion-destacada { font-size: 1.3rem; font-weight: 800; color: var(--texto-principal); margin-top: 8px; display: flex; align-items: center; gap: 10px; }
-        .live-dot { width: 10px; height: 10px; background-color: #ef4444; border-radius: 50%; box-shadow: 0 0 8px #ef4444; animation: pulseLive 1.5s infinite; }
-
-        /* ===== Estació sense connexió =====
-           Si la darrera lectura és massa antiga, el panell deixa d'aparentar que
-           les dades són d'ara mateix: el punt para de bategar, la píndola d'estat
-           es torna grisa i el percentatge perd el color del risc. El valor es
-           manté (és l'última lectura coneguda), però ja no crida l'atenció. */
-        body.estacio-apagada .live-dot { background-color: #94a3b8; box-shadow: none; animation: none; }
-        body.estacio-apagada .hero-header-badge { background: rgba(148, 163, 184, 0.14); color: #64748b; border-color: rgba(148, 163, 184, 0.45); }
-        body.estacio-apagada .hero-num-pct, body.estacio-apagada .hero-sim-pct { color: #94a3b8; }
-        body.estacio-apagada .termometro-fill { background-color: #cbd5e1; }
-        @keyframes pulseLive { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
-        .ubicacion-sub { font-size: 0.9rem; color: var(--texto-mutado); font-weight: 500; }
-        .hero-percentage-display { display: flex; align-items: baseline; gap: 6px; margin: 16px 0; }
-        .hero-num-pct { font-size: 5.5rem; font-weight: 800; line-height: 0.85; color: var(--riesgo-color-dinamico); letter-spacing: -0.04em; transition: color 0.6s ease; }
-        .hero-sim-pct { font-size: 2.4rem; font-weight: 800; color: var(--texto-mutado); }
-        .termometro-minimal { width: 100%; margin-top: 10px; }
-        .termometro-track { height: 10px; width: 100%; background: rgba(226, 232, 240, 0.8); border-radius: 99px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
-        .termometro-fill { height: 100%; width: 0%; background-color: var(--riesgo-color-dinamico); border-radius: 99px; transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.6s ease; }
-        .hero-map-wrapper { position: relative; height: 100%; min-height: 320px; border-left: 1px solid var(--glass-border); }
-        #mapa-real-catalunya { width: 100%; height: 100%; background: transparent; }
-        .leaflet-tooltip { background: rgba(255,255,255,0.95); border: 1px solid var(--borde-claro); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); color: var(--texto-principal); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.85rem; }
-
-        /* LLEGENDA MAPA DINÀMICA */
-        .leyenda-container {
-            margin-bottom: 24px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-        }
-        .btn-leyenda {
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border);
-            padding: 8px 20px;
-            border-radius: 99px;
-            font-size: 0.85rem;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-weight: 700;
-            color: var(--texto-principal);
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: var(--glass-shadow);
-            transition: var(--transicion);
-            z-index: 2;
-        }
-        .btn-leyenda:hover {
-            background: rgba(255, 255, 255, 0.8);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-        }
-        .btn-leyenda svg {
-            transition: transform 0.3s ease;
-        }
-        .btn-leyenda.actiu svg {
-            transform: rotate(180deg);
-        }
-        .leyenda-content {
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
-            transition: max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease, margin 0.4s ease;
-            width: 100%;
-            max-width: 850px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid transparent;
-            border-radius: 16px;
-            box-shadow: none;
-            margin-top: 0;
-        }
-        .leyenda-content.obert {
-            max-height: 250px;
-            opacity: 1;
-            margin-top: 16px;
-            border-color: var(--glass-border);
-            box-shadow: var(--glass-shadow);
-            padding: 20px 24px;
-        }
-        .leyenda-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 16px;
-        }
-        @media (max-width: 1000px) { .leyenda-grid { grid-template-columns: repeat(3, 1fr); } }
-        .leyenda-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--texto-principal);
-            background: rgba(255, 255, 255, 0.5);
-            padding: 10px 14px;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.6);
-            transition: var(--transicion);
-        }
-        .leyenda-item:hover {
-            background: rgba(255, 255, 255, 0.9);
-            transform: translateY(-2px);
-        }
-        .leyenda-color {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            flex-shrink: 0;
-        }
-
-        /* METEO (ESTILOS NUEVOS PARA BORDES Y BURBUJAS) */
-        .contenedor-meteo { margin-bottom: 32px; }
-        .premium-data-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 12px; padding-top: 15px; /* Espacio para las burbujas */ }
-        
-        .tarjeta-hero-lectura { 
-            background: var(--glass-bg); 
-            backdrop-filter: blur(20px) saturate(120%); 
-            -webkit-backdrop-filter: blur(20px) saturate(120%); 
-            border: 2px solid var(--glass-border); /* Aumentado a 2px para que el color destaque */
-            border-radius: 18px; 
-            padding: 20px 15px; 
-            box-shadow: var(--glass-shadow); 
-            text-align: center; 
-            transition: var(--transicion); 
-            cursor: pointer; 
-            position: relative; 
-            user-select: none; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: space-between; 
-        }
-        .tarjeta-hero-lectura::after { content: ''; position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); width: 0%; height: 4px; background: var(--riesgo-color-dinamico); border-radius: 4px 4px 0 0; transition: width 0.3s ease; }
-        .tarjeta-hero-lectura:hover { transform: translateY(-6px) scale(1.01); background: rgba(255, 255, 255, 0.7); }
-        .tarjeta-hero-lectura.activa { background: rgba(255, 255, 255, 0.85); transform: translateY(-6px); }
-        .tarjeta-hero-lectura.activa::after { width: 40%; }
-        
-        .tarjeta-hero-lectura .label { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: var(--texto-mutado); letter-spacing: 0.06em; margin-bottom: 6px; }
-        /* Mínima i màxima de les últimes 24 hores. Es queda amagada si avui
-           encara no hi ha lectures, en comptes d'ensenyar zeros que enganyen. */
-        .extrems-24h { display: flex; align-items: center; justify-content: center; gap: 9px; margin-top: 7px; font-size: 0.7rem; font-weight: 700; color: var(--texto-mutado); font-variant-numeric: tabular-nums; }
-        .extrems-24h .ext-val { display: inline-flex; align-items: center; gap: 3px; }
-        .extrems-24h svg { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
-        .extrems-24h .ext-val:first-of-type { color: #3b82f6; }
-        .extrems-24h .ext-val:last-of-type { color: #ef4444; }
-        .extrems-24h .ext-sep { font-size: 0.6rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.55; border-left: 1px solid var(--borde-claro); border-right: 1px solid var(--borde-claro); padding: 0 8px; }
-        .tarjeta-hero-lectura .valor { font-size: 1.75rem; font-weight: 800; color: var(--texto-principal); font-variant-numeric: tabular-nums; margin-top: 6px; }
-        .click-hint { font-size: 0.68rem; font-weight: 700; color: var(--riesgo-color-dinamico); margin-top: 8px; animation: pulseInfo 2s infinite ease-in-out; }
-        .tarjeta-hero-lectura.activa .click-hint { animation: none; opacity: 1; color: var(--texto-principal); }
-
-        /* BURBUJA DE ESTADO DINÁMICA */
-        .status-bubble {
-            position: absolute;
-            top: -14px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 4px 14px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            color: #fff;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            white-space: nowrap;
-            z-index: 10;
-            transition: background-color 0.4s ease;
-        }
-
-        /* WIDGETS VISUALS */
-        .vis-thermo-container { display: flex; flex-direction: column; align-items: center; margin: 6px 0; }
-        .vis-thermo-tube { width: 12px; height: 35px; background: rgba(226, 232, 240, 0.8); border-radius: 10px 10px 0 0; position: relative; overflow: hidden; z-index: 1;}
-        .vis-thermo-fill { position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: #ef4444; transition: height 1s cubic-bezier(0.16, 1, 0.3, 1), background-color 1s; }
-        .vis-thermo-bulb { width: 20px; height: 20px; background: #ef4444; border-radius: 50%; margin-top: -6px; z-index: 2; transition: background-color 1s ease; border: 2px solid #fff; }
-        .vis-hum-gota { width: 42px; height: 42px; border-radius: 0 50% 50% 50%; transform: rotate(45deg); background: rgba(226, 232, 240, 0.8); position: relative; overflow: hidden; margin: 10px auto; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .vis-hum-fill-wrapper { position: absolute; top: -10px; left: -10px; width: 62px; height: 62px; transform: rotate(-45deg); }
-        .vis-hum-fill { position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: #3b82f6; transition: height 1s cubic-bezier(0.16, 1, 0.3, 1); opacity: 0.8; }
-        .vis-speedo { width: 50px; height: 25px; border-top-left-radius: 50px; border-top-right-radius: 50px; border: 4px solid rgba(226, 232, 240, 0.8); border-bottom: 0; margin: 15px auto 5px; position: relative; box-sizing: border-box; }
-        .vis-speedo-needle { position: absolute; bottom: -2px; left: calc(50% - 2px); width: 4px; height: 22px; background: #ef4444; transform-origin: bottom center; transform: rotate(-90deg); transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1), background-color 1s; border-radius: 2px; z-index: 2;}
-        .vis-speedo-center { position: absolute; bottom: -4px; left: calc(50% - 4px); width: 8px; height: 8px; background: #0f172a; border-radius: 50%; z-index: 3;}
-        .vis-baro { width: 42px; height: 42px; border-radius: 50%; border: 3px dashed #8b5cf6; margin: 10px auto; position: relative; box-sizing: border-box; background: rgba(139, 92, 246, 0.05); }
-        .vis-baro-center { position: absolute; top: 50%; left: 50%; width: 6px; height: 6px; background: #8b5cf6; border-radius: 50%; transform: translate(-50%, -50%); z-index: 2;}
-        .vis-baro-needle { position: absolute; bottom: 50%; left: calc(50% - 1.5px); width: 3px; height: 16px; background: #8b5cf6; transform-origin: bottom center; transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 2px; }
-
-        .panel-impacto-global { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 18px; padding: 0; max-height: 0; opacity: 0; overflow: hidden; box-shadow: var(--glass-shadow); transition: max-height 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease, padding 0.5s ease; }
-        .panel-impacto-global.obert { max-height: 600px; opacity: 1; padding: 28px; border-left: 6px solid var(--riesgo-color-dinamico); }
-        .panel-impacto-titulo { font-size: 1.25rem; font-weight: 800; color: var(--texto-principal); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
-        .panel-impacto-texto { font-size: 0.98rem; color: var(--texto-mutado); line-height: 1.7; display: flex; flex-direction: column; gap: 10px; }
-        .panel-impacto-texto p { margin: 0; }
-
-        /* `align-items: start` és la clau: sense això, les dues targetes són
-           files de la mateixa graella i sempre s'igualen d'alçada. En obrir-ne
-           una, l'altra creixia igual i deixava un buit blanc amb la barra
-           taronja estirada al costat. Ara cadascuna fa l'alçada del seu contingut. */
-        .grid-consejos { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 36px; align-items: start; }
-        .card-destacada-dinamica { background: linear-gradient(145deg, rgba(255,255,255,0.6) 0%, var(--riesgo-bg-suave) 100%); backdrop-filter: blur(25px) saturate(120%); -webkit-backdrop-filter: blur(25px) saturate(120%); border: 1px solid var(--glass-border); border-radius: 20px; padding: 28px; box-shadow: var(--glass-shadow); transition: var(--transicion); position: relative; overflow: hidden; }
-        .card-destacada-dinamica::before { content: ''; position: absolute; top: 0; left: 0; width: 5px; height: 100%; background: var(--riesgo-color-dinamico); }
-        .card-destacada-dinamica:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-        .card-destacada-dinamica h3 { font-size: 1.1rem; font-weight: 800; margin-top: 0; margin-bottom: 15px; color: var(--texto-principal); display: flex; align-items: center; justify-content: space-between; }
-        .card-destacada-dinamica p { color: var(--texto-mutado); font-size: 0.95rem; line-height: 1.6; margin: 0; }
-        .badge-subestat { font-size: 0.75rem; padding: 5px 12px; border-radius: 8px; background: rgba(255, 255, 255, 0.8); font-weight: 800; border: 1px solid var(--riesgo-borde); color: var(--texto-principal); box-shadow: 0 2px 8px rgba(0,0,0,0.05); backdrop-filter: blur(5px); }
-        .btn-saber-mes { display: flex; align-items: center; gap: 6px; margin-top: 20px; padding: 8px 16px; background: rgba(255,255,255,0.6); border: 1px solid var(--glass-border); border-radius: 10px; font-size: 0.85rem; font-weight: 700; color: var(--texto-principal); cursor: pointer; transition: var(--transicion); backdrop-filter: blur(5px); }
-        .btn-saber-mes:hover { background: var(--riesgo-color-dinamico); color: #fff; transform: translateX(5px); border-color: transparent; box-shadow: 0 8px 20px var(--riesgo-borde); }
-        .btn-saber-mes svg { width: 16px; height: 16px; transition: transform 0.3s ease; }
-        .btn-saber-mes.actiu svg { transform: rotate(180deg); }
-        .contingut-extra { max-height: 0; overflow: hidden; opacity: 0; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); font-size: 0.9rem; margin-top: 0; color: var(--texto-principal); background: rgba(255,255,255,0.4); border-radius: 12px; }
-        .contingut-extra.obert { max-height: 1500px; opacity: 1; padding: 15px; margin-top: 15px; border: 1px solid rgba(255,255,255,0.6); box-shadow: inset 0 2px 10px rgba(0,0,0,0.02); }
-        /* Llista de mesures preventives / restriccions del nivell de risc actiu */
-        .llista-mesures { list-style: none; margin: 0; padding: 0; }
-        .llista-mesures li {
-            position: relative; padding: 7px 0 7px 22px; line-height: 1.55;
-            color: var(--texto-principal); border-bottom: 1px solid rgba(15,23,42,0.06);
-        }
-        .llista-mesures li:last-child { border-bottom: none; }
-        .llista-mesures li::before {
-            content: ''; position: absolute; left: 4px; top: 15px;
-            width: 7px; height: 7px; border-radius: 50%;
-            background: var(--riesgo-color-dinamico);
-        }
-
-        .header-sadrif-seccion { border-bottom: 2px solid var(--borde-claro); padding-bottom: 10px; margin-bottom: 20px; }
-        .header-sadrif-seccion h2 { margin: 0; font-size: 1.4rem; font-weight: 800; }
-        
-        .tarjeta-camara { background: var(--glass-bg); backdrop-filter: blur(25px) saturate(120%); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; box-shadow: var(--glass-shadow); margin-bottom: 40px; transition: var(--transicion); }
-        .tarjeta-camara:hover { transform: translateY(-5px); box-shadow: 0 20px 45px rgba(0,0,0,0.12); }
-        .camara-visor { width: 100%; aspect-ratio: 16/9; background: #0f172a; border-radius: 14px; overflow: hidden; position: relative; }
-
-        .grid-info-drif { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; margin-bottom: 40px;}
-        .video-youtube-placeholder { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 18px; overflow: hidden; box-shadow: var(--glass-shadow); transition: var(--transicion); }
-        .video-youtube-placeholder:hover { transform: scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
-
-        .card-3d-banner { background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); color: #ffffff; border-radius: 20px; padding: 32px; box-shadow: var(--glass-shadow); margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center; gap: 24px; transition: var(--transicion); }
-        .card-3d-banner:hover { transform: translateY(-4px); box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25); }
-        .card-3d-info h3 { margin: 0 0 8px 0; font-size: 1.5rem; font-weight: 800; color: #ffffff; }
-        .card-3d-info p { margin: 0; color: #94a3b8; font-size: 0.95rem; }
-        .btn-3d-hero { background: rgba(255,255,255,0.9); color: #0f172a; font-weight: 800; font-size: 0.95rem; padding: 14px 28px; border-radius: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; transition: var(--transicion); white-space: nowrap; flex-shrink: 0; backdrop-filter: blur(5px); }
-        .btn-3d-hero:hover { background: var(--riesgo-color-dinamico); color: #ffffff; transform: scale(1.05); }
-
-        .grid-graficas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 40px; }
-        .grafica-box { background: var(--glass-bg); backdrop-filter: blur(20px) saturate(120%); border: 1px solid var(--glass-border); border-radius: 16px; padding: 15px; box-shadow: var(--glass-shadow); height: 230px; transition: var(--transicion); }
-        .grafica-box:hover { transform: translateY(-4px); background: rgba(255, 255, 255, 0.7); box-shadow: 0 15px 30px rgba(0,0,0,0.08); }
-        .grafica-box canvas { width: 100% !important; height: 100% !important; }
-
-        .tabla-contenedor { background: var(--glass-bg); backdrop-filter: blur(25px) saturate(120%); border-radius: 20px; padding: 24px; border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow); margin-bottom: 44px; overflow-x: auto; transition: var(--transicion); }
-        .tabla-contenedor:hover { box-shadow: 0 20px 45px rgba(0,0,0,0.08); }
-        .btn-excel { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: var(--transicion); display: flex; align-items: center; gap: 8px; }
-        .btn-excel:hover { background: #10b981; transform: translateY(-3px) scale(1.05); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4); }
-
-        table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: left; }
-        th { padding: 16px 12px; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: var(--texto-mutado); border-bottom: 2px solid var(--borde-claro); background: rgba(248, 250, 252, 0.3); }
-        td { padding: 16px 12px; font-size: 0.95rem; border-bottom: 1px solid var(--borde-claro); font-weight: 600; transition: var(--transicion); }
-        tbody tr { transition: all 0.3s ease; }
-        tbody tr:hover { background: rgba(255,255,255,0.6); transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0,0,0,0.04); }
-        tbody tr:hover td { color: #000; border-bottom-color: transparent; }
-        .badge-risc { padding: 6px 12px; border-radius: 99px; font-size: 0.85rem; font-weight: 800; color: #fff; text-align: center; display: inline-block; }
-
-        .redes-sociales-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 36px; }
-        .card-social-link { display: flex; align-items: center; justify-content: center; gap: 12px; background: var(--glass-bg); backdrop-filter: blur(20px) saturate(120%); border: 1px solid var(--glass-border); padding: 16px 20px; border-radius: 16px; text-decoration: none; box-shadow: var(--glass-shadow); color: var(--texto-principal); font-weight: 700; font-size: 1rem; transition: var(--transicion); }
-        .card-social-link:hover { transform: translateY(-6px) scale(1.02); background: rgba(255, 255, 255, 0.8); }
-        .social-icon svg { width: 24px; height: 24px; fill: currentColor; transition: transform 0.3s ease; }
-        .card-social-link:hover .social-icon svg { transform: scale(1.2) rotate(5deg); }
-        .social-yt:hover { color: #ef4444; border-color: rgba(239, 68, 68, 0.5); box-shadow: 0 15px 25px rgba(239, 68, 68, 0.15); }
-        .social-tw:hover { color: #9146FF; border-color: rgba(145, 70, 255, 0.5); box-shadow: 0 15px 25px rgba(145, 70, 255, 0.15); }
-        .social-ig:hover { color: #E1306C; border-color: rgba(225, 48, 108, 0.5); box-shadow: 0 15px 25px rgba(225, 48, 108, 0.15); }
-
-        /* ========= FOOTER COMPARTIT (igual a totes les pàgines) ========= */
-        .site-footer {
-            position: relative; background: #0b1220; color: #cbd5e1; padding: 64px 20px 26px;
-            font-size: 0.9rem; overflow: hidden; margin-top: 40px;
-        }
-        .site-footer::before {
-            content: ''; position: absolute; inset: 0; pointer-events: none;
-            background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(16,185,129,0.13), transparent 62%);
-        }
-        .footer-inner {
-            position: relative; max-width: 1150px; margin: 0 auto; display: grid;
-            grid-template-columns: 1.6fr 1fr 1fr 1.2fr; gap: 44px 32px;
-        }
-        .footer-brand-logo { display: inline-flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.2rem; color: #fff; text-decoration: none; }
-        .footer-brand-logo img { height: 30px; filter: brightness(0) invert(1); }
-        .footer-brand p { margin: 16px 0 20px; color: #94a3b8; line-height: 1.7; max-width: 38ch; font-size: 0.86rem; }
-        .footer-social { display: flex; gap: 10px; }
-        .footer-social a {
-            width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center;
-            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); color: #cbd5e1;
-            transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
-        }
-        .footer-social a:hover { background: rgba(16,185,129,0.18); border-color: rgba(16,185,129,0.45); color: #6ee7b7; transform: translateY(-3px); }
-        .footer-col h5 { margin: 0 0 16px; font-size: 0.71rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #64748b; }
-        .footer-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 11px; }
-        .footer-col a { color: #cbd5e1; text-decoration: none; font-size: 0.87rem; transition: color 0.22s ease; display: inline-flex; align-items: center; gap: 7px; }
-        .footer-col a:hover { color: #6ee7b7; }
-        .footer-partners { display: flex; flex-direction: column; gap: 12px; }
-        .footer-partner-chip { display: flex; align-items: center; gap: 12px; background: #fff; border-radius: 12px; padding: 10px 14px; transition: transform 0.25s ease; }
-        .footer-partner-chip:hover { transform: translateY(-2px); }
-        .footer-partner-chip img { height: 34px; width: auto; }
-        .footer-partner-chip span { font-size: 0.71rem; font-weight: 700; color: #334155; line-height: 1.35; white-space: nowrap; }
-        .footer-bottom {
-            position: relative; max-width: 1150px; margin: 44px auto 0; padding-top: 22px;
-            border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-wrap: wrap; gap: 12px;
-            align-items: center; justify-content: space-between; color: #64748b; font-size: 0.76rem;
-        }
-        .footer-bottom p { margin: 0; line-height: 1.6; }
-        .footer-bottom .footer-legal { max-width: 62ch; }
-        @media (max-width: 900px) { .footer-inner { grid-template-columns: 1fr 1fr; gap: 36px 24px; } }
-        @media (max-width: 560px) {
-            .site-footer { padding: 46px 18px 22px; }
-            .footer-inner { grid-template-columns: 1fr; gap: 32px; }
-            .footer-bottom { flex-direction: column; align-items: flex-start; margin-top: 32px; }
-        }
-
-        @media (max-width: 950px) {
-            .hero-compact { grid-template-columns: 1fr; }
-            .hero-map-wrapper { height: 300px; border-left: none; border-top: 1px solid var(--glass-border); }
-            .premium-data-row { grid-template-columns: repeat(2, 1fr); }
-            .grid-graficas, .grid-consejos, .grid-info-drif, .redes-sociales-grid { grid-template-columns: 1fr; }
-            .card-3d-banner { flex-direction: column; text-align: center; }
-            .panel-impacto-global.obert { max-height: 800px; }
-        }
-        
-        @media (max-width: 768px) {
-            .leyenda-grid { grid-template-columns: repeat(2, 1fr); }
-            .leyenda-content.obert { max-height: 420px; }
-        }
-        @media (max-width: 480px) {
-            .leyenda-grid { grid-template-columns: 1fr; }
-            .leyenda-content.obert { max-height: 560px; }
-        }
-    </style>
-</head>
-<body id="inicio">
-
-    <!-- Tel d’arrencada de l’app instal·lada. A la web normal no es dibuixa
-         mai: el CSS el té a display:none fora del mode standalone. -->
-    <div class="app-entrada" aria-hidden="true">
-        <img src="icon-192.png" alt="" width="92" height="92">
-        <span>Pla DRIF</span>
-    </div>
-
-    <div id="banner-urgente-30-30-30" class="banner-alerta-extrema">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4.5M12 17.5h.01"/></svg> ATENCIÓ: REGLA DEL 30-30-30 COMPLERTA — PERILL EXTREM D'INCENDI FORESTAL
-    </div>
-
-    <!-- MENÚ CARDNAV -->
-    <div class="card-nav-container">
-        <nav id="card-nav" class="card-nav">
-            <div class="card-nav-top">
-                <!-- Hamburger -->
-                <div class="hamburger-menu" id="card-nav-hamburger" role="button" aria-label="Abrir menú" tabindex="0">
-                    <div class="hamburger-line"></div>
-                    <div class="hamburger-line"></div>
-                </div>
-
-                <!-- Logo -->
-                <div class="logo-container">
-                    <a href="index.html" class="navbar-brand">
-                        <img src="logo-sadrif.svg" alt="SADRIF" onerror="this.onerror=null; this.src='logo-sadrif.svg.svg';">
-                        <span>PLA DRIF</span>
-                    </a>
-                </div>
-
-                <!-- Controles Nav Derecho (Riesgo Dinámico) -->
-                <div class="right-controls-nav" style="display: flex; gap: 12px; align-items: center;">
-                    <button type="button" id="sticky-risk-badge" class="sticky-risk-badge" aria-label="Risc d'incendi en directe: veure'n el detall">
-                        <span class="sticky-risk-dot"></span>
-                        <span>Risc: <strong id="sticky-risk-val" data-risc-valor>--%</strong></span>
-                        <svg class="risc-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Contenido desplegable del menú (Tarjetas) -->
-            <div class="card-nav-content" id="card-nav-content" aria-hidden="true">
-                
-                <!-- Tarjeta 1 -->
-                <div class="nav-card" style="background-color: rgba(27, 23, 34, 0.85); color: #fff;">
-                    <div class="nav-card-label">Navegació</div>
-                    <div class="nav-card-links">
-                        <a class="nav-card-link" href="producto3d.html">
-                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg>
-                            Model 3D Dispositiu
-                        </a>
-                        <a class="nav-card-link" href="sobre-nosotros.html">
-                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20v-1.5a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4V20"/><circle cx="9" cy="7" r="3.2"/><path d="M22 20v-1.5a4 4 0 0 0-3-3.87M16.5 4.2a3.2 3.2 0 0 1 0 5.6"/></svg>
-                            Sobre el Projecte
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Tarjeta 2 -->
-                <div class="nav-card" style="background-color: rgba(47, 41, 58, 0.85); color: #fff;">
-                    <div class="nav-card-label">Projectes & Live</div>
-                    <div class="nav-card-links">
-                        <a class="nav-card-link" href="https://www.twitch.tv/pla_drif" target="_blank">
-                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3h16v10.5L15.5 18H12l-3 3H7v-3H4z"/><path d="M11 7.5v4M15.5 7.5v4"/></svg>
-                            Directe Twitch
-                        </a>
-                        <a class="nav-card-link" href="#contenedor-visor">
-                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h1.2a1.5 1.5 0 0 0 1.25-.67l.8-1.2A1.5 1.5 0 0 1 10 3.5h4a1.5 1.5 0 0 1 1.25.63l.8 1.2A1.5 1.5 0 0 0 17.3 6h1.2A2.5 2.5 0 0 1 21 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/><circle cx="12" cy="13" r="3.4"/></svg>
-                            Càmera de Vigilància
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Tarjeta 3 -->
-                <div class="nav-card" style="background-color: rgba(47, 41, 58, 0.85); color: #fff;">
-                    <div class="nav-card-label">Xarxes Socials</div>
-                    <div class="nav-card-links">
-                        <a class="nav-card-link" href="https://www.youtube.com/@PlaDRIF_Oficial" target="_blank">
-                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22.2 7.4a2.7 2.7 0 0 0-1.9-1.9C18.6 5 12 5 12 5s-6.6 0-8.3.5A2.7 2.7 0 0 0 1.8 7.4 28 28 0 0 0 1.3 12a28 28 0 0 0 .5 4.6 2.7 2.7 0 0 0 1.9 1.9C5.4 19 12 19 12 19s6.6 0 8.3-.5a2.7 2.7 0 0 0 1.9-1.9 28 28 0 0 0 .5-4.6 28 28 0 0 0-.5-4.6z"/><polygon points="9.9 15.1 15.4 12 9.9 8.9 9.9 15.1" fill="currentColor" stroke="none"/></svg>
-                            Canal de YouTube
-                        </a>
-                        <a class="nav-card-link" href="https://www.instagram.com/pladrif_cat" target="_blank">
-                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.8"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>
-                            Instagram
-                        </a>
-                    </div>
-                </div>
-
-            </div>
-        </nav>
-    </div>
-
-    <div class="contenedor-principal">
-
-        <!-- Encapçalament principal de la pàgina: només per a lectors de pantalla
-             i cercadors, el disseny visual no canvia. -->
-        <h1 class="nomes-lectors">Panell en temps real del risc d'incendi forestal · Estació SADRIF, Sabadell</h1>
-
-        <!-- HERO -->
-        <div class="hero-compact animated-element">
-            <div class="hero-left-content">
-                <div>
-                    <div class="hero-header-badge" id="badge-estat">ESTACIÓ SADRIF ACTIVA</div>
-                    <div class="ubicacion-destacada">Sabadell <span class="live-dot"></span></div>
-                    <div class="ubicacion-sub">Zona forestal de Sabadell (Vallès Occidental)</div>
-                </div>
-                <div>
-                    <!-- ID AFEGIT PER OBSERVAR EL PORCENTATGE EN PANTALLA -->
-                    <div class="hero-percentage-display" id="hero-percentage-display">
-                        <span class="hero-num-pct" id="hero-riesgo-pct">0</span>
-                        <span class="hero-sim-pct">%</span>
-                    </div>
-                    <div class="termometro-minimal">
-                        <div class="termometro-track"><div class="termometro-fill" id="hero-risk-fill"></div></div>
-                    </div>
-                </div>
-            </div>
-            <div class="hero-map-wrapper">
-                <div id="mapa-real-catalunya"></div>
-            </div>
-        </div>
-        
-        <!-- LLEGENDA MAPA (NOVA IMPLEMENTACIÓ) -->
-        <div class="leyenda-container animated-element" style="animation-delay: 0.05s;">
-            <button class="btn-leyenda" onclick="toggleLeyenda(this)">
-                Llegenda de Riscos del Mapa
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-            </button>
-            <div class="leyenda-content" id="leyenda-mapa">
-                <div class="leyenda-grid">
-                    <div class="leyenda-item">
-                        <div class="leyenda-color" style="background: #10b981; border: 2px solid rgba(16, 185, 129, 0.4);"></div>
-                        <span>Nivell 0 · Perill Molt Baix</span>
-                    </div>
-                    <div class="leyenda-item">
-                        <div class="leyenda-color" style="background: #84cc16; border: 2px solid rgba(132, 204, 22, 0.4);"></div>
-                        <span>Nivell 1 · Perill Baix</span>
-                    </div>
-                    <div class="leyenda-item">
-                        <div class="leyenda-color" style="background: #f59e0b; border: 2px solid rgba(245, 158, 11, 0.4);"></div>
-                        <span>Nivell 2 · Perill Moderat</span>
-                    </div>
-                    <div class="leyenda-item">
-                        <div class="leyenda-color" style="background: #f97316; border: 2px solid rgba(249, 115, 22, 0.4);"></div>
-                        <span>Nivell 3 · Perill Alt</span>
-                    </div>
-                    <div class="leyenda-item">
-                        <div class="leyenda-color" style="background: #ef4444; border: 2px solid rgba(239, 68, 68, 0.4);"></div>
-                        <span>Nivell 4 · Perill Extrem</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TARGETES METEO AMB WIDGETS VISUALS -->
-        <div class="contenedor-meteo animated-element" style="animation-delay: 0.1s;">
-            <div class="premium-data-row">
-                <!-- Tarjeta Temperatura -->
-                <div class="tarjeta-hero-lectura" id="card-temp" onclick="obrirDetallMeteo('temp', this)">
-                    <div class="status-bubble" id="bubble-temp" style="background-color: #64748b;">Analitzant...</div>
-                    <div class="label">Temperatura <span>ⓘ</span></div>
-                    <div class="vis-thermo-container"><div class="vis-thermo-tube"><div class="vis-thermo-fill" id="vis-temp-fill"></div></div><div class="vis-thermo-bulb" id="vis-temp-bulb"></div></div>
-                    <div class="valor"><span id="hero-temp">0.0</span> °C</div>
-                    <div class="extrems-24h" id="ext-temp" hidden>
-                        <span class="ext-val"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg><b data-min>--</b></span>
-                        <span class="ext-sep">24 h</span>
-                        <span class="ext-val"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg><b data-max>--</b></span>
-                    </div>
-                    <div class="click-hint">Premeu per veure impacte</div>
-                </div>
-                <!-- Tarjeta Humedad -->
-                <div class="tarjeta-hero-lectura" id="card-hum" onclick="obrirDetallMeteo('hum', this)">
-                    <div class="status-bubble" id="bubble-hum" style="background-color: #64748b;">Analitzant...</div>
-                    <div class="label">Humitat Relativa <span>ⓘ</span></div>
-                    <div class="vis-hum-gota"><div class="vis-hum-fill-wrapper"><div class="vis-hum-fill" id="vis-hum-fill"></div></div></div>
-                    <div class="valor"><span id="hero-hum">0</span> %</div>
-                    <div class="extrems-24h" id="ext-hum" hidden>
-                        <span class="ext-val"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg><b data-min>--</b></span>
-                        <span class="ext-sep">24 h</span>
-                        <span class="ext-val"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg><b data-max>--</b></span>
-                    </div>
-                    <div class="click-hint">Premeu per veure impacte</div>
-                </div>
-                <!-- Tarjeta Viento -->
-                <div class="tarjeta-hero-lectura" id="card-vent" onclick="obrirDetallMeteo('vent', this)">
-                    <div class="status-bubble" id="bubble-vent" style="background-color: #64748b;">Analitzant...</div>
-                    <div class="label">Velocitat Vent <span>ⓘ</span></div>
-                    <div class="vis-speedo"><div class="vis-speedo-needle" id="vis-vent-needle"></div><div class="vis-speedo-center"></div></div>
-                    <div class="valor"><span id="hero-viento">0.0</span> km/h</div>
-                    <div class="extrems-24h" id="ext-vent" hidden>
-                        <span class="ext-val"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg><b data-min>--</b></span>
-                        <span class="ext-sep">24 h</span>
-                        <span class="ext-val"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg><b data-max>--</b></span>
-                    </div>
-                    <div class="click-hint">Premeu per veure impacte</div>
-                </div>
-                <!-- Tarjeta Presión -->
-                <div class="tarjeta-hero-lectura" id="card-pres" onclick="obrirDetallMeteo('pres', this)">
-                    <div class="status-bubble" id="bubble-pres" style="background-color: #64748b;">Analitzant...</div>
-                    <div class="label">Pressió Atmosfèrica <span>ⓘ</span></div>
-                    <div class="vis-baro"><div class="vis-baro-center"></div><div class="vis-baro-needle" id="vis-pres-needle"></div></div>
-                    <div class="valor"><span id="hero-presion">0</span> hPa</div>
-                    <div class="extrems-24h" id="ext-pres" hidden>
-                        <span class="ext-val"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg><b data-min>--</b></span>
-                        <span class="ext-sep">24 h</span>
-                        <span class="ext-val"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg><b data-max>--</b></span>
-                    </div>
-                    <div class="click-hint">Premeu per veure impacte</div>
-                </div>
-            </div>
-
-            <!-- PANELL D'IMPACTE GLOBAL (AMPLIAT) -->
-            <div class="panel-impacto-global" id="panel-impacte">
-                <div class="panel-impacto-titulo" id="panel-titul">Títol Impacte</div>
-                <div class="panel-impacto-texto" id="panel-text">Contingut de l'impacte detallat...</div>
-            </div>
-        </div>
-
-        <!-- TEXTOS DINÀMICS REDISSENYATS -->
-        <div class="grid-consejos animated-element" style="animation-delay: 0.2s;">
-            <div class="card-destacada-dinamica">
-                <h3>Estat de la Vegetació <span class="badge-subestat" id="badge-veg-estat">Analitzant...</span></h3>
-                <p id="txt-consejo-sucediendo">Avaluant l'estat del combustible vegetal a partir de la temperatura, la humitat, el vent i la pressió atmosfèrica...</p>
-                <button class="btn-saber-mes" onclick="toggleSaberMes('extra-veg', this)">
-                    Saber-ne més detalls 
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-                </button>
-                <div class="contingut-extra" id="extra-veg">
-                    <strong style="display:block; margin-bottom:8px; color:var(--riesgo-color-dinamico);">Anàlisi Tècnica Estesa:</strong>
-                    <span id="extra-veg-text">S'està recopilant informació sobre l'estrès hídric de les plantes resinoses de l'entorn.</span>
-                </div>
-            </div>
-            
-            <div class="card-destacada-dinamica">
-                <h3>Pla d'Acció i Prevenció <span class="badge-subestat" id="badge-alfa-estat">Calculant nivell...</span></h3>
-                <p id="txt-consejo-accion">Calculant el pla d'acció i les mesures de prevenció corresponents al nivell de risc...</p>
-                <button class="btn-saber-mes" onclick="toggleSaberMes('extra-pla', this)">
-                    Mesures i restriccions
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-                </button>
-                <div class="contingut-extra" id="extra-pla">
-                    <strong id="extra-pla-titol" style="display:block; margin-bottom:8px; color:var(--riesgo-color-dinamico);">Mesures preventives:</strong>
-                    <span id="extra-pla-text">Determinant les mesures preventives aplicables...</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- BANNER D'ACCÉS AL MODEL 3D -->
-        <div class="card-3d-banner animated-element" style="animation-delay: 0.25s;">
-            <div class="card-3d-info">
-                <h3>Explora l'Estació SADRIF en 3D</h3>
-                <p>Inspecciona el disseny, els components i l'estructura del dispositiu físic de monitoratge amb el nostre visor interactiu.</p>
-            </div>
-            <a href="producto3d.html" class="btn-3d-hero">
-                <span>Veure Model 3D</span>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-            </a>
-        </div>
-
-        <!-- CÀMERA TWITCH -->
-        <div class="header-sadrif-seccion animated-element" style="animation-delay: 0.3s;">
-            <h2>Transmissió en Directe (Càmera de Vigilància)</h2>
-        </div>
-        <div class="tarjeta-camara animated-element" style="animation-delay: 0.35s;">
-            <div class="camara-visor" id="contenedor-visor"></div>
-        </div>
-
-        <!-- GRÀFIQUES -->
-        <div class="header-sadrif-seccion animated-element" style="animation-delay: 0.4s;">
-            <h2>Telemetria Detallada (Històric 4 sensors)</h2>
-        </div>
-        <div class="grid-graficas animated-element" style="animation-delay: 0.45s;">
-            <div class="grafica-box"><canvas id="chartTemp"></canvas></div>
-            <div class="grafica-box"><canvas id="chartHum"></canvas></div>
-            <div class="grafica-box"><canvas id="chartVent"></canvas></div>
-            <div class="grafica-box"><canvas id="chartPres"></canvas></div>
-        </div>
-
-        <!-- INFO YOUTUBE -->
-        <section class="grid-info-drif animated-element" style="animation-delay: 0.5s;">
-            <div class="video-youtube-placeholder">
-                <iframe width="100%" height="100%" src="https://www.youtube.com/embed/Jiht0DbdYvE" frameborder="0" allowfullscreen></iframe>
-            </div>
-            <div>
-                <h2 style="margin-top:0; font-weight:800;">Què és el Pla DRIF?</h2>
-                <p style="color:var(--texto-mutado);">El <strong>Pla DRIF</strong> és un pla d'acció amb una iniciativa de prevenció i conscienciació sorgida del projecte <strong>SADRIF</strong> (Sistema Autònom de Detecció de Risc d'Incendis Forestals).</p>
-                <p style="color:var(--texto-mutado);">El SADRIF analitza les condicions ambientals i calcula el nivell de risc d'incendi. El Pla DRIF utilitza aquesta informació per informar, divulgar el risc i fomentar la prevenció.</p>
-
-                <h3 style="font-weight:800; margin-bottom:8px;">Com es calcula el risc?</h3>
-                <p style="color:var(--texto-mutado); margin-bottom:0;">El SADRIF analitza <strong>temperatura</strong>, <strong>humitat relativa</strong>, <strong>velocitat del vent</strong> i <strong>pressió atmosfèrica</strong> mitjançant un sistema de puntuació de 0 a 100 punts. També incorpora la <strong>Regla 30-30-30</strong> com a criteri d'alerta extrema.</p>
-            </div>
-        </section>
-
-        <!-- TAULA HISTÒRICA -->
-        <div class="tabla-contenedor animated-element" style="animation-delay: 0.55s;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap: wrap; gap: 15px;">
-                <h3 style="margin:0; font-weight: 800;">Històric de Lectures (Mitjanes cada 5 minuts)</h3>
-                <button class="btn-excel" onclick="exportarTablaAExcel()">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="16" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                    Exportar Excel
-                </button>
-            </div>
-            <table id="tabla-exportable">
-                <thead><tr><th>Tram Horari</th><th>Temp. Mitjana</th><th>Humitat Mitjana</th><th>Vent Mitjà</th><th>Pressió Mitjana</th><th>Nivell Risc Global</th></tr></thead>
-                <tbody id="tabla-datos"></tbody>
-            </table>
-        </div>
-
-        <!-- XARXES SOCIALS -->
-        <div class="redes-sociales-grid animated-element" style="animation-delay: 0.6s;">
-            <a href="https://www.youtube.com/@PlaDRIF_Oficial" target="_blank" class="card-social-link social-yt"><span class="social-icon"><svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span><span>Canal YouTube</span></a>
-            <a href="https://www.twitch.tv/pla_drif" target="_blank" class="card-social-link social-tw"><span class="social-icon"><svg viewBox="0 0 24 24"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg></span><span>Twitch Live</span></a>
-            <a href="https://www.instagram.com/pladrif_cat" target="_blank" class="card-social-link social-ig"><span class="social-icon"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg></span><span>Instagram</span></a>
-        </div>
-        
-    </div>
-
-    <!-- FOOTER -->
-    <footer class="site-footer">
-        <div class="footer-inner">
-            <div class="footer-brand">
-                <a href="index.html" class="footer-brand-logo">
-                    <img src="logo-sadrif.svg" alt="" onerror="this.onerror=null; this.src='logo-sadrif.svg.svg';">
-                    <span>PLA DRIF</span>
-                </a>
-                <p>
-                    Estació autònoma de detecció de risc d'incendis forestals, instal·lada en una zona forestal de Sabadell.
-                    Treball de Recerca de 2n de Batxillerat.
-                </p>
-                <div class="footer-social">
-                    <a href="https://www.youtube.com/@PlaDRIF_Oficial" target="_blank" rel="noopener" aria-label="Canal de YouTube">
-                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22.2 7.4a2.7 2.7 0 0 0-1.9-1.9C18.6 5 12 5 12 5s-6.6 0-8.3.5A2.7 2.7 0 0 0 1.8 7.4 28 28 0 0 0 1.3 12a28 28 0 0 0 .5 4.6 2.7 2.7 0 0 0 1.9 1.9C5.4 19 12 19 12 19s6.6 0 8.3-.5a2.7 2.7 0 0 0 1.9-1.9 28 28 0 0 0 .5-4.6 28 28 0 0 0-.5-4.6z"/><polygon points="9.9 15.1 15.4 12 9.9 8.9 9.9 15.1" fill="currentColor" stroke="none"/></svg>
-                    </a>
-                    <a href="https://www.instagram.com/pladrif_cat" target="_blank" rel="noopener" aria-label="Instagram">
-                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.8"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>
-                    </a>
-                    <a href="https://www.twitch.tv/pla_drif" target="_blank" rel="noopener" aria-label="Directe a Twitch">
-                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3h16v10.5L15.5 18H12l-3 3H7v-3H4z"/><path d="M11 7.5v4M15.5 7.5v4"/></svg>
-                    </a>
-                </div>
-            </div>
-
-            <div class="footer-col">
-                <h5>El projecte</h5>
-                <ul>
-                    <li><a href="index.html">Panell en directe</a></li>
-                    <li><a href="producto3d.html">Dispositiu en 3D</a></li>
-                    <li><a href="sobre-nosotros.html">Sobre el projecte</a></li>
-                    <li><a href="#contenedor-visor">Càmera de vigilància</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-col">
-                <h5>El dispositiu</h5>
-                <ul>
-                    <li><a href="producto3d.html">Fitxa tècnica</a></li>
-                    <li><a href="producto3d.html">Com funciona</a></li>
-                    <li><a href="producto3d.html">Preguntes freqüents</a></li>
-                    <li><a href="https://www.youtube.com/watch?v=5t9_Szm1RwA" target="_blank" rel="noopener">Vídeo del projecte</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-col">
-                <h5>Amb el suport de</h5>
-                <div class="footer-partners">
-                    <div class="footer-partner-chip">
-                        <img src="logo-sabadell.png" alt="Ajuntament de Sabadell" onerror="this.onerror=null; this.src='logo-sabadell.png.png';">
-                        <span>Ajuntament<br>de Sabadell</span>
-                    </div>
-                    <div class="footer-partner-chip">
-                        <img src="logo-generalitat.png" alt="Generalitat de Catalunya" onerror="this.onerror=null; this.src='logo-generalitat.png.png';">
-                        <span>Generalitat<br>de Catalunya</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="footer-bottom">
-            <p class="footer-legal">
-                <strong>Pla DRIF</strong> és un Treball de Recerca de 2n de Batxillerat. No tenim cap vinculació oficial
-                amb les entitats mostrades ni en representem cap.
-            </p>
-            <p>© 2026 Pla DRIF. Tots els drets reservats.</p>
-        </div>
-    </footer>
-
-    <!-- SCRIPTS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        // Funció per obrir/tancar la Llegenda
-        function toggleLeyenda(btn) {
-            const content = document.getElementById('leyenda-mapa');
-            content.classList.toggle('obert');
-            btn.classList.toggle('actiu');
-        }
-
-        // Lógica del CardNav (Adaptada a Vanilla JS con GSAP y cierre rápido)
-        document.addEventListener('DOMContentLoaded', () => {
-            const navEl = document.getElementById('card-nav');
-            const hamburger = document.getElementById('card-nav-hamburger');
-            const contentEl = document.getElementById('card-nav-content');
-            const cards = document.querySelectorAll('.nav-card');
-            let isExpanded = false;
-            let navTimeline;
-
-            gsap.set(navEl, { height: 60, overflow: 'hidden' });
-            gsap.set(cards, { y: 50, opacity: 0 });
-            navTimeline = gsap.timeline({ paused: true });
-
-            function calculateHeight() {
-                const isMobile = window.matchMedia('(max-width: 768px)').matches;
-                if (isMobile) {
-                    const wasVisibility = contentEl.style.visibility;
-                    const wasPosition = contentEl.style.position;
-                    contentEl.style.visibility = 'hidden';
-                    contentEl.style.position = 'absolute';
-                    contentEl.style.display = 'flex';
-                    const contentHeight = contentEl.scrollHeight;
-                    contentEl.style.visibility = wasVisibility;
-                    contentEl.style.position = wasPosition;
-                    contentEl.style.display = '';
-
-                    const topBar = 60;
-                    const padding = 16;
-                    return topBar + contentHeight + padding;
-                }
-                return 260; 
-            }
-
-            function createTimeline() {
-                navTimeline.clear();
-                navTimeline.to(navEl, { height: calculateHeight, duration: 0.5, ease: 'power2.inOut' });
-                navTimeline.to(cards, { y: 0, opacity: 1, duration: 0.42, ease: 'power2.out', stagger: 0.07 }, '-=0.28');
-            }
-
-            createTimeline();
-
-            hamburger.addEventListener('click', () => {
-                isExpanded = !isExpanded;
-                hamburger.classList.toggle('open', isExpanded);
-                navEl.classList.toggle('open', isExpanded);
-                contentEl.setAttribute('aria-hidden', !isExpanded);
-
-                if (isExpanded) {
-                    navTimeline.timeScale(1).play(0);
-                } else {
-                    navTimeline.timeScale(1.15).reverse();
-                }
-            });
-
-            window.addEventListener('resize', () => {
-                if (isExpanded) {
-                    gsap.set(navEl, { height: calculateHeight() });
-                    createTimeline();
-                    navTimeline.progress(1);
-                } else {
-                    createTimeline();
-                }
-            });
-            
-            document.querySelectorAll('.nav-card-link').forEach(link => {
-                link.addEventListener('click', () => {
-                    if (isExpanded) {
-                        hamburger.click();
-                    }
-                });
-            });
-
-            // Tancar el menú amb Escape i obrir-lo amb Enter o Espai.
-            document.addEventListener('keydown', e => { if (e.key === 'Escape' && isExpanded) hamburger.click(); });
-            hamburger.addEventListener('keydown', e => {
-                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); hamburger.click(); }
-            });
-
-            /* Píndola del risc. Aquí, i NOMÉS aquí, el color del risc tenyeix
-               tota la pàgina: el panell principal és el lloc on això té sentit.
-               La píndola apareix quan el percentatge gran surt de pantalla. */
-            window.SadrifRisc.initPindola({
-                sentinella: '#hero-percentage-display',
-                tenyirPagina: true
-            });
-        });
-
-        // Configuración y variables Pla DRIF originales
-        /* El panell ja demana l'històric sencer per als gràfics i la taula:
-           li diem al mòdul compartit que no obri una segona connexió. */
-        window.SadrifRisc.configurar({ fontExterna: true });
-
-        const TWITCH_CHANNEL = "pla_drif"; 
-        const CHANNEL_ID = "3411217"; 
-        const READ_API_KEY = "GYE9XC7CJSA3916";
-        
-        let map, capaGeoJSONGlobal = null;
-        let dadesGlobalsESP32 = { temp: 0, hum: 0, pres: 1012, viento: 0 };
-        let isFirstLoad = true; 
-        let lastValues = { temp: 0, hum: 0, viento: 0, pres: 0, riesgo: 0 };
-        
-        const simulacioComunitats = {
-            "Girona": { temp: 24.2, hum: 55, pres: 1015, viento: 14.5 },
-            "Lleida": { temp: 35.8, hum: 18, pres: 1009, viento: 10.0 }, 
-            "Tarragona": { temp: 29.5, hum: 38, pres: 1011, viento: 28.4 }
+/* =============================================================================
+   SADRIF · Risc en directe  —  mòdul compartit per index.html, producto3d.html
+   i sobre-nosotros.html.
+
+   Una sola font de veritat:
+     · una sola fórmula de càlcul del risc  -> SadrifRisc.calcular()
+     · una sola connexió a ThingSpeak       -> SadrifRisc.subscriure()
+     · una sola píndola "Risc: XX%" al menú -> SadrifRisc.initPindola()
+
+   IMPORTANT sobre els colors:
+   el color del risc NOMÉS tenyeix la pàgina quan s'hi demana explícitament
+   (initPindola({ tenyirPagina: true }), que només fa el panell principal).
+   A la resta de pàgines el color viu dins de la píndola i prou, de manera que
+   el verd maragda de la marca no canvia mai encara que el risc sigui alt.
+   ============================================================================= */
+(function (global) {
+    'use strict';
+
+    var CANAL_ID = '3411217';
+    var CLAU_LECTURA = 'GYE9XC7CJSA3916';
+    var INTERVAL_MS = 15000;
+    var INTERVAL_EXTREMS_MS = 300000;   // mínimes i màximes: cada 5 minuts n'hi ha de sobres
+    var MINUTS_OBSOLET = 30;            // a partir d'aquí, la lectura es marca com a antiga
+
+    /* Escala oficial de nivells. Els colors són els mateixos que fa servir el
+       panell principal, de manera que la píndola i el panell mai no es
+       contradiuen visualment. */
+    var NIVELLS = [
+        { nivell: 0, nom: 'Molt Baix', color: '#10b981', bg: 'rgba(16, 185, 129, 0.08)',  border: 'rgba(16, 185, 129, 0.4)' },
+        { nivell: 1, nom: 'Baix',      color: '#84cc16', bg: 'rgba(132, 204, 22, 0.08)',  border: 'rgba(132, 204, 22, 0.4)' },
+        { nivell: 2, nom: 'Moderat',   color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.08)',  border: 'rgba(245, 158, 11, 0.4)' },
+        { nivell: 3, nom: 'Alt',       color: '#f97316', bg: 'rgba(249, 115, 22, 0.08)',  border: 'rgba(249, 115, 22, 0.4)' },
+        { nivell: 4, nom: 'Extrem',    color: '#ef4444', bg: 'rgba(239, 68, 68, 0.08)',   border: 'rgba(239, 68, 68, 0.4)' }
+    ];
+
+    /* ---------------------------------------------------------------------
+       CÀLCUL DEL RISC (0-100)
+       Idèntic a tot arreu: qualsevol canvi aquí es propaga a les tres pàgines.
+       --------------------------------------------------------------------- */
+    function calcular(temp, hum, pres, vent) {
+        temp = Number(temp) || 0;
+        hum  = Number(hum)  || 0;
+        pres = Number(pres) || 1013;
+        vent = Number(vent) || 0;
+
+        var ptsT = temp > 35 ? 40 : temp > 30 ? 30 : temp > 25 ? 20 : temp > 20 ? 12 : 5;
+        var ptsH = hum < 15 ? 38 : hum < 25 ? 29 : hum < 40 ? 19 : hum < 55 ? 11 : 5;
+        var ptsV = vent > 60 ? 20 : vent > 40 ? 15 : vent > 20 ? 10 : vent > 10 ? 6 : 3;
+        // La pressió baixa aporta un lleuger increment de risc (inestabilitat atmosfèrica)
+        var ptsP = pres < 1005 ? 4 : pres < 1013 ? 2 : 0;
+
+        var punts = Math.min(ptsT + ptsH + ptsV + ptsP, 100);
+
+        // Regla del 30-30-30: escenari d'alerta extrema
+        var regla30 = (temp >= 30 && hum <= 30 && vent >= 30);
+
+        var idx;
+        if (punts <= 25) idx = 0;
+        else if (punts <= 42) idx = 1;
+        else if (punts <= 62) idx = 2;
+        else if (punts <= 80) idx = 3;
+        else idx = 4;
+
+        if (regla30) { idx = 4; punts = 100; }
+
+        var n = NIVELLS[idx];
+        return {
+            punts: punts,
+            idx: idx,
+            nivellNum: n.nivell,
+            nom: regla30 ? 'Extrem (30-30-30)' : n.nom,
+            color: n.color,
+            bg: n.bg,
+            border: n.border,
+            regla30: regla30
         };
+    }
 
-        const diccionariImpacte = {
-            temp: {
-                titul: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M14 14.76V4.5a2.5 2.5 0 0 0-5 0v10.26a4.5 4.5 0 1 0 5 0z"/></svg> Temperatura i assecat de la vegetació`,
-                text: `<p><strong>Importància de la temperatura:</strong> La temperatura és un dels principals factors que condicionen l'estat de la vegetació. Els valors elevats acceleren la pèrdua d'humitat i afavoreixen l'assecat del combustible forestal.</p>
-                       <p><strong>Influència en el risc:</strong> Una temperatura elevada pot augmentar la facilitat d'ignició i afavorir la propagació del foc, especialment quan coincideix amb una humitat relativa baixa.</p>`
-            },
-            hum: {
-                titul: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M12 2.7l5.66 5.65a8 8 0 1 1-11.31 0z"/></svg> Humitat relativa i estat del combustible`,
-                text: `<p><strong>Importància de la humitat:</strong> La humitat relativa és un factor clau per determinar el grau de sequedat de la vegetació. Quan disminueix, el combustible forestal perd humitat i es torna més susceptible d'inflamar-se.</p>
-                       <p><strong>Influència en el risc:</strong> Els valors baixos d'humitat augmenten la disponibilitat de la vegetació per a la combustió i, combinats amb temperatures elevades, poden generar unes condicions especialment favorables per a l'inici i la propagació d'un incendi.</p>`
-            },
-            vent: {
-                titul: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M9.6 4.6A2 2 0 1 1 11 8H2M12.6 19.4A2 2 0 1 0 14 16H2M17.7 7.7A2.5 2.5 0 1 1 19.5 12H2"/></svg> Vent i propagació del foc`,
-                text: `<p><strong>Importància del vent:</strong> La velocitat del vent és un factor determinant en el comportament d'un incendi. El vent pot afavorir l'aportació d'oxigen, inclinar les flames i transportar calor i partícules incandescents.</p>
-                       <p><strong>Influència en el risc:</strong> A mesura que augmenta la velocitat del vent, també pot augmentar la capacitat de propagació del foc i la possibilitat que apareguin nous focus a partir de partícules transportades pel vent.</p>`
-            },
-            pres: {
-                titul: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><circle cx="12" cy="12" r="9"/><path d="M12 12l4.2-3.2"/><path d="M12 3v1.6M21 12h-1.6M3 12h1.6"/></svg> Pressió atmosfèrica i condicions meteorològiques`,
-                text: `<p><strong>Importància de la pressió:</strong> La pressió atmosfèrica actua com un indicador complementari de l'estat de l'atmosfera. Els seus canvis poden estar relacionats amb variacions en les condicions meteorològiques.</p>
-                       <p><strong>Influència en el risc:</strong> En el sistema SADRIF, una pressió baixa contribueix lleugerament a l'increment de la puntuació de risc i complementa la informació aportada per la temperatura, la humitat i el vent.</p>`
-            }
+    /* ---------------------------------------------------------------------
+       DADES EN DIRECTE (ThingSpeak) — una sola connexió compartida
+       --------------------------------------------------------------------- */
+    var subscriptors = [];
+    var temporitzador = null;
+    var ultimaLectura = null;
+    var demanantAra = false;
+    /* El panell principal ja demana l'històric sencer a ThingSpeak per als
+       gràfics i la taula. Quan ho declara, el mòdul no obre una segona
+       connexió: es limita a rebre les dades que li passa la pàgina. */
+    var fontExterna = false;
+
+    function configurar(o) {
+        if (o && o.fontExterna) fontExterna = true;
+    }
+
+    /* Dades que arriben de fora (les que ja ha llegit la pàgina). */
+    function publicar(d) {
+        if (!d) return null;
+        var dades = {
+            temp: Number(d.temp) || 0,
+            hum:  Number(d.hum)  || 0,
+            pres: Number(d.pres) || 1012,
+            vent: Number(d.vent) || 0,
+            data: d.data instanceof Date ? d.data : (d.data ? new Date(d.data) : new Date())
         };
+        ultimaLectura = { dades: dades, risc: calcular(dades.temp, dades.hum, dades.pres, dades.vent) };
+        notificar(ultimaLectura, null);
+        return ultimaLectura;
+    }
 
-        function obrirDetallMeteo(tipus, element) {
-            const tauler = document.getElementById('panel-impacte');
-            const titol = document.getElementById('panel-titul');
-            const text = document.getElementById('panel-text');
-            const estaActiva = element.classList.contains('activa');
+    function urlCanal(params) {
+        return 'https://api.thingspeak.com/channels/' + CANAL_ID +
+               '/feeds.json?api_key=' + CLAU_LECTURA + '&' + params;
+    }
 
-            document.querySelectorAll('.tarjeta-hero-lectura').forEach(el => el.classList.remove('activa'));
+    function llegirCanal() {
+        if (demanantAra) return Promise.resolve(ultimaLectura);
+        demanantAra = true;
+        return fetch(urlCanal('results=1'))
+            .then(function (r) {
+                if (!r.ok) throw new Error('ThingSpeak ha respost ' + r.status);
+                return r.json();
+            })
+            .then(function (data) {
+                var feeds = data && data.feeds;
+                if (!feeds || !feeds.length) throw new Error('Cap lectura disponible');
+                var f = feeds[feeds.length - 1];
+                var dades = {
+                    temp: parseFloat(f.field1) || 0,
+                    hum:  parseFloat(f.field2) || 0,
+                    pres: parseFloat(f.field3) || 1012,
+                    vent: parseFloat(f.field4) || 0,
+                    data: f.created_at ? new Date(f.created_at) : null
+                };
+                ultimaLectura = { dades: dades, risc: calcular(dades.temp, dades.hum, dades.pres, dades.vent) };
+                notificar(ultimaLectura, null);
+                return ultimaLectura;
+            })
+            .catch(function (err) {
+                console.warn('[SadrifRisc] No s\'han pogut llegir les dades:', err.message);
+                notificar(ultimaLectura, err);
+                return ultimaLectura;
+            })
+            .then(function (res) { demanantAra = false; return res; });
+    }
 
-            if (!estaActiva) {
-                element.classList.add('activa');
-                titol.innerHTML = diccionariImpacte[tipus].titul;
-                text.innerHTML = diccionariImpacte[tipus].text;
-                tauler.classList.add('obert');
-            } else { tauler.classList.remove('obert'); }
+    function notificar(payload, err) {
+        for (var i = 0; i < subscriptors.length; i++) {
+            try { subscriptors[i](payload, err); } catch (e) { console.error('[SadrifRisc]', e); }
         }
+    }
 
-        function toggleSaberMes(idTargeta, btn) { 
-            document.getElementById(idTargeta).classList.toggle('obert'); 
-            btn.classList.toggle('actiu');
-        }
+    function arrencarBucle() {
+        if (fontExterna || temporitzador !== null) return;
+        llegirCanal();
+        temporitzador = setInterval(function () {
+            // Amb la pestanya amagada no cal gastar dades: es reprèn en tornar.
+            if (!document.hidden) llegirCanal();
+        }, INTERVAL_MS);
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) llegirCanal();
+        });
+    }
 
-        function initMapa() {
-            map = L.map('mapa-real-catalunya', { center: [41.82, 1.85], zoom: 7.2, zoomControl: false });
-            // Sense {r}: les tessel·les retina (@2x) de CARTO demanen API key i tornen
-            // la imatge amb una marca d'aigua "API KEY REQUIRED" a sobre.
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>'
-            }).addTo(map);
-            
-            const sabIcon = L.divIcon({ className: 'custom-pin', html: `<div style="background:#ef4444; width:16px; height:16px; border-radius:50%; border:3px solid #fff; box-shadow:0 0 12px #ef4444;"></div>`, iconSize: [16, 16] });
-            const marker = L.marker([41.5481, 2.1074], { icon: sabIcon }).addTo(map);
-            
-            marker.on('mouseover', function() {
-                let d = dadesGlobalsESP32;
-                this.bindTooltip(`<b><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M20 10.5c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10.3" r="2.8"/></svg> Sensor SADRIF (Sabadell)</b><br><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M14 14.76V4.5a2.5 2.5 0 0 0-5 0v10.26a4.5 4.5 0 1 0 5 0z"/></svg> Temp: ${d.temp.toFixed(1)}°C<br><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M12 2.7l5.66 5.65a8 8 0 1 1-11.31 0z"/></svg> Humitat: ${d.hum.toFixed(0)}%<br><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M9.6 4.6A2 2 0 1 1 11 8H2M12.6 19.4A2 2 0 1 0 14 16H2M17.7 7.7A2.5 2.5 0 1 1 19.5 12H2"/></svg> Vent: ${d.viento.toFixed(1)} km/h`, {direction: 'top'}).openTooltip();
-            });
+    /* Registra una funció que rebrà ({dades, risc}, error) a cada actualització.
+       Retorna la funció per donar-se de baixa. */
+    function subscriure(cb) {
+        if (typeof cb !== 'function') return function () {};
+        subscriptors.push(cb);
+        if (ultimaLectura) cb(ultimaLectura, null);
+        arrencarBucle();
+        return function () {
+            var i = subscriptors.indexOf(cb);
+            if (i > -1) subscriptors.splice(i, 1);
+        };
+    }
 
-            fetch("https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/spain-provinces.geojson")
-                .then(res => res.json())
-                .then(geoData => {
-                    const catalunyaGeoJSON = { "type": "FeatureCollection", "features": geoData.features.filter(f => ["Barcelona", "Girona", "Lleida", "Tarragona"].includes(f.properties.name)) };
-                    capaGeoJSONGlobal = L.geoJSON(catalunyaGeoJSON, {
-                        style: function(feature) {
-                            let d = (feature.properties.name === "Barcelona") ? dadesGlobalsESP32 : simulacioComunitats[feature.properties.name];
-                            let r = calcularRiesgoCriterio(d.temp, d.hum, d.pres, d.viento);
-                            return { fillColor: r.color, fillOpacity: 0.28, color: r.color, weight: 2 };
-                        },
-                        onEachFeature: function(feature, layer) {
-                            layer.on({
-                                mouseover: function(e) {
-                                    let layer = e.target;
-                                    let d = (feature.properties.name === "Barcelona") ? dadesGlobalsESP32 : simulacioComunitats[feature.properties.name];
-                                    let r = calcularRiesgoCriterio(d.temp, d.hum, d.pres, d.viento);
-                                    let popContent = `<div style="font-size: 14px;"><strong style="color:${r.color}; font-size:16px;">${feature.properties.name}</strong><hr style="margin:5px 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M14 14.76V4.5a2.5 2.5 0 0 0-5 0v10.26a4.5 4.5 0 1 0 5 0z"/></svg> <b>${d.temp.toFixed(1)} °C</b><br><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M12 2.7l5.66 5.65a8 8 0 1 1-11.31 0z"/></svg> <b>${d.hum.toFixed(0)} %</b><br><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M9.6 4.6A2 2 0 1 1 11 8H2M12.6 19.4A2 2 0 1 0 14 16H2M17.7 7.7A2.5 2.5 0 1 1 19.5 12H2"/></svg> <b>${d.viento.toFixed(1)} km/h</b><br><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4.5M12 17.5h.01"/></svg> Risc: <b>Nivell ${r.nivelNum} · ${r.nivel}</b></div>`;
-                                    layer.bindTooltip(popContent, {sticky: true, className: 'leaflet-tooltip'}).openTooltip();
-                                    layer.setStyle({ weight: 4, fillOpacity: 0.5 });
-                                },
-                                mouseout: function(e) { capaGeoJSONGlobal.resetStyle(e.target); e.target.closeTooltip(); }
-                            });
-                        }
-                    }).addTo(map);
+    /* ---------------------------------------------------------------------
+       MÍNIMES I MÀXIMES DE LES ÚLTIMES 24 HORES
+       Es demanen a part i molt de tant en tant: són moltes més lectures i no
+       tenen cap sentit refrescar-les cada 15 segons.
+       --------------------------------------------------------------------- */
+    var subsExtrems = [];
+    var ultimsExtrems = null;
+    var temporitzadorExtrems = null;
+
+    function llegirExtrems() {
+        return fetch(urlCanal('days=1&results=8000'))
+            .then(function (r) {
+                if (!r.ok) throw new Error('ThingSpeak ha respost ' + r.status);
+                return r.json();
+            })
+            .then(function (data) {
+                var feeds = (data && data.feeds) || [];
+                var camps = { temp: 'field1', hum: 'field2', pres: 'field3', vent: 'field4' };
+                var res = {};
+                Object.keys(camps).forEach(function (clau) { res[clau] = null; });
+
+                feeds.forEach(function (f) {
+                    Object.keys(camps).forEach(function (clau) {
+                        var v = parseFloat(f[camps[clau]]);
+                        if (!isFinite(v)) return;
+                        var quan = f.created_at ? new Date(f.created_at) : null;
+                        var e = res[clau];
+                        if (!e) { res[clau] = { min: v, max: v, minQuan: quan, maxQuan: quan }; return; }
+                        if (v < e.min) { e.min = v; e.minQuan = quan; }
+                        if (v > e.max) { e.max = v; e.maxQuan = quan; }
+                    });
                 });
-        }
 
-        let cTemp, cHum, cVent, cPres;
-        function crearConfigGrafica(label, color, format) {
-            return {
-                type: 'line',
-                data: { labels: [], datasets: [{ label: label, borderColor: color, backgroundColor: color + '22', fill: true, data: [], tension: 0.35, borderWidth: 2.5, pointRadius: 3 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: label, font: { family: "'Plus Jakarta Sans', sans-serif", weight: '700' } } }, scales: { y: { ticks: { callback: function(value) { return (Math.round(value * 10) / 10) + format; } } }, x: { display: false } } }
-            };
-        }
-        function initGraficas() {
-            cTemp = new Chart(document.getElementById('chartTemp').getContext('2d'), crearConfigGrafica('Temperatura (°C)', '#ef4444', '°C'));
-            cHum = new Chart(document.getElementById('chartHum').getContext('2d'), crearConfigGrafica('Humitat (%)', '#3b82f6', '%'));
-            cVent = new Chart(document.getElementById('chartVent').getContext('2d'), crearConfigGrafica('Vent (km/h)', '#10b981', 'km/h'));
-            cPres = new Chart(document.getElementById('chartPres').getContext('2d'), crearConfigGrafica('Pressió (hPa)', '#8b5cf6', 'hPa'));
-        }
-
-        function animateNumber(id, start, end, duration, decimals = 0) {
-            const obj = document.getElementById(id);
-            if (!obj) return;
-            if (!isFirstLoad && start === end) { obj.innerText = end.toFixed(decimals); return; }
-            let animDuration = isFirstLoad ? duration : 500; let startVal = isFirstLoad ? 0 : start; let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / animDuration, 1);
-                obj.innerText = (startVal + (end - startVal) * (1 - Math.pow(1 - progress, 3))).toFixed(decimals);
-                if (progress < 1) window.requestAnimationFrame(step); else obj.innerText = end.toFixed(decimals);
-            };
-            window.requestAnimationFrame(step);
-        }
-
-        /* =========================================================
-           MODEL DE RISC — 5 NIVELLS (textos oficials del Pla DRIF)
-           Nivell 0 · Molt Baix | 1 · Baix | 2 · Moderat | 3 · Alt | 4 · Extrem
-           ========================================================= */
-        const NIVELLS_RISC = [
-            {
-                nivell: 0,
-                nom: "Molt Baix",
-                alfa: "Nivell 0 · Perill Molt Baix",
-                color: "#10b981", bg: "rgba(16, 185, 129, 0.08)", border: "rgba(16, 185, 129, 0.4)",
-                vegBadge: "Condicions Favorables",
-                txtV: "La vegetació presenta un nivell d'humitat favorable i les condicions ambientals dificulten l'inici i la propagació d'un incendi forestal.",
-                extraVeg: "Les condicions de temperatura, humitat, vent i pressió atmosfèrica indiquen un escenari de baixa probabilitat de propagació del foc. La vegetació conserva un nivell d'humitat favorable i presenta una menor facilitat d'ignició.",
-                txtA: "Es mantenen les mesures bàsiques de prevenció i es recomana actuar de manera responsable en qualsevol activitat desenvolupada al medi natural.",
-                mesuresTitol: "Mesures preventives:",
-                mesures: [
-                    "No llençar burilles, llumins ni altres materials encesos.",
-                    "No abandonar residus ni materials combustibles al medi natural.",
-                    "Respectar les zones habilitades per a l'ús del foc.",
-                    "Mantenir lliures els camins i accessos per als vehicles d'emergència.",
-                    "Evitar qualsevol actuació negligent que pugui provocar una ignició."
-                ]
-            },
-            {
-                nivell: 1,
-                nom: "Baix",
-                alfa: "Nivell 1 · Perill Baix",
-                color: "#84cc16", bg: "rgba(132, 204, 22, 0.08)", border: "rgba(132, 204, 22, 0.4)",
-                vegBadge: "Estrès Hídric Lleu",
-                txtV: "La vegetació comença a presentar signes lleus de sequedat, tot i que les condicions generals encara mantenen un risc reduït d'incendi.",
-                extraVeg: "L'augment de la temperatura i la disminució de la humitat poden començar a afectar l'estat del combustible vegetal. Tot i això, les condicions actuals encara limiten la propagació ràpida del foc.",
-                txtA: "Es recomana augmentar la precaució en zones forestals i evitar qualsevol activitat que pugui generar una font d'ignició.",
-                mesuresTitol: "Mesures preventives:",
-                mesures: [
-                    "No llençar burilles ni llumins.",
-                    "No deixar residus o materials combustibles al bosc.",
-                    "Evitar qualsevol activitat que pugui generar flames o espurnes.",
-                    "No utilitzar barbacoes que no estiguin autoritzades.",
-                    "Respectar les zones i condicions establertes per a les activitats amb risc d'incendi.",
-                    "Mantenir lliures els accessos per als vehicles d'emergència."
-                ]
-            },
-            {
-                nivell: 2,
-                nom: "Moderat",
-                alfa: "Nivell 2 · Perill Moderat",
-                color: "#f59e0b", bg: "rgba(245, 158, 11, 0.08)", border: "rgba(245, 158, 11, 0.4)",
-                vegBadge: "Estrès Hídric Moderat",
-                txtV: "La vegetació presenta un augment de la sequedat. La combinació de temperatures elevades i una menor humitat pot afavorir l'inici i la propagació d'un incendi.",
-                extraVeg: "Les condicions ambientals comencen a ser favorables per a la ignició del combustible vegetal. La reducció de la humitat i l'augment de la temperatura incrementen la vulnerabilitat de la vegetació davant d'una possible font d'ignició.",
-                txtA: "Es recomana extremar les mesures de prevenció i evitar qualsevol activitat que pugui generar flames, espurnes o altres fonts d'ignició.",
-                mesuresTitol: "Mesures preventives i restriccions:",
-                mesures: [
-                    "Evitar encendre foc en espais oberts.",
-                    "No realitzar cremes de restes vegetals sense l'autorització o comunicació corresponent.",
-                    "Evitar l'ús de maquinària que pugui generar espurnes en zones forestals.",
-                    "No utilitzar pirotècnia en zones on existeixi risc d'incendi.",
-                    "No llençar burilles, llumins ni altres materials encesos.",
-                    "No utilitzar barbacoes fora dels espais i condicions autoritzats.",
-                    "Mantenir una vigilància activa de l'entorn.",
-                    "Comunicar immediatament qualsevol indici de fum o incendi."
-                ]
-            },
-            {
-                nivell: 3,
-                nom: "Alt",
-                alfa: "Nivell 3 · Perill Alt",
-                color: "#f97316", bg: "rgba(249, 115, 22, 0.08)", border: "rgba(249, 115, 22, 0.4)",
-                vegBadge: "Estrès Hídric Elevat",
-                txtV: "La vegetació presenta un nivell elevat de sequedat i inflamabilitat. Qualsevol font d'ignició pot afavorir l'inici i la ràpida propagació d'un incendi.",
-                extraVeg: "La combinació dels paràmetres ambientals indica unes condicions especialment favorables per a la propagació del foc. La baixa humitat del combustible vegetal, juntament amb temperatures elevades i altres factors meteorològics adversos, incrementa considerablement el risc d'incendi.",
-                txtA: "S'han d'extremar les mesures de prevenció i evitar les activitats que puguin generar una ignició, especialment en terrenys forestals i en el seu entorn immediat.",
-                mesuresTitol: "Restriccions i mesures preventives:",
-                mesures: [
-                    "No encendre foc en espais oberts.",
-                    "No realitzar cremes de rostolls, pastures, restes de poda o restes silvícoles.",
-                    "No encendre foc en àrees recreatives, zones d'acampada ni àrees de descans de carreteres.",
-                    "No utilitzar maquinària o equips que puguin generar deflagracions, espurnes o descàrregues elèctriques en terrenys forestals i zones rurals properes, excepte en els casos expressament autoritzats o necessaris per a l'extinció.",
-                    "No llençar burilles ni altres materials encesos.",
-                    "Evitar qualsevol activitat que pugui generar una font d'ignició."
-                ]
-            },
-            {
-                nivell: 4,
-                nom: "Extrem",
-                alfa: "Nivell 4 · Perill Extrem",
-                color: "#ef4444", bg: "rgba(239, 68, 68, 0.08)", border: "rgba(239, 68, 68, 0.4)",
-                vegBadge: "Estrès Hídric Crític",
-                txtV: "La vegetació presenta unes condicions d'inflamabilitat molt elevades. La combinació de factors ambientals pot afavorir una ignició ràpida i una propagació molt intensa del foc.",
-                extraVeg: "Les condicions meteorològiques i l'estat del combustible vegetal configuren un escenari de perill extrem. La coincidència de temperatures elevades, baixa humitat i vent pot incrementar considerablement la capacitat de propagació d'un incendi forestal.",
-                txtA: "Es requereix el màxim nivell de prevenció. S'han de limitar les activitats al medi natural i evitar qualsevol actuació que pugui generar una font d'ignició.",
-                mesuresTitol: "Restriccions i mesures especials:",
-                mesures: [
-                    "Prohibició d'encendre foc en espais oberts.",
-                    "Suspensió de les activitats amb risc d'incendi forestal.",
-                    "Prohibició de realitzar cremes de restes vegetals, rostolls o restes forestals.",
-                    "Prohibició de l'ús de maquinària o equips que puguin generar espurnes, deflagracions o descàrregues elèctriques en les zones afectades, excepte les actuacions autoritzades o necessàries per a l'extinció.",
-                    "Prohibició de l'ús de material pirotècnic quan s'estableixin les restriccions corresponents.",
-                    "Restricció de l'accés a determinats espais naturals forestals quan així ho determinin les autoritats competents.",
-                    "Limitació o suspensió d'activitats esportives, d'acampada, rutes o altres activitats en espais forestals quan sigui establert.",
-                    "Mantenir lliures els accessos per als serveis d'emergència.",
-                    "Reforçar la vigilància i comunicar immediatament qualsevol columna de fum o indici d'incendi."
-                ]
-            }
-        ];
-
-        function llistaMesuresHTML(nivell) {
-            return '<ul class="llista-mesures">' + nivell.mesures.map(m => '<li>' + m + '</li>').join('') + '</ul>';
-        }
-
-        function calcularRiesgoCriterio(temp, hum, pres, viento) {
-            /* La puntuació i el nivell es calculen a risc-live.js, que és el
-               mòdul compartit per les tres pàgines: així el panell, el model 3D
-               i la pàgina "Sobre el projecte" mostren sempre el mateix valor. */
-            const r = window.SadrifRisc.calcular(temp, hum, pres, viento);
-            const totalPuntos = r.punts;
-            const regla30 = r.regla30;
-            const n = NIVELLS_RISC[r.idx];
-
-            return {
-                puntos: totalPuntos,
-                color: n.color, bg: n.bg, border: n.border,
-                nivel: regla30 ? "Extrem (30-30-30)" : n.nom,
-                nivelNum: n.nivell,
-                txtV: n.txtV,
-                txtA: n.txtA,
-                alfa: n.alfa,
-                vegBadge: n.vegBadge,
-                extraVeg: n.extraVeg,
-                mesuresTitol: n.mesuresTitol,
-                extraAccion: llistaMesuresHTML(n),
-                regla30
-            };
-        }
-
-        function obtenirEstatImpacte(tipus, valor) {
-            if (tipus === 'temp') {
-                if (valor >= 35) return { text: 'Crítica', color: '#ef4444' };
-                if (valor >= 30) return { text: 'Alta', color: '#f97316' };
-                if (valor >= 25) return { text: 'Moderada', color: '#f59e0b' };
-                return { text: 'Òptima', color: '#3b82f6' };
-            }
-            if (tipus === 'hum') {
-                if (valor <= 15) return { text: 'Crítica', color: '#ef4444' };
-                if (valor <= 25) return { text: 'Baixa', color: '#f97316' };
-                if (valor <= 40) return { text: 'Moderada', color: '#f59e0b' };
-                return { text: 'Òptima', color: '#3b82f6' };
-            }
-            if (tipus === 'vent') {
-                if (valor >= 60) return { text: 'Crític', color: '#ef4444' };
-                if (valor >= 40) return { text: 'Fort', color: '#f97316' };
-                if (valor >= 20) return { text: 'Moderat', color: '#f59e0b' };
-                return { text: 'Normal', color: '#3b82f6' };
-            }
-            if (tipus === 'pres') {
-                if (valor >= 1025) return { text: 'Alta', color: '#f97316' };
-                if (valor > 1015) return { text: 'Moderada', color: '#f59e0b' };
-                if (valor >= 1005) return { text: 'Normal', color: '#10b981' };
-                return { text: 'Baixa (Inestable)', color: '#3b82f6' };
-            }
-        }
-
-        function actualitzarBordesYEtiquetes(dades) {
-            const variables = ['temp', 'hum', 'vent', 'pres'];
-            const valors = { temp: dades.temp, hum: dades.hum, vent: dades.viento, pres: dades.pres };
-            
-            variables.forEach(param => {
-                const info = obtenirEstatImpacte(param, valors[param]);
-                const card = document.getElementById(`card-${param}`);
-                const bubble = document.getElementById(`bubble-${param}`);
-                
-                if (card && bubble) {
-                    card.style.borderColor = info.color;
-                    card.style.boxShadow = `0 8px 32px 0 rgba(31, 38, 135, 0.07), 0 0 15px ${info.color}30, inset 0 1px 2px rgba(255, 255, 255, 0.8)`;
-                    bubble.style.backgroundColor = info.color;
-                    bubble.innerText = info.text;
-                }
+                ultimsExtrems = { valors: res, lectures: feeds.length };
+                subsExtrems.forEach(function (cb) {
+                    try { cb(ultimsExtrems); } catch (e) { console.error('[SadrifRisc]', e); }
+                });
+                return ultimsExtrems;
+            })
+            .catch(function (err) {
+                console.warn('[SadrifRisc] Mínimes i màximes no disponibles:', err.message);
+                return ultimsExtrems;
             });
+    }
+
+    function subscriureExtrems(cb) {
+        if (typeof cb !== 'function') return function () {};
+        subsExtrems.push(cb);
+        if (ultimsExtrems) cb(ultimsExtrems);
+        if (temporitzadorExtrems === null) {
+            llegirExtrems();
+            temporitzadorExtrems = setInterval(function () {
+                if (!document.hidden) llegirExtrems();
+            }, INTERVAL_EXTREMS_MS);
         }
+        return function () {
+            var i = subsExtrems.indexOf(cb);
+            if (i > -1) subsExtrems.splice(i, 1);
+        };
+    }
 
-        function actualitzarVisors(dades) {
-            let tempPct = Math.min(Math.max((dades.temp / 50) * 100, 0), 100);
-            let tempColor = dades.temp >= 30 ? '#ef4444' : (dades.temp >= 20 ? '#f59e0b' : '#3b82f6');
-            document.getElementById('vis-temp-fill').style.height = tempPct + '%';
-            document.getElementById('vis-temp-fill').style.backgroundColor = tempColor;
-            document.getElementById('vis-temp-bulb').style.backgroundColor = tempColor;
-            document.getElementById('vis-hum-fill').style.height = dades.hum + '%';
-            
-            let ventDeg = Math.min(Math.max((dades.viento / 100) * 180 - 90, -90), 90);
-            let ventColor = dades.viento >= 30 ? '#ef4444' : (dades.viento >= 15 ? '#f59e0b' : '#10b981');
-            document.getElementById('vis-vent-needle').style.transform = `rotate(${ventDeg}deg)`;
-            document.getElementById('vis-vent-needle').style.backgroundColor = ventColor;
-            
-            let presDeg = Math.min(Math.max(((dades.pres - 950) / 100) * 270 - 135, -135), 135);
-            document.getElementById('vis-pres-needle').style.transform = `rotate(${presDeg}deg)`;
-        }
+    /* ---------------------------------------------------------------------
+       UTILITATS DE FORMAT
+       --------------------------------------------------------------------- */
+    function fa(data) {
+        if (!data) return null;
+        var min = Math.floor((Date.now() - data.getTime()) / 60000);
+        if (min < 0) min = 0;
+        if (min < 1) return 'ara mateix';
+        if (min === 1) return 'fa 1 minut';
+        if (min < 60) return 'fa ' + min + ' minuts';
+        var h = Math.floor(min / 60);
+        if (h === 1) return 'fa 1 hora';
+        if (h < 24) return 'fa ' + h + ' hores';
+        var d = Math.floor(h / 24);
+        return d === 1 ? 'fa 1 dia' : 'fa ' + d + ' dies';
+    }
 
-        async function actualizarDatosWeb() {
-            try {
-                const res = await fetch(`https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json?api_key=${READ_API_KEY}&results=30`);
-                const data = await res.json();
-                
-                if (data.feeds && data.feeds.length > 0) {
-                    const ultimo = data.feeds[data.feeds.length - 1];
-                    dadesGlobalsESP32 = { temp: parseFloat(ultimo.field1) || 0, hum: parseFloat(ultimo.field2) || 0, pres: parseFloat(ultimo.field3) || 1012, viento: parseFloat(ultimo.field4) || 0 };
-                    const conf = calcularRiesgoCriterio(dadesGlobalsESP32.temp, dadesGlobalsESP32.hum, dadesGlobalsESP32.pres, dadesGlobalsESP32.viento);
+    function esObsoleta(data) {
+        if (!data) return true;
+        return (Date.now() - data.getTime()) / 60000 > MINUTS_OBSOLET;
+    }
 
-                    /* El mòdul compartit s'encarrega del color de la pàgina, del
-                       valor de la píndola i del seu desplegable amb el detall. */
-                    window.SadrifRisc.publicar({
-                        temp: dadesGlobalsESP32.temp, hum: dadesGlobalsESP32.hum,
-                        pres: dadesGlobalsESP32.pres, vent: dadesGlobalsESP32.viento,
-                        data: ultimo.created_at
-                    });
+    function hora(data) {
+        if (!data) return '--:--';
+        return data.toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' });
+    }
 
-                    document.getElementById('hero-risk-fill').style.width = conf.puntos + "%";
-                    
-                    document.getElementById('txt-consejo-sucediendo').innerText = conf.txtV;
-                    document.getElementById('txt-consejo-accion').innerText = conf.txtA;
-                    document.getElementById('badge-veg-estat').innerText = conf.vegBadge;
-                    document.getElementById('badge-veg-estat').style.color = conf.color;
-                    document.getElementById('badge-veg-estat').style.borderColor = conf.color;
-                    
-                    document.getElementById('badge-alfa-estat').innerText = conf.alfa;
-                    document.getElementById('badge-alfa-estat').style.color = conf.color;
-                    document.getElementById('badge-alfa-estat').style.borderColor = conf.color;
+    /* ---------------------------------------------------------------------
+       PÍNDOLA DEL MENÚ + DESPLEGABLE AMB EL DETALL
+       opcions.sentinella  : selector de l'element que, mentre es vegi, manté la
+                             píndola amagada (al panell és el percentatge gran).
+       opcions.tenyirPagina: si és cert, el color del risc s'escriu a l'arrel del
+                             document. Només l'activa el panell principal.
+       --------------------------------------------------------------------- */
+    var FILES = [
+        { clau: 'temp', nom: 'Temperatura', unitat: '°C',   dec: 1 },
+        { clau: 'hum',  nom: 'Humitat',     unitat: '%',    dec: 0 },
+        { clau: 'vent', nom: 'Vent',        unitat: 'km/h', dec: 1 },
+        { clau: 'pres', nom: 'Pressió',     unitat: 'hPa',  dec: 0 }
+    ];
 
-                    document.getElementById('extra-veg-text').innerHTML = conf.extraVeg;
-                    document.getElementById('extra-pla-titol').innerText = conf.mesuresTitol;
-                    document.getElementById('extra-pla-text').innerHTML = conf.extraAccion;
-                    
-                    document.getElementById('banner-urgente-30-30-30').style.display = conf.regla30 ? 'block' : 'none';
+    function construirDesplegable(contenidor) {
+        var pop = document.createElement('div');
+        pop.className = 'risc-pop';
+        pop.id = 'risc-pop';
+        pop.setAttribute('role', 'region');
+        pop.setAttribute('aria-label', 'Detall del risc en directe');
+        pop.hidden = true;
+        pop.innerHTML =
+            '<div class="risc-pop__top">' +
+                '<div>' +
+                    '<div class="risc-pop__nivell" data-pop="nivell">--</div>' +
+                    '<div class="risc-pop__sub" data-pop="subnivell">Carregant dades…</div>' +
+                '</div>' +
+                '<div class="risc-pop__punts"><span data-pop="punts">--</span><small>/100</small></div>' +
+            '</div>' +
+            '<div class="risc-pop__barra"><i data-pop="barra"></i></div>' +
+            '<dl class="risc-pop__llista" data-pop="llista"></dl>' +
+            '<div class="risc-pop__regla is-alerta" data-pop="regla" hidden></div>' +
+            '<div class="risc-pop__peu">' +
+                '<span data-pop="quan">—</span>' +
+                '<span class="risc-pop__lloc">Estació SADRIF · Sabadell</span>' +
+            '</div>' +
+            '<a class="risc-pop__cta" href="index.html#inicio">Veure el panell complet' +
+                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg>' +
+            '</a>';
 
-                    animateNumber('hero-riesgo-pct', lastValues.riesgo, conf.puntos, 1500, 0);
-                    animateNumber('hero-temp', lastValues.temp, dadesGlobalsESP32.temp, 1000, 1);
-                    animateNumber('hero-hum', lastValues.hum, dadesGlobalsESP32.hum, 1000, 0);
-                    animateNumber('hero-viento', lastValues.viento, dadesGlobalsESP32.viento, 1000, 1);
-                    animateNumber('hero-presion', lastValues.pres, dadesGlobalsESP32.pres, 1000, 0);
-                    
-                    actualitzarVisors(dadesGlobalsESP32);
-                    actualitzarBordesYEtiquetes(dadesGlobalsESP32);
-                    
-                    lastValues = { temp: dadesGlobalsESP32.temp, hum: dadesGlobalsESP32.hum, viento: dadesGlobalsESP32.viento, pres: dadesGlobalsESP32.pres, riesgo: conf.puntos };
-
-                    let labels = [], dTemp = [], dHum = [], dVent = [], dPres = [];
-                    data.feeds.forEach(f => {
-                        labels.push(new Date(f.created_at).toLocaleTimeString('ca-ES', {hour:'2-digit', minute:'2-digit'}));
-                        dTemp.push(parseFloat(f.field1)||0); dHum.push(parseFloat(f.field2)||0);
-                        dPres.push(parseFloat(f.field3)||1012); dVent.push(parseFloat(f.field4)||0);
-                    });
-                    cTemp.data.labels = labels; cTemp.data.datasets[0].data = dTemp; cTemp.update('none');
-                    cHum.data.labels = labels; cHum.data.datasets[0].data = dHum; cHum.update('none');
-                    cVent.data.labels = labels; cVent.data.datasets[0].data = dVent; cVent.update('none');
-                    cPres.data.labels = labels; cPres.data.datasets[0].data = dPres; cPres.update('none');
-
-                    if (capaGeoJSONGlobal) {
-                        capaGeoJSONGlobal.eachLayer(layer => {
-                            let d = (layer.feature.properties.name === "Barcelona") ? dadesGlobalsESP32 : simulacioComunitats[layer.feature.properties.name];
-                            let r = calcularRiesgoCriterio(d.temp, d.hum, d.pres, d.viento);
-                            layer.setStyle({ fillColor: r.color, color: r.color });
-                        });
-                    }
-
-                    // HISTORIAL: CÀLCUL DE MITJANES CADA 5 MINUTS
-                    const tbody = document.getElementById('tabla-datos');
-                    let intervales = {};
-                    
-                    data.feeds.forEach(f => {
-                        let dataLectura = new Date(f.created_at);
-                        let minutsArrodonits = Math.floor(dataLectura.getMinutes() / 5) * 5;
-                        let startInterval = new Date(dataLectura);
-                        startInterval.setMinutes(minutsArrodonits, 0, 0);
-                        let endInterval = new Date(startInterval);
-                        endInterval.setMinutes(startInterval.getMinutes() + 5);
-                        let clau = startInterval.getTime();
-                        
-                        if (!intervales[clau]) {
-                            intervales[clau] = { start: startInterval, end: endInterval, temps: [], hums: [], vents: [], press: [] };
-                        }
-                        intervales[clau].temps.push(parseFloat(f.field1) || 0);
-                        intervales[clau].hums.push(parseFloat(f.field2) || 0);
-                        intervales[clau].press.push(parseFloat(f.field3) || 1012);
-                        intervales[clau].vents.push(parseFloat(f.field4) || 0);
-                    });
-
-                    let filesHTML = Object.values(intervales)
-                        .sort((a, b) => b.start - a.start) 
-                        .slice(0, 5) 
-                        .map(int => {
-                            let mitjanaT = int.temps.reduce((a, b) => a + b, 0) / int.temps.length;
-                            let mitjanaH = int.hums.reduce((a, b) => a + b, 0) / int.hums.length;
-                            let mitjanaV = int.vents.reduce((a, b) => a + b, 0) / int.vents.length;
-                            let mitjanaP = int.press.reduce((a, b) => a + b, 0) / int.press.length;
-                            
-                            let rPts = calcularRiesgoCriterio(mitjanaT, mitjanaH, mitjanaP, mitjanaV);
-                            
-                            let strHoraInici = int.start.toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' });
-                            let strHoraFi = int.end.toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' });
-
-                            return `<tr>
-                                <td>${strHoraInici} - ${strHoraFi}</td>
-                                <td>${mitjanaT.toFixed(1)} °C</td>
-                                <td>${mitjanaH.toFixed(0)} %</td>
-                                <td>${mitjanaV.toFixed(1)} km/h</td>
-                                <td>${mitjanaP.toFixed(0)} hPa</td>
-                                <td><span class="badge-risc" style="background:${rPts.color}; box-shadow: 0 4px 10px ${rPts.color}40;">N${rPts.nivelNum} · ${rPts.nivel} (${rPts.puntos}%)</span></td>
-                            </tr>`;
-                        }).join('');
-                    
-                    tbody.innerHTML = filesHTML;
-
-                    if (isFirstLoad) {
-                        const iframeTwitch = document.createElement('iframe');
-                        iframeTwitch.src = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${window.location.hostname||"localhost"}&autoplay=true&muted=true`;
-                        iframeTwitch.style.width = '100%'; iframeTwitch.style.height = '100%'; iframeTwitch.style.border = 'none';
-                        document.getElementById('contenedor-visor').appendChild(iframeTwitch);
-                        isFirstLoad = false;
-                    }
-                }
-            } catch (err) { console.error("Error al carregar dades:", err); }
-        }
-
-        function exportarTablaAExcel() {
-            let blob = new Blob([document.getElementById("tabla-exportable").outerHTML], { type: "application/vnd.ms-excel" });
-            let link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "SADRIF_Historial_Mitjanes.xls"; link.click();
-        }
-
-        /* Mínimes i màximes de les últimes 24 hores, sota cada lectura.
-           Les demana el mòdul compartit una vegada cada 5 minuts: són moltes
-           més lectures i no té cap sentit refrescar-les cada 15 segons. */
-        const EXTREMS_FORMAT = { temp: 1, hum: 0, vent: 1, pres: 0 };
-        window.SadrifRisc.subscriureExtrems(function (ext) {
-            Object.keys(EXTREMS_FORMAT).forEach(function (clau) {
-                const cont = document.getElementById('ext-' + clau);
-                const dades = ext.valors[clau];
-                if (!cont) return;
-                if (!dades) { cont.hidden = true; return; }
-                const dec = EXTREMS_FORMAT[clau];
-                cont.querySelector('[data-min]').textContent = dades.min.toFixed(dec);
-                cont.querySelector('[data-max]').textContent = dades.max.toFixed(dec);
-                cont.setAttribute('title',
-                    'Últimes 24 h · mínima ' + dades.min.toFixed(dec) + ' a les ' + window.SadrifRisc.hora(dades.minQuan) +
-                    ' · màxima ' + dades.max.toFixed(dec) + ' a les ' + window.SadrifRisc.hora(dades.maxQuan));
-                cont.hidden = false;
-            });
+        var llista = pop.querySelector('[data-pop="llista"]');
+        FILES.forEach(function (f) {
+            var wrap = document.createElement('div');
+            wrap.className = 'risc-pop__fila';
+            wrap.innerHTML = '<dt>' + f.nom + '</dt><dd data-val="' + f.clau + '">--</dd>';
+            llista.appendChild(wrap);
         });
 
-        /* Estat de connexió de l'estació, a partir de la mateixa lectura que
-           alimenta la píndola del menú. */
-        window.SadrifRisc.subscriure(function (payload) {
-            if (!payload) return;
-            const apagada = window.SadrifRisc.esObsoleta(payload.dades.data);
-            document.body.classList.toggle('estacio-apagada', apagada);
-            const badge = document.getElementById('badge-estat');
-            if (!badge) return;
-            badge.textContent = apagada ? 'Estació SADRIF sense connexió' : 'Estació SADRIF activa';
-            badge.title = apagada
-                ? 'Última lectura rebuda ' + window.SadrifRisc.fa(payload.dades.data)
-                : 'Dades rebudes ' + window.SadrifRisc.fa(payload.dades.data);
+        contenidor.appendChild(pop);
+        return pop;
+    }
+
+    function pintar(estat, payload) {
+        var el = estat.pindola, pop = estat.pop;
+        if (!payload) return;
+
+        var risc = payload.risc, dades = payload.dades;
+        var antiga = esObsoleta(dades.data);
+        var color = antiga ? '#94a3b8' : risc.color;
+
+        // El color viu dins de la píndola; només surt a l'arrel si s'ha demanat.
+        el.style.setProperty('--riesgo-color-dinamico', color);
+        if (estat.tenyirPagina) {
+            document.documentElement.style.setProperty('--riesgo-color-dinamico', risc.color);
+            document.documentElement.style.setProperty('--riesgo-bg-suave', risc.bg);
+            document.documentElement.style.setProperty('--riesgo-borde', risc.border);
+        }
+
+        var valor = el.querySelector('[data-risc-valor]');
+        if (valor) valor.textContent = risc.punts + '%';
+        el.classList.remove('is-carregant');
+        el.classList.toggle('is-obsolet', antiga);
+        el.setAttribute('title', 'Risc d\'incendi actual: ' + risc.nom + ' (' + risc.punts + '%)');
+
+        if (!pop) return;
+        var q = function (sel) { return pop.querySelector(sel); };
+        q('[data-pop="nivell"]').textContent = 'Risc ' + risc.nom.toLowerCase();
+        q('[data-pop="nivell"]').style.color = color;
+        q('[data-pop="subnivell"]').textContent = 'Nivell ' + risc.nivellNum + ' de 4';
+        q('[data-pop="punts"]').textContent = risc.punts;
+        q('[data-pop="punts"]').style.color = color;
+        var barra = q('[data-pop="barra"]');
+        barra.style.width = risc.punts + '%';
+        barra.style.backgroundColor = color;
+
+        FILES.forEach(function (f) {
+            var cel = pop.querySelector('[data-val="' + f.clau + '"]');
+            if (cel) cel.textContent = dades[f.clau].toFixed(f.dec) + ' ' + f.unitat;
         });
 
-        initMapa();
-        initGraficas();
-        actualizarDatosWeb();
-        setInterval(actualizarDatosWeb, 15000); 
-    </script>
-</body>
-</html>
+        /* L'avís de la regla del 30-30-30 només apareix quan es compleix: si no,
+           no aporta res i només afegeix soroll al desplegable. */
+        var regla = q('[data-pop="regla"]');
+        regla.textContent = risc.regla30 ? 'Regla 30-30-30: es compleix ara mateix' : '';
+        regla.hidden = !risc.regla30;
+
+        q('[data-pop="quan"]').textContent = antiga
+            ? 'Sense dades recents · última lectura ' + fa(dades.data)
+            : 'Actualitzat ' + fa(dades.data);
+    }
+
+    function initPindola(opcions) {
+        opcions = opcions || {};
+        var el = document.getElementById(opcions.id || 'sticky-risk-badge');
+        if (!el) return;
+
+        el.classList.add('is-carregant');
+
+        var estat = { pindola: el, pop: null, tenyirPagina: !!opcions.tenyirPagina };
+
+        /* El desplegable no pot viure dins de `.card-nav`, que té overflow
+           amagat per a l'animació d'obertura: quedaria retallat. El pengem del
+           contenidor del menú, que no retalla res. */
+        var amfitrio = el.closest('.card-nav-container') || el.parentElement;
+        if (amfitrio && el.tagName === 'BUTTON') {
+            estat.pop = construirDesplegable(amfitrio);
+            /* Al panell mateix, l'enllaç "Veure el panell complet" no porta enlloc:
+               ja hi som. Es treu en comptes de recarregar la pàgina. */
+            if (opcions.tenyirPagina) {
+                var cta = estat.pop.querySelector('.risc-pop__cta');
+                if (cta) cta.remove();
+            }
+            connectarDesplegable(el, estat.pop);
+        }
+
+        var sentinella = opcions.sentinella ? document.querySelector(opcions.sentinella) : null;
+        if (sentinella && 'IntersectionObserver' in global) {
+            var obs = new IntersectionObserver(function (entrades) {
+                entrades.forEach(function (e) {
+                    el.classList.toggle('visible', !e.isIntersecting);
+                    if (e.isIntersecting) tancar(el, estat.pop);
+                });
+            }, { threshold: 0.1 });
+            obs.observe(sentinella);
+        } else {
+            el.classList.add('visible');
+        }
+
+        subscriure(function (payload) { pintar(estat, payload); });
+
+        // El "fa X minuts" s'ha de refrescar encara que no arribin dades noves.
+        setInterval(function () {
+            if (!document.hidden && ultimaLectura) pintar(estat, ultimaLectura);
+        }, 30000);
+    }
+
+    function obrir(btn, pop) {
+        if (!pop || !pop.hidden) return;
+        pop.hidden = false;
+        // Un fotograma de marge perquè la transició d'entrada es vegi.
+        requestAnimationFrame(function () { pop.classList.add('is-obert'); });
+        btn.setAttribute('aria-expanded', 'true');
+    }
+
+    function tancar(btn, pop) {
+        if (!pop || pop.hidden) return;
+        pop.classList.remove('is-obert');
+        btn.setAttribute('aria-expanded', 'false');
+        setTimeout(function () { if (!pop.classList.contains('is-obert')) pop.hidden = true; }, 220);
+    }
+
+    function connectarDesplegable(btn, pop) {
+        var potPassarRatoli = global.matchMedia && global.matchMedia('(hover: hover)').matches;
+        var tancarTard = null;
+
+        btn.setAttribute('aria-expanded', 'false');
+        btn.setAttribute('aria-controls', pop.id);
+
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            pop.hidden ? obrir(btn, pop) : tancar(btn, pop);
+        });
+
+        if (potPassarRatoli) {
+            var entra = function () { clearTimeout(tancarTard); obrir(btn, pop); };
+            var surt = function () { clearTimeout(tancarTard); tancarTard = setTimeout(function () { tancar(btn, pop); }, 260); };
+            btn.addEventListener('mouseenter', entra);
+            btn.addEventListener('mouseleave', surt);
+            pop.addEventListener('mouseenter', entra);
+            pop.addEventListener('mouseleave', surt);
+        }
+
+        btn.addEventListener('focus', function () { obrir(btn, pop); });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') tancar(btn, pop); });
+        document.addEventListener('click', function (e) {
+            if (!pop.hidden && !pop.contains(e.target) && !btn.contains(e.target)) tancar(btn, pop);
+        });
+    }
+
+    global.SadrifRisc = {
+        CANAL_ID: CANAL_ID,
+        CLAU_LECTURA: CLAU_LECTURA,
+        NIVELLS: NIVELLS,
+        calcular: calcular,
+        configurar: configurar,
+        publicar: publicar,
+        subscriure: subscriure,
+        subscriureExtrems: subscriureExtrems,
+        initPindola: initPindola,
+        fa: fa,
+        hora: hora,
+        esObsoleta: esObsoleta,
+        ultima: function () { return ultimaLectura; },
+        extrems: function () { return ultimsExtrems; },
+        /* Una sola lectura, sense bucle ni res que toqui el DOM: és el que
+           crida el service worker quan es desperta en segon pla per mirar si
+           cal enviar cap avís. */
+        llegirAra: llegirCanal
+    };
+
+/* Aquest mòdul viu a dos móns: dins de la pàgina, on `self` és `window`, i
+   dins del service worker, que no té `window` enlloc. Per això aquí no s'hi
+   pot escriure `window`: `sw.js` fa importScripts d'aquest mateix fitxer per
+   calcular el risc amb la fórmula de sempre i no haver-la de duplicar mai. */
+})(typeof self !== 'undefined' ? self : this);
