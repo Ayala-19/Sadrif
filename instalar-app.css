@@ -1010,15 +1010,22 @@
 .app-entrada { display: none; }
 
 @media all and (display-mode: standalone), all and (display-mode: fullscreen), all and (display-mode: minimal-ui) {
+    /* Flex en comptes de grid. Amb `grid-auto-rows: min-content`, `place-items`
+       només centrava el logo DINS de la seva fila: el bloc sencer quedava
+       enganxat a dalt de la pantalla (faltava `align-content`). Amb una columna
+       flex centrada als dos eixos, la marca cau al mig i prou. */
     .app-entrada {
         position: fixed;
         inset: 0;
         z-index: 13000;
-        display: grid;
-        place-items: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         gap: 14px;
-        grid-auto-rows: min-content;
-        background: radial-gradient(120% 90% at 50% 18%, #0b7a5c 0%, #05553f 48%, #04301f 100%);
+        padding: 24px;
+        box-sizing: border-box;
+        background: radial-gradient(120% 90% at 50% 50%, #0b7a5c 0%, #05553f 52%, #04301f 100%);
         pointer-events: none;
         animation: app-entrada-fora 0.5s var(--inst-suau) 0.62s both;
     }

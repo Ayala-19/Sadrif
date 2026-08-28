@@ -418,11 +418,13 @@ const { useState, useRef, useMemo, useCallback, useEffect, useLayoutEffect, forw
                     </motion.div>
 
                     {/* El `key` fa que React remunti el panell a cada canvi de sensor,
-                        de manera que l'animació d'entrada es torna a reproduir. */}
+                        de manera que l'animació d'entrada es torna a reproduir.
+                        El `style` tenyeix el fons amb el color del sensor: és un
+                        bloc sòlid, sense cap barra de color enganxada al costat. */}
                     <motion.div
                         className="sensor-detail"
                         key={sensor.id}
-                        style={{ borderLeftColor: sensor.color }}
+                        style={{ background: `linear-gradient(150deg, ${sensor.color}14 0%, rgba(255,255,255,0) 60%), #fff` }}
                         initial={{ opacity: 0, y: 14 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}

@@ -423,10 +423,10 @@
             align-items: center; 
             justify-content: space-between; 
         }
-        .tarjeta-hero-lectura::after { content: ''; position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); width: 0%; height: 4px; background: var(--riesgo-color-dinamico); border-radius: 4px 4px 0 0; transition: width 0.3s ease; }
+        /* La targeta seleccionada es marca amb la vora sencera i una ombra de
+           color, no amb cap ratlla enganxada a sota. */
         .tarjeta-hero-lectura:hover { transform: translateY(-6px) scale(1.01); background: rgba(255, 255, 255, 0.7); }
-        .tarjeta-hero-lectura.activa { background: rgba(255, 255, 255, 0.85); transform: translateY(-6px); }
-        .tarjeta-hero-lectura.activa::after { width: 40%; }
+        .tarjeta-hero-lectura.activa { background: rgba(255, 255, 255, 0.9); transform: translateY(-6px); border-color: var(--riesgo-color-dinamico); box-shadow: 0 16px 34px var(--riesgo-borde); }
         
         .tarjeta-hero-lectura .label { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: var(--texto-mutado); letter-spacing: 0.06em; margin-bottom: 6px; }
         /* Mínima i màxima de les últimes 24 hores. Es queda amagada si avui
@@ -474,29 +474,39 @@
         .vis-baro-center { position: absolute; top: 50%; left: 50%; width: 6px; height: 6px; background: #8b5cf6; border-radius: 50%; transform: translate(-50%, -50%); z-index: 2;}
         .vis-baro-needle { position: absolute; bottom: 50%; left: calc(50% - 1.5px); width: 3px; height: 16px; background: #8b5cf6; transform-origin: bottom center; transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 2px; }
 
-        .panel-impacto-global { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 18px; padding: 0; max-height: 0; opacity: 0; overflow: hidden; box-shadow: var(--glass-shadow); transition: max-height 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease, padding 0.5s ease; }
-        .panel-impacto-global.obert { max-height: 600px; opacity: 1; padding: 28px; border-left: 6px solid var(--riesgo-color-dinamico); }
+        /* Bloc sòlid: cap barra de color enganxada al costat. El nivell de risc
+           es nota pel to del fons i pel color de la vora, no per una ratlla. */
+        .panel-impacto-global { background: linear-gradient(150deg, var(--riesgo-bg-suave) 0%, rgba(255,255,255,0) 62%), #ffffff; border: 1px solid var(--riesgo-borde); border-radius: 18px; padding: 0 28px; max-height: 0; opacity: 0; overflow: hidden; box-shadow: var(--glass-shadow); transform: translateY(-8px); transition: max-height 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease, padding 0.5s ease, transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.6s ease; }
+        .panel-impacto-global.obert { max-height: 600px; opacity: 1; padding: 28px; transform: translateY(0); }
         .panel-impacto-titulo { font-size: 1.25rem; font-weight: 800; color: var(--texto-principal); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
         .panel-impacto-texto { font-size: 0.98rem; color: var(--texto-mutado); line-height: 1.7; display: flex; flex-direction: column; gap: 10px; }
         .panel-impacto-texto p { margin: 0; }
 
-        /* `align-items: start` és la clau: sense això, les dues targetes són
-           files de la mateixa graella i sempre s'igualen d'alçada. En obrir-ne
-           una, l'altra creixia igual i deixava un buit blanc amb la barra
-           taronja estirada al costat. Ara cadascuna fa l'alçada del seu contingut. */
-        .grid-consejos { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 36px; align-items: start; }
-        .card-destacada-dinamica { background: linear-gradient(145deg, rgba(255,255,255,0.6) 0%, var(--riesgo-bg-suave) 100%); backdrop-filter: blur(25px) saturate(120%); -webkit-backdrop-filter: blur(25px) saturate(120%); border: 1px solid var(--glass-border); border-radius: 20px; padding: 28px; box-shadow: var(--glass-shadow); transition: var(--transicion); position: relative; overflow: hidden; }
-        .card-destacada-dinamica::before { content: ''; position: absolute; top: 0; left: 0; width: 5px; height: 100%; background: var(--riesgo-color-dinamico); }
+        /* El detall ja no creix dins de la targeta: s'obre en un sol panell a
+           sota de la graella, igual que fan les targetes meteo. Per això les
+           dues targetes poden tornar a estirar-se iguals (`stretch`) sense que
+           obrir-ne una deixi un buit blanc al costat de l'altra. */
+        .grid-consejos { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 12px; align-items: stretch; }
+        .card-destacada-dinamica { background: linear-gradient(150deg, var(--riesgo-bg-suave) 0%, rgba(255,255,255,0) 62%), #ffffff; border: 1px solid var(--riesgo-borde); border-radius: 20px; padding: 28px; box-shadow: var(--glass-shadow); transition: var(--transicion); position: relative; overflow: hidden; display: flex; flex-direction: column; }
         .card-destacada-dinamica:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-        .card-destacada-dinamica h3 { font-size: 1.1rem; font-weight: 800; margin-top: 0; margin-bottom: 15px; color: var(--texto-principal); display: flex; align-items: center; justify-content: space-between; }
-        .card-destacada-dinamica p { color: var(--texto-mutado); font-size: 0.95rem; line-height: 1.6; margin: 0; }
-        .badge-subestat { font-size: 0.75rem; padding: 5px 12px; border-radius: 8px; background: rgba(255, 255, 255, 0.8); font-weight: 800; border: 1px solid var(--riesgo-borde); color: var(--texto-principal); box-shadow: 0 2px 8px rgba(0,0,0,0.05); backdrop-filter: blur(5px); }
-        .btn-saber-mes { display: flex; align-items: center; gap: 6px; margin-top: 20px; padding: 8px 16px; background: rgba(255,255,255,0.6); border: 1px solid var(--glass-border); border-radius: 10px; font-size: 0.85rem; font-weight: 700; color: var(--texto-principal); cursor: pointer; transition: var(--transicion); backdrop-filter: blur(5px); }
+        .card-destacada-dinamica.activa { border-color: var(--riesgo-color-dinamico); box-shadow: 0 18px 38px var(--riesgo-borde); }
+        .card-destacada-dinamica h3 { font-size: 1.1rem; font-weight: 800; margin-top: 0; margin-bottom: 15px; color: var(--texto-principal); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .card-destacada-dinamica p { color: var(--texto-mutado); font-size: 0.95rem; line-height: 1.6; margin: 0; flex: 1 1 auto; }
+        .badge-subestat { font-size: 0.75rem; padding: 5px 12px; border-radius: 8px; background: rgba(255, 255, 255, 0.85); font-weight: 800; border: 1px solid var(--riesgo-borde); color: var(--texto-principal); box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex-shrink: 0; text-align: center; transition: border-color 0.6s ease; }
+        .btn-saber-mes { display: flex; align-items: center; gap: 6px; margin-top: 20px; padding: 8px 16px; background: rgba(255,255,255,0.85); border: 1px solid var(--borde-claro); border-radius: 10px; font-size: 0.85rem; font-weight: 700; color: var(--texto-principal); cursor: pointer; transition: var(--transicion); align-self: flex-start; }
         .btn-saber-mes:hover { background: var(--riesgo-color-dinamico); color: #fff; transform: translateX(5px); border-color: transparent; box-shadow: 0 8px 20px var(--riesgo-borde); }
-        .btn-saber-mes svg { width: 16px; height: 16px; transition: transform 0.3s ease; }
+        .btn-saber-mes.actiu { background: var(--riesgo-color-dinamico); color: #fff; border-color: transparent; box-shadow: 0 8px 20px var(--riesgo-borde); }
+        .btn-saber-mes svg { width: 16px; height: 16px; transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
         .btn-saber-mes.actiu svg { transform: rotate(180deg); }
-        .contingut-extra { max-height: 0; overflow: hidden; opacity: 0; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); font-size: 0.9rem; margin-top: 0; color: var(--texto-principal); background: rgba(255,255,255,0.4); border-radius: 12px; }
-        .contingut-extra.obert { max-height: 1500px; opacity: 1; padding: 15px; margin-top: 15px; border: 1px solid rgba(255,255,255,0.6); box-shadow: inset 0 2px 10px rgba(0,0,0,0.02); }
+
+        /* Panell únic de detall dels consells, a tota l'amplada i sota la
+           graella. Mateixa mecànica que `.panel-impacto-global`. */
+        .panel-consell { margin-bottom: 36px; background: linear-gradient(150deg, var(--riesgo-bg-suave) 0%, rgba(255,255,255,0) 62%), #ffffff; border: 1px solid var(--riesgo-borde); border-radius: 18px; padding: 0 28px; max-height: 0; opacity: 0; overflow: hidden; box-shadow: var(--glass-shadow); transform: translateY(-8px); transition: max-height 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease, padding 0.5s ease, transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.6s ease; }
+        .panel-consell.obert { max-height: 1600px; opacity: 1; padding: 26px 28px; transform: translateY(0); }
+        .contingut-extra { display: none; font-size: 0.93rem; color: var(--texto-principal); }
+        .contingut-extra.visible { display: block; animation: entradaDetall 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+        .contingut-extra strong { display: block; margin-bottom: 10px; color: var(--riesgo-color-dinamico); font-size: 1rem; transition: color 0.6s ease; }
+        @keyframes entradaDetall { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
         /* Llista de mesures preventives / restriccions del nivell de risc actiu */
         .llista-mesures { list-style: none; margin: 0; padding: 0; }
         .llista-mesures li {
@@ -841,30 +851,36 @@
 
         <!-- TEXTOS DINÀMICS REDISSENYATS -->
         <div class="grid-consejos animated-element" style="animation-delay: 0.2s;">
-            <div class="card-destacada-dinamica">
+            <div class="card-destacada-dinamica" id="card-veg">
                 <h3>Estat de la Vegetació <span class="badge-subestat" id="badge-veg-estat">Analitzant...</span></h3>
                 <p id="txt-consejo-sucediendo">Avaluant l'estat del combustible vegetal a partir de la temperatura, la humitat, el vent i la pressió atmosfèrica...</p>
-                <button class="btn-saber-mes" onclick="toggleSaberMes('extra-veg', this)">
-                    Saber-ne més detalls 
+                <button class="btn-saber-mes" id="btn-veg" aria-expanded="false" aria-controls="panel-consell" onclick="toggleSaberMes('veg', this)">
+                    Saber-ne més detalls
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
                 </button>
-                <div class="contingut-extra" id="extra-veg">
-                    <strong style="display:block; margin-bottom:8px; color:var(--riesgo-color-dinamico);">Anàlisi Tècnica Estesa:</strong>
-                    <span id="extra-veg-text">S'està recopilant informació sobre l'estrès hídric de les plantes resinoses de l'entorn.</span>
-                </div>
             </div>
-            
-            <div class="card-destacada-dinamica">
+
+            <div class="card-destacada-dinamica" id="card-pla">
                 <h3>Pla d'Acció i Prevenció <span class="badge-subestat" id="badge-alfa-estat">Calculant nivell...</span></h3>
                 <p id="txt-consejo-accion">Calculant el pla d'acció i les mesures de prevenció corresponents al nivell de risc...</p>
-                <button class="btn-saber-mes" onclick="toggleSaberMes('extra-pla', this)">
+                <button class="btn-saber-mes" id="btn-pla" aria-expanded="false" aria-controls="panel-consell" onclick="toggleSaberMes('pla', this)">
                     Mesures i restriccions
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
                 </button>
-                <div class="contingut-extra" id="extra-pla">
-                    <strong id="extra-pla-titol" style="display:block; margin-bottom:8px; color:var(--riesgo-color-dinamico);">Mesures preventives:</strong>
-                    <span id="extra-pla-text">Determinant les mesures preventives aplicables...</span>
-                </div>
+            </div>
+        </div>
+
+        <!-- Detall dels dos consells: un sol bloc a tota l'amplada, com el
+             panell d'impacte de les targetes meteo. Així obrir-ne un no
+             desquadra la graella ni deixa cap buit al costat. -->
+        <div class="panel-consell" id="panel-consell">
+            <div class="contingut-extra" id="extra-veg">
+                <strong>Anàlisi Tècnica Estesa:</strong>
+                <span id="extra-veg-text">S'està recopilant informació sobre l'estrès hídric de les plantes resinoses de l'entorn.</span>
+            </div>
+            <div class="contingut-extra" id="extra-pla">
+                <strong id="extra-pla-titol">Mesures preventives:</strong>
+                <span id="extra-pla-text">Determinant les mesures preventives aplicables...</span>
             </div>
         </div>
 
@@ -1163,9 +1179,29 @@
             } else { tauler.classList.remove('obert'); }
         }
 
-        function toggleSaberMes(idTargeta, btn) { 
-            document.getElementById(idTargeta).classList.toggle('obert'); 
-            btn.classList.toggle('actiu');
+        /* Els dos consells comparteixen un únic panell a sota de la graella:
+           obrir-ne un tanca l'altre i el bloc ocupa sempre tota l'amplada,
+           igual que el panell d'impacte de les targetes meteo. */
+        function toggleSaberMes(quin, btn) {
+            const panell = document.getElementById('panel-consell');
+            const jaObert = btn.classList.contains('actiu');
+
+            document.querySelectorAll('.btn-saber-mes').forEach(b => {
+                b.classList.remove('actiu');
+                b.setAttribute('aria-expanded', 'false');
+            });
+            document.querySelectorAll('.card-destacada-dinamica').forEach(c => c.classList.remove('activa'));
+            document.querySelectorAll('#panel-consell .contingut-extra').forEach(d => d.classList.remove('visible'));
+
+            if (jaObert) { panell.classList.remove('obert'); return; }
+
+            btn.classList.add('actiu');
+            btn.setAttribute('aria-expanded', 'true');
+            const targeta = document.getElementById('card-' + quin);
+            if (targeta) targeta.classList.add('activa');
+            const detall = document.getElementById('extra-' + quin);
+            if (detall) detall.classList.add('visible');
+            panell.classList.add('obert');
         }
 
         function initMapa() {

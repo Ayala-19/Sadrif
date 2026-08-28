@@ -670,7 +670,7 @@ function SensorsSection() {
     className: "sensor-detail",
     key: sensor.id,
     style: {
-      borderLeftColor: sensor.color
+      background: `linear-gradient(150deg, ${sensor.color}14 0%, rgba(255,255,255,0) 60%), #fff`
     },
     initial: {
       opacity: 0,
