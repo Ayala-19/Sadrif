@@ -279,7 +279,31 @@
         /* ========= RESTA D'ESTILS ORIGINALS ========= */
         .contenedor-principal { max-width: 1200px; margin: 0 auto; padding: 0 24px 32px; }
 
-        .banner-alerta-extrema { display: none; background: linear-gradient(90deg, #ef4444 0%, #b91c1c 100%); color: #fff; text-align: center; padding: 12px 20px; font-weight: 800; font-size: 0.85rem; letter-spacing: 0.05em; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); margin-bottom: 20px; }
+        .banner-alerta-extrema { display: none; background: linear-gradient(90deg, #ef4444 0%, #b91c1c 100%); color: #fff; text-align: center; padding: 12px 20px; font-weight: 800; font-size: 0.85rem; letter-spacing: 0.05em; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); margin-bottom: 20px; position: relative; z-index: 1001; }
+
+        /* AVÍS DE RISC EXTREM — només al panell principal.
+           Degradat vermell fix des de dalt que es difumina cap avall, darrere
+           de tot el contingut i sense capturar clics. */
+        .alerta-extrema-overlay {
+            position: fixed; top: 0; left: 0; right: 0; height: 46vh; min-height: 280px;
+            pointer-events: none; z-index: 5;
+            background: linear-gradient(to bottom, rgba(239, 68, 68, 0.4) 0%, rgba(239, 68, 68, 0.16) 45%, rgba(239, 68, 68, 0) 85%);
+            opacity: 0; transition: opacity 1s ease;
+        }
+        .alerta-extrema-overlay.activa { opacity: 1; animation: alertaExtremaPuls 2.8s ease-in-out infinite; }
+        @keyframes alertaExtremaPuls { 0%, 100% { opacity: 0.82; } 50% { opacity: 1; } }
+
+        /* Un toc extra al panell principal: la targeta del hero batega en
+           vermell mentre el risc es mantingui extrem. */
+        body.risc-extrem-actiu .hero-compact { animation: heroExtremPuls 2.8s ease-in-out infinite; }
+        @keyframes heroExtremPuls {
+            0%, 100% { box-shadow: var(--glass-shadow), 0 0 0 0 rgba(239, 68, 68, 0); }
+            50% { box-shadow: var(--glass-shadow), 0 0 46px 8px rgba(239, 68, 68, 0.4); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .alerta-extrema-overlay.activa { animation: none; opacity: 0.9; }
+            body.risc-extrem-actiu .hero-compact { animation: none; }
+        }
 
         /* HERO COMPACTE */
         .hero-compact { background: var(--glass-bg); backdrop-filter: blur(25px) saturate(120%); -webkit-backdrop-filter: blur(25px) saturate(120%); border: 1px solid var(--glass-border); border-radius: 24px; box-shadow: var(--glass-shadow); overflow: hidden; display: grid; grid-template-columns: 1.2fr 1fr; min-height: 320px; margin-bottom: 12px; transition: var(--transicion); }
@@ -301,7 +325,10 @@
         body.estacio-apagada .termometro-fill { background-color: #cbd5e1; }
         @keyframes pulseLive { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
         .ubicacion-sub { font-size: 0.9rem; color: var(--texto-mutado); font-weight: 500; }
-        .hero-percentage-display { display: flex; align-items: baseline; gap: 6px; margin: 16px 0; }
+        .hero-nivell-label { display: inline-flex; align-items: center; gap: 7px; font-size: 0.95rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--riesgo-color-dinamico); transition: color 0.6s ease; }
+        .hero-nivell-label::before { content: ''; width: 9px; height: 9px; border-radius: 50%; background: var(--riesgo-color-dinamico); box-shadow: 0 0 8px var(--riesgo-color-dinamico); flex-shrink: 0; transition: background-color 0.6s ease; }
+        body.estacio-apagada .hero-nivell-label, body.estacio-apagada .hero-nivell-label::before { color: #94a3b8; background-color: #94a3b8; box-shadow: none; }
+        .hero-percentage-display { display: flex; align-items: baseline; gap: 6px; margin: 6px 0 16px; }
         .hero-num-pct { font-size: 5.5rem; font-weight: 800; line-height: 0.85; color: var(--riesgo-color-dinamico); letter-spacing: -0.04em; transition: color 0.6s ease; }
         .hero-sim-pct { font-size: 2.4rem; font-weight: 800; color: var(--texto-mutado); }
         .termometro-minimal { width: 100%; margin-top: 10px; }
@@ -311,93 +338,45 @@
         #mapa-real-catalunya { width: 100%; height: 100%; background: transparent; }
         .leaflet-tooltip { background: rgba(255,255,255,0.95); border: 1px solid var(--borde-claro); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); color: var(--texto-principal); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.85rem; }
 
-        /* LLEGENDA MAPA DINÀMICA */
+        /* LLEGENDA MAPA — franja compacta sempre visible, no cal desplegar-la */
         .leyenda-container {
-            margin-bottom: 24px;
+            margin: 0 0 24px;
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            justify-content: center;
             width: 100%;
         }
-        .btn-leyenda {
+        .leyenda-mini {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            max-width: 100%;
+            padding: 7px 10px;
+            border-radius: 99px;
             background: var(--glass-bg);
             backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
-            padding: 8px 20px;
-            border-radius: 99px;
-            font-size: 0.85rem;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-weight: 700;
-            color: var(--texto-principal);
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
             box-shadow: var(--glass-shadow);
-            transition: var(--transicion);
-            z-index: 2;
+            overflow-x: auto;
+            scrollbar-width: none;
         }
-        .btn-leyenda:hover {
-            background: rgba(255, 255, 255, 0.8);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-        }
-        .btn-leyenda svg {
-            transition: transform 0.3s ease;
-        }
-        .btn-leyenda.actiu svg {
-            transform: rotate(180deg);
-        }
-        .leyenda-content {
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
-            transition: max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease, margin 0.4s ease;
-            width: 100%;
-            max-width: 850px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid transparent;
-            border-radius: 16px;
-            box-shadow: none;
-            margin-top: 0;
-        }
-        .leyenda-content.obert {
-            max-height: 250px;
-            opacity: 1;
-            margin-top: 16px;
-            border-color: var(--glass-border);
-            box-shadow: var(--glass-shadow);
-            padding: 20px 24px;
-        }
-        .leyenda-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 16px;
-        }
-        @media (max-width: 1000px) { .leyenda-grid { grid-template-columns: repeat(3, 1fr); } }
+        .leyenda-mini::-webkit-scrollbar { display: none; }
         .leyenda-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--texto-principal);
-            background: rgba(255, 255, 255, 0.5);
-            padding: 10px 14px;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.6);
-            transition: var(--transicion);
-        }
-        .leyenda-item:hover {
-            background: rgba(255, 255, 255, 0.9);
-            transform: translateY(-2px);
+            gap: 6px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--texto-mutado);
+            padding: 5px 9px;
+            white-space: nowrap;
+            flex: none;
         }
         .leyenda-color {
-            width: 16px;
-            height: 16px;
+            width: 9px;
+            height: 9px;
             border-radius: 50%;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.7);
             flex-shrink: 0;
         }
 
@@ -620,13 +599,9 @@
             .panel-impacto-global.obert { max-height: 800px; }
         }
         
-        @media (max-width: 768px) {
-            .leyenda-grid { grid-template-columns: repeat(2, 1fr); }
-            .leyenda-content.obert { max-height: 420px; }
-        }
         @media (max-width: 480px) {
-            .leyenda-grid { grid-template-columns: 1fr; }
-            .leyenda-content.obert { max-height: 560px; }
+            .leyenda-mini { max-width: calc(100vw - 3rem); }
+            .leyenda-item { font-size: 0.68rem; padding: 5px 7px; gap: 5px; }
         }
     </style>
 </head>
@@ -639,8 +614,13 @@
         <span>Pla DRIF</span>
     </div>
 
-    <div id="banner-urgente-30-30-30" class="banner-alerta-extrema">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4.5M12 17.5h.01"/></svg> ATENCIÓ: REGLA DEL 30-30-30 COMPLERTA — PERILL EXTREM D'INCENDI FORESTAL
+    <!-- Degradat vermell des de dalt: només es fa visible quan el risc és
+         extrem. No interactiu i darrere de tot, per no destorbar cap clic. -->
+    <div id="alerta-extrema-overlay" class="alerta-extrema-overlay" aria-hidden="true"></div>
+
+    <div id="banner-urgente-30-30-30" class="banner-alerta-extrema" role="alert">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;display:inline-block"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4.5M12 17.5h.01"/></svg>
+        <span id="text-banner-extrem">ATENCIÓ: RISC EXTREM D'INCENDI FORESTAL — MÀXIMA PRECAUCIÓ</span>
     </div>
 
     <!-- MENÚ CARDNAV -->
@@ -738,6 +718,7 @@
                     <div class="ubicacion-sub">Zona forestal de Sabadell (Vallès Occidental)</div>
                 </div>
                 <div>
+                    <div class="hero-nivell-label" id="hero-nivell-label">Carregant…</div>
                     <!-- ID AFEGIT PER OBSERVAR EL PORCENTATGE EN PANTALLA -->
                     <div class="hero-percentage-display" id="hero-percentage-display">
                         <span class="hero-num-pct" id="hero-riesgo-pct">0</span>
@@ -753,34 +734,28 @@
             </div>
         </div>
         
-        <!-- LLEGENDA MAPA (NOVA IMPLEMENTACIÓ) -->
+        <!-- LLEGENDA MAPA — franja compacta sempre visible -->
         <div class="leyenda-container animated-element" style="animation-delay: 0.05s;">
-            <button class="btn-leyenda" onclick="toggleLeyenda(this)">
-                Llegenda de Riscos del Mapa
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-            </button>
-            <div class="leyenda-content" id="leyenda-mapa">
-                <div class="leyenda-grid">
-                    <div class="leyenda-item">
-                        <div class="leyenda-color" style="background: #10b981; border: 2px solid rgba(16, 185, 129, 0.4);"></div>
-                        <span>Nivell 0 · Perill Molt Baix</span>
-                    </div>
-                    <div class="leyenda-item">
-                        <div class="leyenda-color" style="background: #84cc16; border: 2px solid rgba(132, 204, 22, 0.4);"></div>
-                        <span>Nivell 1 · Perill Baix</span>
-                    </div>
-                    <div class="leyenda-item">
-                        <div class="leyenda-color" style="background: #f59e0b; border: 2px solid rgba(245, 158, 11, 0.4);"></div>
-                        <span>Nivell 2 · Perill Moderat</span>
-                    </div>
-                    <div class="leyenda-item">
-                        <div class="leyenda-color" style="background: #f97316; border: 2px solid rgba(249, 115, 22, 0.4);"></div>
-                        <span>Nivell 3 · Perill Alt</span>
-                    </div>
-                    <div class="leyenda-item">
-                        <div class="leyenda-color" style="background: #ef4444; border: 2px solid rgba(239, 68, 68, 0.4);"></div>
-                        <span>Nivell 4 · Perill Extrem</span>
-                    </div>
+            <div class="leyenda-mini" role="list" aria-label="Llegenda de riscos del mapa">
+                <div class="leyenda-item" role="listitem">
+                    <div class="leyenda-color" style="background: #10b981;"></div>
+                    <span>Molt baix</span>
+                </div>
+                <div class="leyenda-item" role="listitem">
+                    <div class="leyenda-color" style="background: #84cc16;"></div>
+                    <span>Baix</span>
+                </div>
+                <div class="leyenda-item" role="listitem">
+                    <div class="leyenda-color" style="background: #f59e0b;"></div>
+                    <span>Moderat</span>
+                </div>
+                <div class="leyenda-item" role="listitem">
+                    <div class="leyenda-color" style="background: #f97316;"></div>
+                    <span>Alt</span>
+                </div>
+                <div class="leyenda-item" role="listitem">
+                    <div class="leyenda-color" style="background: #ef4444;"></div>
+                    <span>Extrem</span>
                 </div>
             </div>
         </div>
@@ -1026,13 +1001,6 @@
     <!-- SCRIPTS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Funció per obrir/tancar la Llegenda
-        function toggleLeyenda(btn) {
-            const content = document.getElementById('leyenda-mapa');
-            content.classList.toggle('obert');
-            btn.classList.toggle('actiu');
-        }
-
         // Lógica del CardNav (Adaptada a Vanilla JS con GSAP y cierre rápido)
         document.addEventListener('DOMContentLoaded', () => {
             const navEl = document.getElementById('card-nav');
@@ -1400,6 +1368,7 @@
                 puntos: totalPuntos,
                 color: n.color, bg: n.bg, border: n.border,
                 nivel: regla30 ? "Extrem (30-30-30)" : n.nom,
+                nivelCurt: n.nom,
                 nivelNum: n.nivell,
                 txtV: n.txtV,
                 txtA: n.txtA,
@@ -1508,7 +1477,19 @@
                     document.getElementById('extra-pla-titol').innerText = conf.mesuresTitol;
                     document.getElementById('extra-pla-text').innerHTML = conf.extraAccion;
                     
-                    document.getElementById('banner-urgente-30-30-30').style.display = conf.regla30 ? 'block' : 'none';
+                    /* Avís de risc extrem: es mostra sempre que el nivell sigui
+                       "Extrem" (idx 4), no només quan es compleix la regla del
+                       30-30-30. Aquest avís i el degradat només viuen al panell
+                       principal. */
+                    const esExtrem = conf.nivelNum === 4;
+                    document.getElementById('banner-urgente-30-30-30').style.display = esExtrem ? 'block' : 'none';
+                    document.getElementById('text-banner-extrem').textContent = conf.regla30
+                        ? "ATENCIÓ: REGLA DEL 30-30-30 COMPLERTA — PERILL EXTREM D'INCENDI FORESTAL"
+                        : "ATENCIÓ: RISC EXTREM D'INCENDI FORESTAL — MÀXIMA PRECAUCIÓ";
+                    document.body.classList.toggle('risc-extrem-actiu', esExtrem);
+                    document.getElementById('alerta-extrema-overlay').classList.toggle('activa', esExtrem);
+
+                    document.getElementById('hero-nivell-label').textContent = conf.nivelCurt;
 
                     animateNumber('hero-riesgo-pct', lastValues.riesgo, conf.puntos, 1500, 0);
                     animateNumber('hero-temp', lastValues.temp, dadesGlobalsESP32.temp, 1000, 1);
