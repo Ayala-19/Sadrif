@@ -295,7 +295,7 @@
 
         /* Un toc extra al panell principal: la targeta del hero batega en
            vermell mentre el risc es mantingui extrem. */
-        body.risc-extrem-actiu .hero-compact { animation: heroExtremPuls 2.8s ease-in-out infinite; }
+        body.risc-extrem-actiu .hero-compact { animation: heroExtremPuls 2.8s ease-in-out infinite; opacity: 1; }
         @keyframes heroExtremPuls {
             0%, 100% { box-shadow: var(--glass-shadow), 0 0 0 0 rgba(239, 68, 68, 0); }
             50% { box-shadow: var(--glass-shadow), 0 0 46px 8px rgba(239, 68, 68, 0.4); }
@@ -327,7 +327,8 @@
         .ubicacion-sub { font-size: 0.9rem; color: var(--texto-mutado); font-weight: 500; }
         .hero-nivell-label { display: inline-flex; align-items: center; gap: 7px; font-size: 0.95rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--riesgo-color-dinamico); transition: color 0.6s ease; }
         .hero-nivell-label::before { content: ''; width: 9px; height: 9px; border-radius: 50%; background: var(--riesgo-color-dinamico); box-shadow: 0 0 8px var(--riesgo-color-dinamico); flex-shrink: 0; transition: background-color 0.6s ease; }
-        body.estacio-apagada .hero-nivell-label, body.estacio-apagada .hero-nivell-label::before { color: #94a3b8; background-color: #94a3b8; box-shadow: none; }
+        body.estacio-apagada .hero-nivell-label { color: #94a3b8; }
+        body.estacio-apagada .hero-nivell-label::before { background-color: #94a3b8; box-shadow: none; }
         .hero-percentage-display { display: flex; align-items: baseline; gap: 6px; margin: 6px 0 16px; }
         .hero-num-pct { font-size: 5.5rem; font-weight: 800; line-height: 0.85; color: var(--riesgo-color-dinamico); letter-spacing: -0.04em; transition: color 0.6s ease; }
         .hero-sim-pct { font-size: 2.4rem; font-weight: 800; color: var(--texto-mutado); }
