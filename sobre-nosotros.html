@@ -516,13 +516,13 @@
 
         .pc-avatar-content { mix-blend-mode: luminosity; overflow: hidden; backface-visibility: hidden; }
         .pc-avatar-content .avatar {
-            display: block; width: 100%; height: 78%; object-fit: cover; object-position: top center; position: absolute;
+            display: block; width: 100%; height: 90%; object-fit: contain; object-position: bottom center; position: absolute;
             left: 50%; bottom: 0; border-radius: 0; transform-origin: 50% 100%;
             transform: translateX(calc(-50% + (var(--pointer-from-left) - 0.5) * 6px)) translateZ(0)
                 scaleY(calc(1 + (var(--pointer-from-top) - 0.5) * 0.02)) scaleX(calc(1 + (var(--pointer-from-left) - 0.5) * 0.01));
             backface-visibility: hidden; will-change: transform; transition: transform 120ms ease-out;
-            -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 100%);
-            mask-image: linear-gradient(180deg, #000 62%, transparent 100%);
+            -webkit-mask-image: linear-gradient(180deg, #000 88%, transparent 100%);
+            mask-image: linear-gradient(180deg, #000 88%, transparent 100%);
         }
         /* Monograma de reserva mentre no hi ha la fotografia del membre */
         .pc-fallback {
@@ -542,7 +542,7 @@
         }
         .pc-user-details { display: flex; align-items: center; gap: 9px; min-width: 0; }
         .pc-mini-avatar { width: 34px; height: 34px; border-radius: 50%; overflow: hidden; border: 1px solid rgba(255,255,255,0.18); flex-shrink: 0; background: rgba(255,255,255,0.08); }
-        .pc-mini-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .pc-mini-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; border-radius: 50%; transform: scale(1.7); transform-origin: 50% 24%; }
         .pc-mini-fallback { display: grid; place-items: center; width: 100%; height: 100%; font-size: 0.72rem; font-weight: 800; color: rgba(255,255,255,0.7); }
         .pc-user-text { display: flex; align-items: flex-start; flex-direction: column; gap: 4px; min-width: 0; }
         .pc-handle { font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.92); line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
