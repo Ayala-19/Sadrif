@@ -774,12 +774,6 @@ function App() {
       sub: 'Velocitat del vent',
       detail: "El vent és el factor que més accelera la propagació del foc: aporta oxigen a les flames i transporta espurnes que obren nous focus lluny del punt inicial. Per sobre de 30 km/h, un incendi pot avançar més ràpid del que els equips terrestres poden reaccionar.",
       meta: ['Lectura en km/h', 'Llindar crític: 30 km/h', 'Tercer factor del 30-30-30']
-    }, {
-      ico: 'air',
-      name: 'SEN-CCS811B',
-      sub: "Qualitat de l'aire i CO₂",
-      detail: "Detecta la concentració de CO₂ equivalent i de compostos orgànics volàtils. És l'indici més primerenc de combustió: quan alguna cosa comença a cremar-se, aquests valors pugen abans que el fum sigui visible a simple vista.",
-      meta: ['eCO₂ i TVOC', 'Detecció precoç de combustió', 'Bus I²C']
     }]
   }, {
     group: 'Interfície local',
@@ -852,7 +846,7 @@ function App() {
     ico: 'thermometer',
     n: 'PAS 01',
     title: 'Mesura',
-    text: "Els quatre sensors prenen lectures de temperatura, humitat, vent i qualitat de l'aire de manera contínua, dia i nit."
+    text: "Els sensors prenen lectures de temperatura, humitat, vent i pressió atmosfèrica de manera contínua, dia i nit."
   }, {
     ico: 'chip',
     n: 'PAS 02',
@@ -898,8 +892,8 @@ function App() {
   }, {
     num: 4,
     unit: '',
-    label: 'Sensors ambientals',
-    sub: 'Temperatura, humitat, vent i aire'
+    label: 'Paràmetres ambientals',
+    sub: 'Temperatura, humitat, vent i pressió'
   }, {
     num: 0,
     unit: 'W',
@@ -1355,10 +1349,10 @@ function App() {
       e.target.onerror = null;
       e.target.src = 'logo-sadrif.svg.svg';
     }
-  }), /*#__PURE__*/React.createElement("span", null, "PLA DRIF")), /*#__PURE__*/React.createElement("p", null, "Estaci\xF3 aut\xF2noma de detecci\xF3 de risc d'incendis forestals, instal\xB7lada en una zona forestal de Sabadell. Treball de Recerca de 2n de Batxillerat."), /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement("span", null, "PLA DRIF")), /*#__PURE__*/React.createElement("p", null, "Estaci\xF3 aut\xF2noma de detecci\xF3 de risc d'incendis forestals, desenvolupada i provada a Sabadell. Treball de Recerca de 2n de Batxillerat."), /*#__PURE__*/React.createElement("div", {
     className: "footer-social"
   }, /*#__PURE__*/React.createElement("a", {
-    href: "https://www.youtube.com/@PlaDRIF_Oficial",
+    href: "https://www.youtube.com/@pladrif_cat",
     target: "_blank",
     rel: "noopener",
     "aria-label": "Canal de YouTube"
@@ -1405,7 +1399,7 @@ function App() {
     rel: "noopener"
   }, "V\xEDdeo del projecte")))), /*#__PURE__*/React.createElement("div", {
     className: "footer-col"
-  }, /*#__PURE__*/React.createElement("h5", null, "Amb el suport de"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("h5", null, "Refer\xE8ncies institucionals"), /*#__PURE__*/React.createElement("div", {
     className: "footer-partners"
   }, /*#__PURE__*/React.createElement("div", {
     className: "footer-partner-chip"
