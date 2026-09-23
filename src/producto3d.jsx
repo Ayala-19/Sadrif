@@ -513,11 +513,6 @@ const { useState, useEffect, useRef, useLayoutEffect, useMemo, useCallback, forw
               ico: 'wind', name: 'Anemòmetre', sub: 'Velocitat del vent',
               detail: "El vent és el factor que més accelera la propagació del foc: aporta oxigen a les flames i transporta espurnes que obren nous focus lluny del punt inicial. Per sobre de 30 km/h, un incendi pot avançar més ràpid del que els equips terrestres poden reaccionar.",
               meta: ['Lectura en km/h', 'Llindar crític: 30 km/h', 'Tercer factor del 30-30-30']
-            },
-            {
-              ico: 'air', name: 'SEN-CCS811B', sub: "Qualitat de l'aire i CO₂",
-              detail: "Detecta la concentració de CO₂ equivalent i de compostos orgànics volàtils. És l'indici més primerenc de combustió: quan alguna cosa comença a cremar-se, aquests valors pugen abans que el fum sigui visible a simple vista.",
-              meta: ['eCO₂ i TVOC', 'Detecció precoç de combustió', 'Bus I²C']
             }
           ]
         },
@@ -585,7 +580,7 @@ const { useState, useEffect, useRef, useLayoutEffect, useMemo, useCallback, forw
 
       /* Com funciona: el recorregut de la dada, de l'aire fins al teu mòbil */
       const flowSteps = [
-        { ico: 'thermometer', n: 'PAS 01', title: 'Mesura', text: "Els quatre sensors prenen lectures de temperatura, humitat, vent i qualitat de l'aire de manera contínua, dia i nit." },
+        { ico: 'thermometer', n: 'PAS 01', title: 'Mesura', text: "Els sensors prenen lectures de temperatura, humitat, vent i pressió atmosfèrica de manera contínua, dia i nit." },
         { ico: 'chip', n: 'PAS 02', title: 'Calcula', text: "L'ESP32 creua les quatre variables amb el model del 30-30-30 i les converteix en una puntuació de risc de 0 a 100." },
         { ico: 'wifi', n: 'PAS 03', title: 'Envia', text: 'El resultat viatja per Wi-Fi fins a ThingSpeak, que guarda cada lectura i en manté tot l\'històric.' },
         { ico: 'shield', n: 'PAS 04', title: 'Avisa', text: "El panell web es refresca en temps real i dispara una alerta visible quan els tres llindars crítics es compleixen alhora." }
@@ -601,7 +596,7 @@ const { useState, useEffect, useRef, useLayoutEffect, useMemo, useCallback, forw
 
       const stats = [
         { num: 24, unit: 'h', label: 'Vigilància contínua', sub: 'Cada dia de l\'any, sense pauses' },
-        { num: 4, unit: '', label: 'Sensors ambientals', sub: 'Temperatura, humitat, vent i aire' },
+        { num: 4, unit: '', label: 'Paràmetres ambientals', sub: 'Temperatura, humitat, vent i pressió' },
         { num: 0, unit: 'W', label: 'Consum de xarxa', sub: 'Funciona només amb energia solar' },
         { num: 100, unit: '%', label: 'Dades obertes', sub: 'Consultables per qualsevol persona' }
       ];
@@ -1010,11 +1005,11 @@ const { useState, useEffect, useRef, useLayoutEffect, useMemo, useCallback, forw
                   <span>PLA DRIF</span>
                 </a>
                 <p>
-                  Estació autònoma de detecció de risc d'incendis forestals, instal·lada en una zona forestal de Sabadell.
+                  Estació autònoma de detecció de risc d'incendis forestals, desenvolupada i provada a Sabadell.
                   Treball de Recerca de 2n de Batxillerat.
                 </p>
                 <div className="footer-social">
-                  <a href="https://www.youtube.com/@PlaDRIF_Oficial" target="_blank" rel="noopener" aria-label="Canal de YouTube"><Icon name="youtube" size={19} /></a>
+                  <a href="https://www.youtube.com/@pladrif_cat" target="_blank" rel="noopener" aria-label="Canal de YouTube"><Icon name="youtube" size={19} /></a>
                   <a href="https://www.instagram.com/pladrif_cat" target="_blank" rel="noopener" aria-label="Instagram"><Icon name="instagram" size={19} /></a>
                   <a href="https://www.twitch.tv/pla_drif" target="_blank" rel="noopener" aria-label="Directe a Twitch"><Icon name="twitch" size={19} /></a>
                 </div>
@@ -1041,7 +1036,7 @@ const { useState, useEffect, useRef, useLayoutEffect, useMemo, useCallback, forw
               </div>
 
               <div className="footer-col">
-                <h5>Amb el suport de</h5>
+                <h5>Referències institucionals</h5>
                 <div className="footer-partners">
                   <div className="footer-partner-chip">
                     <img src="logo-sabadell.png" alt="Ajuntament de Sabadell" onError={(e) => { e.target.onerror = null; e.target.src = 'logo-sabadell.png.png'; }} />
